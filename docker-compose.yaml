@@ -52,13 +52,13 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /home/motoko/ft_transcendence/data/db
+      device: /home/yannick/42/ft_transcendence/data/db
       o: bind
   helloword_project:
     driver: local
     driver_opts:
       type: none
-      device: /home/motoko/ft_transcendence/helloworld
+      device: /home/yannick/42/ft_transcendence/helloworld
       o: bind
 
 networks:

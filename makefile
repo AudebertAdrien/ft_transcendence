@@ -2,7 +2,7 @@
 
 all: build
 	@echo "Building Docker images..."
-	sudo mkdir -p $$HOME/ft_transcendence/data/db
+	sudo mkdir -p $$PWD/data/db
 	sudo docker compose -f ./docker-compose.yaml up -d --build
 
 down:
@@ -15,7 +15,7 @@ clean:
     sudo docker rm $$(docker ps -qa);\
     sudo docker rmi $$(docker image ls -q);\
     sudo docker volume rm $$(docker volume ls -q);\
-	sudo rm -rf $$HOME/ft_transcendence/data/db ;\
+	sudo rm -rf $$PWd/data/db ;\
 
 logs:
 	@echo "Displaying Docker logs..."
