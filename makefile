@@ -1,24 +1,44 @@
-.PHONY: all build down clean logs
+COMPOSE_FILE=docker-compose.yaml
+COMPOSE=docker compose -f $(COMPOSE_FILE)
+CONTAINER=$(c)
 
-all: build
-	@echo "Building Docker images..."
-	sudo mkdir -p $$HOME/ft_transcendence/data/db
-	sudo docker compose -f ./docker-compose.yaml up -d --build
+up:
+	sudo mkdir -p $$PWD/data/db
+	$(COMPOSE) build 
+	$(COMPOSE) up -d $(CONTAINER)
+
+build:
+	$(COMPOSE) build $(CONTAINER)
+
+start:
+	$(COMPOSE) start $(CONTAINER)
+
+stop:
+	$(COMPOSE) stop $(CONTAINER)
 
 down:
-	@echo "Stopping Docker containers..."
-	sudo docker compose -f ./docker-compose.yaml down
+	$(COMPOSE) down $(CONTAINER)
 
-clean:
-	@echo "Cleaning up Docker resources..."
-	sudo docker stop $$(docker ps -qa);\
-    sudo docker rm $$(docker ps -qa);\
-    sudo docker rmi $$(docker image ls -q);\
-    sudo docker volume rm $$(docker volume ls -q);\
-	sudo rm -rf $$HOME/ft_transcendence/data/db ;\
+destroy:
+	$(COMPOSE) down -v --rmi all
+	sudo rm -rf $$PWD/data/db
 
 logs:
-	@echo "Displaying Docker logs..."
-	sudo docker compose logs -f
+	$(COMPOSE) logs -f $(CONTAINER)
 
-re:	down clean build 
+ps:
+	$(COMPOSE) ps
+
+help:
+	@echo "Usage:"
+	@echo "  make build [c=service]        # Build images"
+	@echo "  make up [c=service]           # Start containers in detached mode"
+	@echo "  make start [c=service]        # Start existing containers"
+	@echo "  make down [c=service]         # Stop and remove containers"
+	@echo "  make destroy				   # Stop and remove containers and volumes"
+	@echo "  make stop [c=service]         # Stop containers"
+	@echo "  make restart [c=service]      # Restart containers"
+	@echo "  make logs [c=service]         # Tail logs of containers"
+	@echo "  make ps                       # List containers"
+	@echo "  make help                     # Show this help"
+
