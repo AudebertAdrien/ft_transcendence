@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (result) {
                     registerForm.style.display = 'none';
                     gameContainer.style.display = 'flex';
-                    startGame();
+                    startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
                 }
