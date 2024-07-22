@@ -1,12 +1,15 @@
-FROM python:3.12.4
+FROM python:latest
 
-WORKDIR /ft_transcendence
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /transcendence
 
 RUN apt update && apt upgrade -y
 RUN apt install -y	vim 
 
 COPY requirements.txt .
-COPY manage.py .
 
 RUN python3 -m venv venv
 RUN venv/bin/pip3 install --upgrade pip
@@ -14,9 +17,10 @@ RUN venv/bin/pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-#RUN venv/bin/python3 manage.py migrate --noinput
-#RUN venv/bin/python manage.py collectstatic --noinput
+# Collect static files during the build
+RUN venv/bin/python manage.py collectstatic --noinput
 
-EXPOSE 8000
+EXPOSE 80
 
-CMD ["venv/bin/python", "manage.py", "runserver", "0.0.0.0:8000"]
+# CMD ["venv/bin/python", "manage.py", "runserver", "0.0.0.0:80"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "80", "pong.asgi:application"]
