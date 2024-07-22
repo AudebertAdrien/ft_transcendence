@@ -29,9 +29,10 @@ services:
     command: /bin/sh -c "sleep 5 &&
                          venv/bin/python manage.py makemigrations --noinput &&
                          venv/bin/python manage.py migrate --noinput && 
+                         venv/bin/python manage.py collectstatic --noinput &&
                          venv/bin/daphne -b 0.0.0.0 -p 80 pong.asgi:application"
     volumes:
-      - ./pong:/transcendence/pong
+      - pong:/transcendence/pong
     ports:
       - "80:80"
     depends_on:
@@ -53,6 +54,16 @@ services:
 volumes:
   postgres_data:
     driver: local
+    driver_opts:
+      type: none
+      device: ${POSTGRES_DATA_PATH}
+      o: bind
+  pong:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PROJECT_PATH}
+      o: bind
 
 networks:
   app-network:

@@ -1,8 +1,7 @@
+.gitignore
 .env
-
-# virtualenv
+docker-compose.yaml
+makefile
 venv/
-
 __pycache__
-
 data/
