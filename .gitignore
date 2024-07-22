@@ -1,7 +1,0 @@
-.gitignore
-.env
-docker-compose.yaml
-makefile
-venv/
-__pycache__
-data/
