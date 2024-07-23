@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleKeyDown(event) {
-        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === '+') {
             sendKeyPress(event.key.toLowerCase());
         }
     }

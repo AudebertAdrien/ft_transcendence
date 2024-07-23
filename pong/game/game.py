@@ -12,13 +12,14 @@ class Game:
         self.game_state = {
             'player1_name': player1.user.username,
             'player2_name': player2.user.username,
-            'player1_position': 200,  # middle of the game field
-            'player2_position': 200,
-            'ball_position': {'x': 400, 'y': 300},  # middle of the game field
+            'player1_position': 150,
+            'player2_position': 150,
+            'ball_position': {'x': 390, 'y': 190},
             'ball_velocity': {'x': random.choice([-5, 5]), 'y': random.choice([-5, 5])},
             'player1_score': 0,
             'player2_score': 0
         }
+        self.speed = 1
         self.game_loop_task = None
 
     async def start_game(self):
@@ -37,28 +38,48 @@ class Game:
         self.game_state['ball_position']['y'] += self.game_state['ball_velocity']['y']
 
         # Check for collisions with top and bottom walls
-        if self.game_state['ball_position']['y'] <= 0 or self.game_state['ball_position']['y'] >= 600:
+        if self.game_state['ball_position']['y'] <= 10 or self.game_state['ball_position']['y'] >= 390:
             self.game_state['ball_velocity']['y'] *= -1
 
         # Check for scoring
-        if self.game_state['ball_position']['x'] <= 0:
+        if self.game_state['ball_position']['x'] <= 10:
             self.game_state['player2_score'] += 1
             self.reset_ball()
-        elif self.game_state['ball_position']['x'] >= 800:
+        elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
             self.reset_ball()
 
         # Check for collisions with paddles
         if self.game_state['ball_position']['x'] <= 20 and \
-           self.game_state['player1_position'] - 50 <= self.game_state['ball_position']['y'] <= self.game_state['player1_position'] + 50:
+            self.game_state['player1_position'] <= self.game_state['ball_position']['y'] <= self.game_state['player1_position'] + 80:
+            self.update_ball_velocity()
             self.game_state['ball_velocity']['x'] *= -1
-        elif self.game_state['ball_position']['x'] >= 780 and \
-             self.game_state['player2_position'] - 50 <= self.game_state['ball_position']['y'] <= self.game_state['player2_position'] + 50:
+        elif self.game_state['ball_position']['x'] >= 760 and \
+            self.game_state['player2_position'] <= self.game_state['ball_position']['y'] <= self.game_state['player2_position'] + 80:
+            self.update_ball_velocity()
             self.game_state['ball_velocity']['x'] *= -1
 
     def reset_ball(self):
-        self.game_state['ball_position'] = {'x': 400, 'y': 300}
+        self.game_state['ball_position'] = {'x': 390, 'y': 190}
         self.game_state['ball_velocity'] = {'x': random.choice([-5, 5]), 'y': random.choice([-5, 5])}
+        self.speed = 1
+
+    def update_ball_velocity(self):
+        self.speed += 0.05
+        if self.speed > 2:
+            self.speed = 2
+        else:
+            print(f"Ball velocity: {self.speed}")
+        self.game_state['ball_velocity']['x'] *= self.speed
+        if self.game_state['ball_velocity']['x'] < -10:
+            self.game_state['ball_velocity']['x'] = -10
+        elif self.game_state['ball_velocity']['x'] > 10:
+            self.game_state['ball_velocity']['x'] = 10
+        self.game_state['ball_velocity']['y'] *= self.speed
+        if self.game_state['ball_velocity']['y'] < -10:
+            self.game_state['ball_velocity']['y'] = -10
+        elif self.game_state['ball_velocity']['y'] > 10:
+            self.game_state['ball_velocity']['y'] = 10
 
     async def send_game_state(self):
         message = json.dumps({
@@ -70,15 +91,15 @@ class Game:
 
     async def handle_key_press(self, player, key):
         if player == self.player1:
-            if key == 'arrowup' and self.game_state['player1_position'] > 0:
-                self.game_state['player1_position'] -= 10
-            elif key == 'arrowdown' and self.game_state['player1_position'] < 550:
-                self.game_state['player1_position'] += 10
+            if key == 'arrowup' and self.game_state['player1_position'] >= 25:
+                self.game_state['player1_position'] -= 25
+            elif key == 'arrowdown' and self.game_state['player1_position'] <= 275:
+                self.game_state['player1_position'] += 25
         elif player == self.player2:
-            if key == 'arrowup' and self.game_state['player2_position'] > 0:
-                self.game_state['player2_position'] -= 10
-            elif key == 'arrowdown' and self.game_state['player2_position'] < 550:
-                self.game_state['player2_position'] += 10
+            if key == 'arrowup' and self.game_state['player2_position'] >= 25:
+                self.game_state['player2_position'] -= 25
+            elif key == 'arrowdown' and self.game_state['player2_position'] <= 275:
+                self.game_state['player2_position'] += 25
 
     async def end_game(self):
         if self.game_loop_task:
