@@ -1,0 +1,8 @@
+.env
+
+# virtualenv
+venv/
+
+__pycache__/
+
+data/
