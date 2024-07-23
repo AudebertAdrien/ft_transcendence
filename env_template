@@ -1,7 +1,7 @@
 # Django settings
 SECRET_KEY=
 DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+DJANGO_ALLOWED_HOSTS=['*']
 
 # PostgreSQL settings
 POSTGRES_DB=
@@ -11,5 +11,5 @@ POSTGRES_PASSWORD=
 DB_HOST=db
 DB_PORT=5432
 
-PROJECT_PATH=${PWD}/helloworld
+PROJECT_PATH=${PWD}/pong
 POSTGRES_DATA_PATH=${PWD}/data/db
