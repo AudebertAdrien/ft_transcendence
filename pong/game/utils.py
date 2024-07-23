@@ -95,6 +95,12 @@ def player_statistics(request, player_name):
         'number of match played' : total_match
         'number of win (matches)' : total_win
         'pourcentage of victory' : p_win
+        'mean score per match' : m_score_match
+        'mean score adv per match' : m_score_adv_match
+        'best score' : best_score
+        'mean nbr ball touch' : m_nbr_ball_touch
+        'total duration played' : total_duration
+        'mean duration per match' : m_duration
         'num_participated_tournaments': num_participated_tournaments,
         'num_won_tournaments': num_won_tournaments
     }
