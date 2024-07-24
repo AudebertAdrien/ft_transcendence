@@ -2,12 +2,12 @@ COMPOSE_FILE=docker-compose.yaml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
-up:
+up: down
 	sudo mkdir -p data/db
 	$(COMPOSE) build 
 	$(COMPOSE) up $(CONTAINER)
 
-build:
+build: 
 	$(COMPOSE) build $(CONTAINER)
 
 start:
