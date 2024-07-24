@@ -3,7 +3,7 @@ COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
 up:
-	sudo mkdir -p $$PWD/data/db
+	sudo mkdir -p data/db
 	$(COMPOSE) build 
 	$(COMPOSE) up $(CONTAINER)
 
@@ -21,7 +21,7 @@ down:
 
 destroy:
 	$(COMPOSE) down -v --rmi all
-	sudo rm -rf $$PWD/data/db
+	sudo rm -rf data
 	#sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	#sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
