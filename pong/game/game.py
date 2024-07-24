@@ -91,15 +91,23 @@ class Game:
 
     async def handle_key_press(self, player, key):
         if player == self.player1:
-            if key == 'arrowup' and self.game_state['player1_position'] >= 25:
+            if key == 'arrowup':
                 self.game_state['player1_position'] -= 25
-            elif key == 'arrowdown' and self.game_state['player1_position'] <= 275:
+                if self.game_state['player1_position'] < 0:
+                    self.game_state['player1_position'] = 0
+            elif key == 'arrowdown':
                 self.game_state['player1_position'] += 25
+                if self.game_state['player1_position'] > 300:
+                    self.game_state['player1_position'] = 300
         elif player == self.player2:
-            if key == 'arrowup' and self.game_state['player2_position'] >= 25:
+            if key == 'arrowup':
                 self.game_state['player2_position'] -= 25
-            elif key == 'arrowdown' and self.game_state['player2_position'] <= 275:
+                if self.game_state['player2_position'] < 0:
+                    self.game_state['player2_position'] = 0
+            elif key == 'arrowdown':
                 self.game_state['player2_position'] += 25
+                if self.game_state['player2_position'] > 300:
+                    self.game_state['player2_position'] = 300
 
     async def end_game(self):
         if self.game_loop_task:
