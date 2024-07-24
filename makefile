@@ -31,6 +31,8 @@ logs:
 ps:
 	$(COMPOSE) ps
 
+re: destroy up
+
 help:
 	@echo "Usage:"
 	@echo "  make build [c=service]        # Build images"

@@ -1,33 +1,69 @@
-from myapp.models import Player, Tournoi, Match
+from .models import Player, Tournoi, Match
 from django.core.exceptions import ValidationError
 
-def create_player(name):
-    player = Player(name=name)
+def create_player(
+    name, 
+    total_match=0, 
+    total_win=0, 
+    p_win= None, 
+    m_score_match= None, 
+    m_score_adv_match= None, 
+    best_score=0, 
+    m_nbr_ball_touch= None, 
+    total_duration= None, 
+    m_duration= None, 
+    num_participated_tournaments=0, 
+    num_won_tournaments=0
+):
+    if Player.objects.filter(name=name).exists():
+        raise ValueError(f"A player with the name '{name}' already exists.")
+
+    player = Player(
+        name=name,
+        total_match  = total_match,
+        total_win = total_win,
+        p_win = p_win,
+        m_score_match = m_score_match,
+        m_score_adv_match = m_score_adv_match,
+        best_score = best_score,
+        m_nbr_ball_touch = m_nbr_ball_touch,
+        total_duration = total_duration,
+        m_duration = m_duration,
+        num_participated_tournaments = num_participated_tournaments,
+        num_won_tournaments = num_won_tournaments
+    )
     player.save()
     return player
 
-def create_tournoi(name, nbr_player, date, winner=None):
+def create_tournoi(name, nbr_player, date, winner):
     tournoi = Tournoi(name=name, nbr_player=nbr_player, date=date, winner=winner)
     tournoi.save()
     return tournoi
 
-def create_match(player1, player2, score_player1=0, score_player2=0, winner=None, nbr_ball_touch_p1=0, nbr_ball_touch_p2=0, duration=None, is_tournoi=False, tournoi=None):
+def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration, is_tournoi, tournoi):
     match = Match(
         player1=player1,
         player2=player2,
         score_player1=score_player1,
         score_player2=score_player2,
-        winner=winner,
         nbr_ball_touch_p1=nbr_ball_touch_p1,
         nbr_ball_touch_p2=nbr_ball_touch_p2,
         duration=duration,
         is_tournoi=is_tournoi,
         tournoi=tournoi
     )
+
+    if score_player1 > score_player2:
+        match.winner = match.player1
+    elif score_player2 > score_player1:
+        match.winner = match.player2
+    else:
+        match.winner = None
+    
     match.save()
     return match
 
-def complete_match(match_id, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration):
+""" def complete_match(match_id, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration):
     try:
         match = Match.objects.get(id=match_id)
     except Match.DoesNotExist:
@@ -47,9 +83,9 @@ def complete_match(match_id, score_player1, score_player2, nbr_ball_touch_p1, nb
         match.winner = None
 
     match.save()
-    return match
+    return match """
 
-def complete_tournoi(tournoi_id, player):
+""" def complete_tournoi(tournoi_id, player):
     try:
         tournoi = Tournoi.objects.get(id = tournoi_id)
     except Tournoi.DoesNotExist:
@@ -57,7 +93,7 @@ def complete_tournoi(tournoi_id, player):
     
     tournoi.winner = player
     tournoi.save()
-    return tournoi
+    return tournoi """
 
 def player_statistics(request, player_name):
     player = get_object_or_404(Player, nam = player_name)
@@ -92,15 +128,15 @@ def player_statistics(request, player_name):
 
     data = {
         'player_name': player.name,
-        'number of match played' : total_match
-        'number of win (matches)' : total_win
-        'pourcentage of victory' : p_win
-        'mean score per match' : m_score_match
-        'mean score adv per match' : m_score_adv_match
-        'best score' : best_score
-        'mean nbr ball touch' : m_nbr_ball_touch
-        'total duration played' : total_duration
-        'mean duration per match' : m_duration
+        'number of match played' : total_match,
+        'number of win (matches)' : total_win,
+        'pourcentage of victory' : p_win,
+        'mean score per match' : m_score_match,
+        'mean score adv per match' : m_score_adv_match,
+        'best score' : best_score,
+        'mean nbr ball touch' : m_nbr_ball_touch,
+        'total duration played' : total_duration,
+        'mean duration per match' : m_duration,
         'num_participated_tournaments': num_participated_tournaments,
         'num_won_tournaments': num_won_tournaments
     }
