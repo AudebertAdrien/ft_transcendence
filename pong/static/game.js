@@ -170,6 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 startGame(data.game_id, data.player1, data.player2);
             } else if (data.type === 'game_state_update') {
                 updateGameState(data.game_state);
+            } else if (data.type === 'player_disconnected') {
+                console.log("Player disconnected:", data.player);
+            } else if (data.type === 'game_ended') {
+                console.log("Game ended:", data.game_id);
             } else if (data.type === 'error') {
                 console.error(data.message);
             } else {

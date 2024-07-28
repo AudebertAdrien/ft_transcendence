@@ -22,9 +22,10 @@ class Game:
         }
         self.speed = 1
         self.game_loop_task = None
+        self.ended = False
 
     async def start_game(self):
-        print(f"- Game {self.game_id} START")
+        print(f"- Game #{self.game_id} STARTED")
         self.game_loop_task = asyncio.create_task(self.game_loop())
 
     async def game_loop(self):
@@ -35,7 +36,6 @@ class Game:
             await self.send_game_state()
             await asyncio.sleep(1/60)  # Around 60 FPS
 
-    # The amazing AI BOT player
     async def update_bot_position(self):
         target_y = self.game_state['ball_position']['y']
         if self.game_state['player2_position'] < target_y < self.game_state['player2_position'] + 80:
@@ -69,7 +69,6 @@ class Game:
             self.reset_ball()
         elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
-            print(f"*** Ball in position ({self.game_state['ball_position']['x']},{self.game_state['ball_position']['y']}) with a speed ratio of {self.speed}")
             self.reset_ball()
 
     def reset_ball(self):
@@ -93,6 +92,8 @@ class Game:
             self.game_state['ball_velocity']['y'] = 10
 
     async def send_game_state(self):
+        if self.ended:
+            return
         message = json.dumps({
             'type': 'game_state_update',
             'game_state': self.game_state
@@ -102,26 +103,40 @@ class Game:
             await self.player2.send(message)
 
     async def handle_key_press(self, player, key):
+        if self.ended:
+            return
         if player == self.player1:
             if key == 'arrowup':
-                self.game_state['player1_position'] -= 25
-                if self.game_state['player1_position'] < 0:
-                    self.game_state['player1_position'] = 0
+                self.game_state['player1_position'] = max(self.game_state['player1_position'] - 25, 0)
             elif key == 'arrowdown':
-                self.game_state['player1_position'] += 25
-                if self.game_state['player1_position'] > 300:
-                    self.game_state['player1_position'] = 300
+                self.game_state['player1_position'] = min(self.game_state['player1_position'] + 25, 300)
         elif not self.botgame and player == self.player2:
             if key == 'arrowup':
-                self.game_state['player2_position'] -= 25
-                if self.game_state['player2_position'] < 0:
-                    self.game_state['player2_position'] = 0
+                self.game_state['player2_position'] = max(self.game_state['player2_position'] - 25, 0)
             elif key == 'arrowdown':
-                self.game_state['player2_position'] += 25
-                if self.game_state['player2_position'] > 300:
-                    self.game_state['player2_position'] = 300
+                self.game_state['player2_position'] = min(self.game_state['player2_position'] + 25, 300)
 
-    async def end_game(self):
-        if self.game_loop_task:
-            self.game_loop_task.cancel()
-        # Add any cleanup code here
+    async def end_game(self, disconnected_player=None):
+        if not self.ended:
+            self.ended = True
+            if self.game_loop_task:
+                self.game_loop_task.cancel()            
+            print(f"- Game #{self.game_id} ENDED")
+            # Notify that one player left the game      
+            if disconnected_player:
+                remaining_player = self.player2 if disconnected_player == self.player1 else self.player1
+                disconnected_name = disconnected_player.user.username
+                message = json.dumps({
+                    'type': 'player_disconnected',
+                    'player': disconnected_name
+                })
+                if not self.botgame:
+                    await remaining_player.send(message)            
+            # Notify both players that the game has ended
+            end_message = json.dumps({
+                'type': 'game_ended',
+                'game_id': self.game_id
+            })
+            await self.player1.send(end_message)
+            if not self.botgame:
+                await self.player2.send(end_message)
