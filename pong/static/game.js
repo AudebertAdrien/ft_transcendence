@@ -140,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
+                    //await createPlayer(nickname);
                     registerForm.style.display = 'none';
                     gameContainer.style.display = 'flex';
                     startWebSocketConnection(token);
