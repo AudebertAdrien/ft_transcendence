@@ -15,6 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let token;
     let gameState;
 
+    // Auto-focus and key handling for AUTH-FORM
+    nicknameInput.focus();
+    nicknameInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            checkNicknameButton.click();
+        }
+    });
+
     checkNicknameButton.addEventListener('click', handleCheckNickname);
     registerButton.addEventListener('click', handleRegister);
     loginButton.addEventListener('click', handleLogin);
@@ -107,9 +116,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (exists) {
                     authForm.style.display = 'none';
                     loginForm.style.display = 'block';
+                    // Auto-focus and key handling for LOGIN-FORM
+                    loginPasswordInput.focus();
+                    loginPasswordInput.addEventListener('keypress', function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            loginButton.click();
+                        }
+                    });                    
                 } else {
                     authForm.style.display = 'none';
                     registerForm.style.display = 'block';
+                    // Auto-focus and key handling for REGISTER-FORM
+                    passwordInput.focus();
+                    passwordInput.addEventListener('keypress', function(event) {
+                        if (event.key === 'Enter') {
+                            confirmPasswordInput.focus();
+                            confirmPasswordInput.addEventListener('keypress', function(event) {
+                                if (event.key === 'Enter') {
+                                    event.preventDefault();
+                                    registerButton.click();
+                                }
+                            });        
+                        }
+                    });                    
                 }
             } catch (error) {
                 console.error('Error checking user existence:', error);
@@ -215,12 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.type === 'authenticated') {
                 console.log('Authentication successful');
             } else if (data.type === 'waiting_room') {
-                console.log('Entered the waiting room');
+                console.log('Entered the WAITING ROOM');
             } else if (data.type === 'game_start') {
                 console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
                 startGame(data.game_id, data.player1, data.player2);
             } else if (data.type === 'game_state_update') {
                 updateGameState(data.game_state);
+            } else if (data.type === 'player_disconnected') {
+                console.log("Player disconnected:", data.player);
+            } else if (data.type === 'game_ended') {
+                console.log("Game ended:", data.game_id);
             } else if (data.type === 'error') {
                 console.error(data.message);
             } else {
