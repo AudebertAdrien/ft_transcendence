@@ -1,15 +1,17 @@
 /* General styles */
-body {
+body, html {
     font-family: Arial, sans-serif;
-    color: #ffffff;
-    background-color: #000000;
+    color: #00ffff;
+    background-color: #0a0a2a;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
+    overflow: hidden;
+
 }
 
 label {
@@ -110,4 +112,112 @@ button {
     background-color: #ff0000;
     border-radius: 50%;
     position: absolute;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 3rem;
+    color: #00ffff;
+    text-shadow: 0 0 15px #00ffff;
+    z-index: 20;
+}
+
+.stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.star {
+    position: absolute;
+    background-color: #ffffff;
+    border-radius: 50%;
+    animation: twinkle 2s infinite alternate;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.pong-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.paddle {
+    position: absolute;
+    width: 20px;
+    height: 100px;
+    background-color: #00ffff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #00ffff;
+}
+
+.paddle-left {
+    left: 50px;
+    animation: paddleMove 5s infinite alternate ease-in-out;
+}
+
+.paddle-right {
+    right: 50px;
+    animation: paddleMove 4s infinite alternate-reverse ease-in-out;
+}
+
+.ball_anim {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #00ffff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #00ffff;
+    left: 80px;
+    top: 50%;
+    transform-style: preserve-3d;
+    animation: ballMove 3s linear infinite;
+}
+
+@keyframes paddleMove {
+    0% { transform: translateY(10vh); }
+    100% { transform: translateY(70vh); }
+}
+
+@keyframes ballMove {
+    0% {
+        transform: translateZ(0) scale(1);
+    }
+    50% {
+        transform: translateZ(-500px) scale(0.5);
+    }
+    100% {
+        transform: translateZ(0) scale(1);
+    }
+}
+
+.input-container {
+    margin-bottom: 2rem;
+}
+
+.container {
+    text-align: center;
+    background-color: rgba(0, 0, 40, 0.8);
+    padding: 3rem;
+    border-radius: 15px;
+    border: 3px solid #00ffff;
+    box-shadow: 0 0 30px #00ffff, inset 0 0 20px #00ffff;
+    position: relative;
+    z-index: 10;
+    max-width: 80%;
 }
