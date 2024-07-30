@@ -22,8 +22,8 @@ down:
 destroy:
 	$(COMPOSE) down -v --rmi all
 	sudo rm -rf $$PWD/data/db
-	#sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
-	#sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
 logs:
 	$(COMPOSE) logs -f $(CONTAINER)
