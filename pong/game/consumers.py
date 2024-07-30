@@ -4,20 +4,23 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
-from .matchmaking import match_maker  # Import the match_maker instance
+from .matchmaking import match_maker
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
+        self.game = None
         print("User connected")
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        #print(f"MESSAGE RECEIVED: {data['type']}")
         if data['type'] == 'authenticate':
             await self.authenticate(data['token'])
         elif data['type'] == 'key_press':
-            await match_maker.handle_key_press(self, data['key'])
+            if self.game:
+                await self.game.handle_key_press(self, data['key'])
+            else:
+                await match_maker.handle_key_press(self, data['key'])
 
     async def authenticate(self, token):
         user = await self.get_user_from_token(token)
@@ -43,5 +46,10 @@ class GameConsumer(AsyncWebsocketConsumer):
         await match_maker.add_player(self)
 
     async def disconnect(self, close_code):
+        if self.game:
+            await self.game.end_game(disconnected_player=self)
         await match_maker.remove_player(self)
-        print(f"User {self.user} disconnected")
+        print(f"User {self.user.username if hasattr(self, 'user') else 'Unknown'} disconnected")
+
+    async def set_game(self, game):
+        self.game = game
