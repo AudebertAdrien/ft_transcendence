@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,42 +10,42 @@
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-    <div class="background">
-        <div class="stars" id="stars"></div>
-    </div>
-</div>
-<div class="pong-elements">
-    <div class="paddle paddle-left"></div>
-    <div class="paddle paddle-right"></div>
-    <div class="ball_anim"></div>
-</div>
+
 </head>
+
 <body>
     <div class="background">
         <div class="stars" id="stars"></div>
     </div>
-</div>
-<div class="container">
-    <h1>BIENVENUE DANS LE PONG 42</h1>
-    <div class="input-container">
-    <div id="auth-form">
-        <label for="nickname">Enter your nickname:</label>
-        <input type="text" id="nickname" name="nickname">
-        <button id="check-nickname">Check Nickname</button>
+    <div class="pong-elements">
+        <div class="paddle paddle-left"></div>
+        <div class="paddle paddle-right"></div>
+        <div class="ball_anim"></div>
     </div>
-    <div id="register-form" style="display: none;">
-        <label for="password">Enter your password:</label>
-        <input type="password" id="password" name="password">
-        <label for="confirm-password">Confirm your password:</label>
-        <input type="password" id="confirm-password" name="confirm-password">
-        <button id="register">Register</button>
+
+    <div class="container" id="block-form">
+        <h1>BIENVENUE DANS LE PONG 42</h1>
+        <div class="input-container">
+            <div id="auth-form">
+                <label for="nickname">Enter your nickname:</label>
+                <input type="text" id="nickname" name="nickname">
+                <button id="check-nickname">Check Nickname</button>
+            </div>
+            <div id="register-form" style="display: none;">
+                <label for="password">Enter your password:</label>
+                <input type="password" id="password" name="password">
+                <label for="confirm-password">Confirm your password:</label>
+                <input type="password" id="confirm-password" name="confirm-password">
+                <button id="register">Register</button>
+            </div>
+            <div id="login-form" style="display: none;">
+                <label for="login-password">Enter your password:</label>
+                <input type="password" id="login-password" name="login-password">
+                <button id="login">Login</button>
+            </div>
+        </div>
     </div>
-    <div id="login-form" style="display: none;">
-        <label for="login-password">Enter your password:</label>
-        <input type="password" id="login-password" name="login-password">
-        <button id="login">Login</button>
-    </div>
-</div>
+
     <div id="game1" style="display: none;">
         <div id="gameCode" class="game-code">Game Code : </div>
         <div id="player1-name" class="name">Player 1</div>
@@ -60,18 +61,19 @@
     <script src="{% static 'game.js' %}"></script>
     <script>
         const starsContainer = document.getElementById('stars');
-         for (let i = 0; i < 500; i++) {
-                const star = document.createElement('div');
-             star.className = 'star';
-             star.style.width = `${Math.random() * 3}px`;
-             star.style.height = star.style.width;
-             star.style.left = `${Math.random() * 100}%`;
-             star.style.top = `${Math.random() * 100}%`;
-             star.style.animationDuration = `${Math.random() * 2 + 1}s`;
-             starsContainer.appendChild(star);
+        for (let i = 0; i < 500; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = `${Math.random() * 3}px`;
+            star.style.height = star.style.width;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animationDuration = `${Math.random() * 2 + 1}s`;
+            starsContainer.appendChild(star);
         }
-       
-setInterval(createTrail, 100);
+
+        setInterval(createTrail, 100);
     </script>
 </body>
+
 </html>

@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginPasswordInput = document.getElementById('login-password');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
+    const formBlock = document.getElementById('block-form');
+
 
     let socket;
     let token;
@@ -17,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
-    nicknameInput.addEventListener('keypress', function(event) {
+    nicknameInput.addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             event.preventDefault();
             checkNicknameButton.click();
@@ -52,15 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     num_won_tournaments: numWonTournaments
                 })
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Network response was not ok');
             }
-    
+
             const data = await response.json();
             return data;
-    
+
         } catch (error) {
             // Afficher l'erreur avec un message plus spécifique
             console.error('Error creating player:', error.message);
@@ -118,28 +120,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     loginForm.style.display = 'block';
                     // Auto-focus and key handling for LOGIN-FORM
                     loginPasswordInput.focus();
-                    loginPasswordInput.addEventListener('keypress', function(event) {
+                    loginPasswordInput.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
                             event.preventDefault();
                             loginButton.click();
                         }
-                    });                    
+                    });
                 } else {
                     authForm.style.display = 'none';
                     registerForm.style.display = 'block';
                     // Auto-focus and key handling for REGISTER-FORM
                     passwordInput.focus();
-                    passwordInput.addEventListener('keypress', function(event) {
+                    passwordInput.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
                             confirmPasswordInput.focus();
-                            confirmPasswordInput.addEventListener('keypress', function(event) {
+                            confirmPasswordInput.addEventListener('keypress', function (event) {
                                 if (event.key === 'Enter') {
                                     event.preventDefault();
                                     registerButton.click();
                                 }
-                            });        
+                            });
                         }
-                    });                    
+                    });
                 }
             } catch (error) {
                 console.error('Error checking user existence:', error);
@@ -173,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     //await createPlayer(nickname);
                     registerForm.style.display = 'none';
                     gameContainer.style.display = 'flex';
+                    formBlock.style.display = 'none';
                     startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
@@ -208,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result) {
                 loginForm.style.display = 'none';
                 gameContainer.style.display = 'flex';
+                formBlock.style.display = 'none';
                 startWebSocketConnection(token);
             } else {
                 alert('Authentication failed. Please try again.');
