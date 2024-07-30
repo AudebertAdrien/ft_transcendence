@@ -39,6 +39,12 @@ button {
     letter-spacing: 2px;
 }
 
+button:hover {
+    background-color: #000033;
+    color: #00ffff;
+    box-shadow: 0 0 20px #00ffff;
+}
+
 #game1 {
     width: 810px;
     height: 500px;
