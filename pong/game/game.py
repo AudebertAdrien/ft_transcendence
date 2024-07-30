@@ -140,3 +140,4 @@ class Game:
             await self.player1.send(end_message)
             if not self.botgame:
                 await self.player2.send(end_message)
+            #endfortheouche(p1, p2, s_p1, s_p2, winner, bt_p1, bt_p2, dur, is_tournoi, name_tournament)

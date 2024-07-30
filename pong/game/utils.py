@@ -4,6 +4,23 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Max, Sum, F
 from datetime import timedelta
 
+def endfortheouche(p1, p2, s_p1, s_p2, winner, bt_p1, bt_p2, dur, is_tournoi, name_tournament) :
+    #If he doesn't exist, create player p1
+    if not Player.objects.filter(name=p1).exist():
+        create_player(p1)
+
+    #If he doesn't exist, create player p2
+    if not Player.objects.filter(name=p2).exist():
+        create_player(p2)
+    
+    #create Match
+    create_match(p1, p2, s_p1, s_p2, bt_p1, bt_p2, dur, is_tournoi, name_tournamenttournoi)
+
+    #Update data p1 et p2
+    uptdate_player_statistics(p1)
+    uptdate_player_statistics(p2)
+
+
 def create_player(
     name, 
     total_match=0, 
@@ -67,7 +84,7 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
     return match
 
 
-def player_statistics(player_name):
+def uptdate_player_statistics(player_name):
     player = get_object_or_404(Player, name=player_name)
 
     # Filtrer les matchs où le joueur est joueur 1 ou joueur 2
@@ -118,10 +135,10 @@ def player_statistics(player_name):
     total_duration += matches_as_player2.aggregate(Sum('duration'))['duration__sum'] or timedelta()
     m_duration = total_duration / total_match
 
-    total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
+    """ total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
     total_win_tourn = won_tourn.count()
     p_win_tourn = (total_win_tourn / total_tourn_p) * 100 if total_tourn_p else 0
-
+ """
     best_score_as_player1 = matches_as_player1.aggregate(Max('score_player1'))['score_player1__max'] or 0
     best_score_as_player2 = matches_as_player2.aggregate(Max('score_player2'))['score_player2__max'] or 0
     best_score = max(best_score_as_player1, best_score_as_player2)
@@ -136,8 +153,8 @@ def player_statistics(player_name):
     player.m_nbr_ball_touch = m_nbr_ball_touch
     player.total_duration = total_duration
     player.m_duration = m_duration
-    player.num_participated_tournaments = total_tourn_p
-    player.num_won_tournaments = total_win_tourn
+    """ player.num_participated_tournaments = total_tourn_p
+    player.num_won_tournaments = total_win_tourn """
 
     player.save()
 
