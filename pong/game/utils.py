@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.db.models import Max, Sum, F
 from datetime import timedelta
+<<<<<<< HEAD
 
 def endfortheouche(p1, p2, s_p1, s_p2, winner, bt_p1, bt_p2, dur, is_tournoi, name_tournament) :
     #If he doesn't exist, create player p1
@@ -21,6 +22,31 @@ def endfortheouche(p1, p2, s_p1, s_p2, winner, bt_p1, bt_p2, dur, is_tournoi, na
     uptdate_player_statistics(p2)
 
 
+=======
+from channels.db import database_sync_to_async
+
+async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
+    # Check if player p1 exists, if not create
+    if not await database_sync_to_async(Player.objects.filter(name=p1).exists)():
+        player_1 = await create_player(p1)
+    else:
+        player_1 = await database_sync_to_async(Player.objects.get)(name=p1)
+
+    # Check if player p2 exists, if not create
+    if not await database_sync_to_async(Player.objects.filter(name=p2).exists)():
+        player_2 = await create_player(p2)
+    else:
+        player_2 = await database_sync_to_async(Player.objects.get)(name=p2)
+    
+    # create Match
+    await create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
+
+    # Update data p1 et p2
+    await uptdate_player_statistics(p1)
+    await uptdate_player_statistics(p2)
+
+@database_sync_to_async
+>>>>>>> 067f24f5b87b0db75b90d5a86f47b30d1509ba99
 def create_player(
     name, 
     total_match=0, 
@@ -55,11 +81,13 @@ def create_player(
     player.save()
     return player
 
+@database_sync_to_async
 def create_tournoi(name, nbr_player, date, winner):
     tournoi = Tournoi(name=name, nbr_player=nbr_player, date=date, winner=winner)
     tournoi.save()
     return tournoi
 
+@database_sync_to_async
 def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration, is_tournoi, tournoi):
     match = Match(
         player1=player1,
@@ -83,7 +111,7 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
     match.save()
     return match
 
-
+@database_sync_to_async
 def uptdate_player_statistics(player_name):
     player = get_object_or_404(Player, name=player_name)
 
@@ -103,8 +131,8 @@ def uptdate_player_statistics(player_name):
         player.m_score_adv_match = 0
         player.best_score = 0
         player.m_nbr_ball_touch = 0
-        player.total_duration = timedelta()
-        player.m_duration = timedelta()
+        player.total_duration = 0
+        player.m_duration = 0
         player.num_participated_tournaments = 0
         player.num_won_tournaments = 0
         player.save()
@@ -131,8 +159,8 @@ def uptdate_player_statistics(player_name):
     nbr_ball_touch += matches_as_player2.aggregate(Sum('nbr_ball_touch_p2'))['nbr_ball_touch_p2__sum'] or 0
     m_nbr_ball_touch = nbr_ball_touch / total_match
 
-    total_duration = matches_as_player1.aggregate(Sum('duration'))['duration__sum'] or timedelta()
-    total_duration += matches_as_player2.aggregate(Sum('duration'))['duration__sum'] or timedelta()
+    total_duration = matches_as_player1.aggregate(Sum('duration'))['duration__sum'] 
+    total_duration += matches_as_player2.aggregate(Sum('duration'))['duration__sum'] 
     m_duration = total_duration / total_match
 
     """ total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
@@ -193,4 +221,3 @@ def uptdate_player_statistics(player_name):
 
 
     
-

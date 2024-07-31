@@ -2,6 +2,9 @@
 
 from django.shortcuts import render
 
+def index(request):
+    return render(request, 'index.html')
+
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Player, Tournoi, Match
 from .utils import create_player, create_tournoi, create_match

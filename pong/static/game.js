@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function checkUserExists(username) {
-        const response = await fetch('/api/check_user_exists/', {
+        const response = await fetch('/check_user_exists/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function registerUser(username, password) {
-        const response = await fetch('/api/register_user/', {
+        const response = await fetch('/register_user/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function authenticateUser(username, password) {
-        const response = await fetch('/api/authenticate_user/', {
+        const response = await fetch('/authenticate_user/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

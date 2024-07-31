@@ -40,7 +40,7 @@ class Match(models.Model):
     winner = models.ForeignKey('Player', related_name='won_matches',on_delete=models.CASCADE)
     nbr_ball_touch_p1 = models.PositiveIntegerField()
     nbr_ball_touch_p2 = models.PositiveIntegerField()
-    duration = models.DurationField()
+    duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     date = models.DateField(auto_now_add=True)
     is_tournoi = models.BooleanField()
     tournoi = models.ForeignKey('Tournoi', related_name='matches', on_delete=models.SET_NULL, null=True)
@@ -55,7 +55,7 @@ class Match(models.Model):
         super().clean()
 
     def save(self, *args, **kwargs):
-        self.full_clean()  # Appel de la méthode clean() avant d'enregistrer
+        self.clean()  # Appel de la méthode clean() avant d'enregistrer
         super().save(*args, **kwargs)
 
     def __str__(self):
