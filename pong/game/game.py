@@ -3,6 +3,7 @@
 import json
 import asyncio
 import random
+from .utils import endfortheouche
 
 class Game:
     def __init__(self, game_id, player1, player2):
@@ -23,6 +24,10 @@ class Game:
         self.speed = 1
         self.game_loop_task = None
         self.ended = False
+        self.p1_mov = 0
+        self.p2_mov = 0
+        self.bt1 = 0
+        self.bt2 = 0
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED")
@@ -32,6 +37,7 @@ class Game:
         while True:
             if self.botgame:
                 await self.update_bot_position()
+            await self.handle_pad_movement()
             self.update_game_state()
             await self.send_game_state()
             await asyncio.sleep(1/60)  # Around 60 FPS
@@ -57,11 +63,13 @@ class Game:
             self.game_state['player1_position'] - 10 <= self.game_state['ball_position']['y'] <= self.game_state['player1_position'] + 90:
             if self.game_state['ball_velocity']['x'] < 0:
                 self.game_state['ball_velocity']['x'] *= -1
+                self.bt1 += 1
             self.update_ball_velocity()
         elif self.game_state['ball_position']['x'] >= 760 and \
             self.game_state['player2_position'] - 10 <= self.game_state['ball_position']['y'] <= self.game_state['player2_position'] + 90:
             if self.game_state['ball_velocity']['x'] > 0:
                 self.game_state['ball_velocity']['x'] *= -1
+                self.bt2 += 1
             self.update_ball_velocity()
         # Check for scoring
         if self.game_state['ball_position']['x'] <= 10:
@@ -107,14 +115,30 @@ class Game:
             return
         if player == self.player1:
             if key == 'arrowup':
-                self.game_state['player1_position'] = max(self.game_state['player1_position'] - 25, 0)
+                self.p1_mov = -1
+                #self.game_state['player1_position'] = max(self.game_state['player1_position'] - 25, 0)
             elif key == 'arrowdown':
-                self.game_state['player1_position'] = min(self.game_state['player1_position'] + 25, 300)
+                self.p1_mov = 1
+                #self.game_state['player1_position'] = min(self.game_state['player1_position'] + 25, 300)
         elif not self.botgame and player == self.player2:
             if key == 'arrowup':
-                self.game_state['player2_position'] = max(self.game_state['player2_position'] - 25, 0)
+                self.p2_mov = -1
+                #self.game_state['player2_position'] = max(self.game_state['player2_position'] - 25, 0)
             elif key == 'arrowdown':
-                self.game_state['player2_position'] = min(self.game_state['player2_position'] + 25, 300)
+                self.p2_mov = 1
+                #self.game_state['player2_position'] = min(self.game_state['player2_position'] + 25, 300)
+
+    async def handle_pad_movement(self):
+        #print(f"P1 mov: {self.p1_mov}")
+        #print(f"P2 mov: {self.p2_mov}")
+        if self.p1_mov == -1:
+            self.game_state['player1_position'] = max(self.game_state['player1_position'] - (5 * self.speed), 0)
+        elif self.p1_mov == 1:
+            self.game_state['player1_position'] = min(self.game_state['player1_position'] + (5 * self.speed), 300)
+        if self.p2_mov == -1:
+            self.game_state['player2_position'] = max(self.game_state['player2_position'] - (5 * self.speed), 0)
+        elif self.p2_mov == 1:
+            self.game_state['player2_position'] = min(self.game_state['player2_position'] + (5 * self.speed), 300)
 
     async def end_game(self, disconnected_player=None):
         if not self.ended:
@@ -140,3 +164,22 @@ class Game:
             await self.player1.send(end_message)
             if not self.botgame:
                 await self.player2.send(end_message)
+            await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
+                           self.game_state['player1_score'], self.game_state['player2_score'],
+                           self.bt1, self.bt2, 42, False, None)
+
+### pour Theo ###
+# nickname player1
+# nickname player2
+# score p1
+# score p2
+# winner
+# ball touch p1
+# ball touch p2
+# match time
+# match type: 'quick match'
+
+# match type: 'tournament'
+#              -> tournament id
+
+#endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_p2, dur, is_tournoi, name_tournament)
