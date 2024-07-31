@@ -3,26 +3,6 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.db.models import Max, Sum, F
 from datetime import timedelta
-<<<<<<< HEAD
-
-def endfortheouche(p1, p2, s_p1, s_p2, winner, bt_p1, bt_p2, dur, is_tournoi, name_tournament) :
-    #If he doesn't exist, create player p1
-    if not Player.objects.filter(name=p1).exist():
-        create_player(p1)
-
-    #If he doesn't exist, create player p2
-    if not Player.objects.filter(name=p2).exist():
-        create_player(p2)
-    
-    #create Match
-    create_match(p1, p2, s_p1, s_p2, bt_p1, bt_p2, dur, is_tournoi, name_tournamenttournoi)
-
-    #Update data p1 et p2
-    uptdate_player_statistics(p1)
-    uptdate_player_statistics(p2)
-
-
-=======
 from channels.db import database_sync_to_async
 
 async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
@@ -46,7 +26,6 @@ async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_
     await uptdate_player_statistics(p2)
 
 @database_sync_to_async
->>>>>>> 067f24f5b87b0db75b90d5a86f47b30d1509ba99
 def create_player(
     name, 
     total_match=0, 
