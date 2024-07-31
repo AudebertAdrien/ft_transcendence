@@ -46,4 +46,3 @@ help:
 	@echo "  make logs [c=service]         # Tail logs of containers"
 	@echo "  make ps                       # List containers"
 	@echo "  make help                     # Show this help"
-

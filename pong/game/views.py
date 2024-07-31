@@ -2,9 +2,12 @@
 
 from django.shortcuts import render
 
+<<<<<<< HEAD
 def index(request):
     return render(request, 'index.html')
 
+=======
+>>>>>>> f31331d344927dfd9bca940943bdba9a4d79a2b4
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Player, Tournoi, Match
 from .utils import create_player, create_tournoi, create_match
@@ -14,6 +17,11 @@ from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 import json
 import uuid
+
+
+def index(request):
+    return render(request, 'index.html')
+
 
 @csrf_exempt
 def register_user(request):
