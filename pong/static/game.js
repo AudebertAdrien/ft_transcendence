@@ -10,14 +10,105 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginPasswordInput = document.getElementById('login-password');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
+    const formBlock = document.getElementById('block-form');
+
 
     let socket;
     let token;
     let gameState;
 
+    // Auto-focus and key handling for AUTH-FORM
+    nicknameInput.focus();
+    nicknameInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            checkNicknameButton.click();
+        }
+    });
+
     checkNicknameButton.addEventListener('click', handleCheckNickname);
     registerButton.addEventListener('click', handleRegister);
     loginButton.addEventListener('click', handleLogin);
+
+
+    /// THEOUCHE NOT CERTAIN ///
+    async function createPlayer(name, totalMatch = 0, totalWin = 0, pWin = null, mScoreMatch = null, mScoreAdvMatch = null, bestScore = 0, mNbrBallTouch = null, totalDuration = null, mDuration = null, numParticipatedTournaments = 0, numWonTournaments = 0) {
+        try {
+            const response = await fetch('/api/create_player/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    total_match: totalMatch,
+                    total_win: totalWin,
+                    p_win: pWin,
+                    m_score_match: mScoreMatch,
+                    m_score_adv_match: mScoreAdvMatch,
+                    best_score: bestScore,
+                    m_nbr_ball_touch: mNbrBallTouch,
+                    total_duration: totalDuration,
+                    m_duration: mDuration,
+                    num_participated_tournaments: numParticipatedTournaments,
+                    num_won_tournaments: numWonTournaments
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Network response was not ok');
+            }
+
+            const data = await response.json();
+            return data;
+
+        } catch (error) {
+            // Afficher l'erreur avec un message plus spécifique
+            console.error('Error creating player:', error.message);
+            alert(`Failed to create player: ${error.message}`);
+        }
+    }
+
+    async function createTournoi(name, nbr_player, date, winner_id) {
+        try {
+            const response = await fetch('/api/create_tournoi/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, nbr_player, date, winner_id })
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error creating tournoi:', error);
+        }
+    }
+
+    async function createMatch(player1_id, player2_id, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration, is_tournoi, tournoi_id) {
+        try {
+            const response = await fetch('/api/create_match/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ player1_id, player2_id, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration, is_tournoi, tournoi_id })
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error creating match:', error);
+        }
+    }
+
+    /// THEOUCHE NOT CERTAIN ///
 
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -27,9 +118,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (exists) {
                     authForm.style.display = 'none';
                     loginForm.style.display = 'block';
+                    // Auto-focus and key handling for LOGIN-FORM
+                    loginPasswordInput.focus();
+                    loginPasswordInput.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            loginButton.click();
+                        }
+                    });
                 } else {
                     authForm.style.display = 'none';
                     registerForm.style.display = 'block';
+                    // Auto-focus and key handling for REGISTER-FORM
+                    passwordInput.focus();
+                    passwordInput.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            confirmPasswordInput.focus();
+                            confirmPasswordInput.addEventListener('keypress', function (event) {
+                                if (event.key === 'Enter') {
+                                    event.preventDefault();
+                                    registerButton.click();
+                                }
+                            });
+                        }
+                    });
                 }
             } catch (error) {
                 console.error('Error checking user existence:', error);
@@ -60,8 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
+                    //await createPlayer(nickname);
                     registerForm.style.display = 'none';
                     gameContainer.style.display = 'flex';
+                    formBlock.style.display = 'none';
                     startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
@@ -97,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result) {
                 loginForm.style.display = 'none';
                 gameContainer.style.display = 'flex';
+                formBlock.style.display = 'none';
                 startWebSocketConnection(token);
             } else {
                 alert('Authentication failed. Please try again.');
@@ -134,12 +249,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.type === 'authenticated') {
                 console.log('Authentication successful');
             } else if (data.type === 'waiting_room') {
-                console.log('Entered the waiting room');
+                console.log('Entered the WAITING ROOM');
             } else if (data.type === 'game_start') {
                 console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
                 startGame(data.game_id, data.player1, data.player2);
             } else if (data.type === 'game_state_update') {
                 updateGameState(data.game_state);
+            } else if (data.type === 'player_disconnected') {
+                console.log("Player disconnected:", data.player);
+            } else if (data.type === 'game_ended') {
+                console.log("Game ended:", data.game_id);
             } else if (data.type === 'error') {
                 console.error(data.message);
             } else {
@@ -161,6 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('player1-name').textContent = `${player1_name}`;
         document.getElementById('player2-name').textContent = `${player2_name}`;
         document.addEventListener('keydown', handleKeyDown);
+
     }
 
     function handleKeyDown(event) {
