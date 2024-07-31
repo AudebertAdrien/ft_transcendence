@@ -89,6 +89,7 @@ class Game:
                 #await self.bot_player.update_bot_position()
                 await self.update_bot_position()
             #print('is it ok ?? ')
+            await self.handle_pad_movement()
             self.update_game_state()
             await self.send_game_state()
             await asyncio.sleep(1/60)  # Around 60 FPS
@@ -165,6 +166,7 @@ class Game:
         if self.ended:
             return
         if player == self.player1:
+            print(f"Key press: {key}")
             if key == 'arrowup':
                 self.p1_mov = -1
                 #self.game_state['player1_position'] = max(self.game_state['player1_position'] - 25, 0)

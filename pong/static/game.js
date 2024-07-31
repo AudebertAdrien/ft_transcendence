@@ -205,14 +205,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleKeyDown(event) {
-        console.log('Key press: ', event.key);
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+            console.log('Key press: ', event.key);
             sendKeyPress(event.key.toLowerCase());
         }
     }
 
     function sendKeyPress(key) {
         if (socket.readyState === WebSocket.OPEN) {
+            console.log('Key sent: ', key);
             socket.send(JSON.stringify({ type: 'key_press', key }));
         }
     }

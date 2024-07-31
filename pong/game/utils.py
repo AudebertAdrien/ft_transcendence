@@ -9,20 +9,26 @@ async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_
     # Check if player p1 exists, if not create
     if not await database_sync_to_async(Player.objects.filter(name=p1).exists)():
         player_1 = await create_player(p1)
+        print("############# PLAYER DONE")
     else:
         player_1 = await database_sync_to_async(Player.objects.get)(name=p1)
 
     # Check if player p2 exists, if not create
     if not await database_sync_to_async(Player.objects.filter(name=p2).exists)():
         player_2 = await create_player(p2)
+        print("############# PLAYER DONE")
     else:
         player_2 = await database_sync_to_async(Player.objects.get)(name=p2)
     
     # create Match
+    print("############# BEFORE MATCH")
     await create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
+    print("############# AFTER DONE")
 
     # Update data p1 et p2
+    
     await uptdate_player_statistics(p1)
+    print("############# END STAT P1")
     await uptdate_player_statistics(p2)
 
 @database_sync_to_async
@@ -92,11 +98,14 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
 
 @database_sync_to_async
 def uptdate_player_statistics(player_name):
+    print("############# BEG STAT P")
     player = get_object_or_404(Player, name=player_name)
 
     # Filtrer les matchs où le joueur est joueur 1 ou joueur 2
+    print("############# HERE")
     matches_as_player1 = Match.objects.filter(player1=player)
     matches_as_player2 = Match.objects.filter(player2=player)
+    print("############# ACTUALLY, IT'S GOOD")
 
     # Calculer les statistiques
     total_match = matches_as_player1.count() + matches_as_player2.count()
@@ -118,9 +127,9 @@ def uptdate_player_statistics(player_name):
         return
     
     won_matches = Match.objects.filter(winner=player)
-    part_tourn_as_p1 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player1=player)
+    """ part_tourn_as_p1 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player1=player)
     part_tourn_as_p2 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player2=player)
-    won_tourn = Tournoi.objects.filter(winner=player)
+    won_tourn = Tournoi.objects.filter(winner=player) """
 
     total_score = matches_as_player1.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
     total_score += matches_as_player2.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
@@ -138,8 +147,8 @@ def uptdate_player_statistics(player_name):
     nbr_ball_touch += matches_as_player2.aggregate(Sum('nbr_ball_touch_p2'))['nbr_ball_touch_p2__sum'] or 0
     m_nbr_ball_touch = nbr_ball_touch / total_match
 
-    total_duration = matches_as_player1.aggregate(Sum('duration'))['duration__sum'] 
-    total_duration += matches_as_player2.aggregate(Sum('duration'))['duration__sum'] 
+    total_duration = matches_as_player1.aggregate(Sum('duration'))['duration__sum'] or 0
+    total_duration += matches_as_player2.aggregate(Sum('duration'))['duration__sum'] or 0
     m_duration = total_duration / total_match
 
     """ total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
@@ -164,6 +173,13 @@ def uptdate_player_statistics(player_name):
     player.num_won_tournaments = total_win_tourn """
 
     player.save()
+    print("CHAKU IS THE BEST")
+
+def get_player_p_win(player_name):
+    # Rechercher le joueur par son nom
+    player = get_object_or_404(Player, name=player_name)
+    # Retourner la valeur de p_win
+    return player.p_win
 
 
 """ def complete_match(match_id, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration):
