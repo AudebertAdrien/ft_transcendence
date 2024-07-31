@@ -28,10 +28,10 @@ destroy:
 logs:
 	$(COMPOSE) logs -f $(CONTAINER)
 
+re: destroy up
+
 ps:
 	$(COMPOSE) ps
-
-re: destroy up
 
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
@@ -48,4 +48,3 @@ help:
 	@echo "  make logs [c=service]         # Tail logs of containers"
 	@echo "  make ps                       # List containers"
 	@echo "  make help                     # Show this help"
-

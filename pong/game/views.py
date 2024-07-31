@@ -15,11 +15,6 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import uuid
 
-
-def index(request):
-    return render(request, 'index.html')
-
-
 @csrf_exempt
 def register_user(request):
     if request.method == 'POST':
