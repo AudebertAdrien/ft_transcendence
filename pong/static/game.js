@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const formBlock = document.getElementById('block-form');
+    const viewSelector = document.getElementById('view-selector');
+    const playerList = document.getElementById('player-list');
+    const matchList = document.getElementById('match-list');
 
 
     let socket;
@@ -239,6 +242,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const player2Score = document.getElementById('player2-score');
         player2Score.textContent = gameState.player2_score;
+    }
+
+    viewSelector.addEventListener('change', function() {
+        const selectedView = this.value;
+        
+        // Masquer les deux listes par défaut
+        playerList.style.display = 'none';
+        matchList.style.display = 'none';
+
+        // Afficher la liste sélectionnée
+        if (selectedView === 'player-list') {
+            playerList.style.display = 'block';
+            fetchPlayers();
+        } else if (selectedView === 'match-list') {
+            matchList.style.display = 'block';
+            fetchMatches();
+        }
+    })
+
+    function fetchMatches() {
+        fetch('/api/match_list/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.matches) {
+                    displayMatches(data.matches);
+                }
+            })
+            .catch(error => console.error('Error fetching match data:', error));
+    }
+
+    function fetchPlayers(){
+        fetch('/api/player_list/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.players) {
+                    displayPlayers(data.players);
+                }
+            })
+            .catch(error => console.error('Error fetching match data:', error));
+    }
+
+    function displayMatches(matches) {
+        const matchListBody = document.querySelector('#match-list tbody');
+        matchListBody.innerHTML = '';
+
+        matches.forEach(match => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${match.id}</td>
+                <td>${match.player1__name}</td>
+                <td>${match.player2__name}</td>
+                <td>${match.score_player1}</td>
+                <td>${match.score_player2}</td>
+                <td>${match.winner__name}</td>
+                <td>${match.nbr_ball_touch_p1}</td>
+                <td>${match.nbr_ball_touch_p2}</td>
+                <td>${match.duration}</td>
+                <td>${match.date}</td>
+                <td>${match.is_tournoi}</td>
+                <td>${match.tournoi__name}</td>
+            `;
+            matchListBody.appendChild(row);
+        });
+    }
+
+    function displayPlayers(players) {
+        const playersListBody = document.querySelector('#player-list tbody');
+        playersListBody.innerHTML = '';
+
+        players.forEach(player => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${player.id}</td>
+                <td>${player.name}</td>
+                <td>${player.total_match}</td>
+                <td>${player.total_win}</td>
+                <td>${player.p_win}</td>
+                <td>${player.m_score_match}</td>
+                <td>${player.m_score_adv_match}</td>
+                <td>${player.best_score}</td>
+                <td>${player.m_nbr_ball_touch}</td>
+                <td>${player.total_duration}</td>
+                <td>${player.m_duration}</td>
+                <td>${player.num_participated_tournaments}</td>
+                <td>${player.num_won_tournaments}</td>
+            `;
+            playersListBody.appendChild(row);
+        });
     }
 
 });

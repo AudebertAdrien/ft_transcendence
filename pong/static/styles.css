@@ -251,3 +251,16 @@ button:hover {
     z-index: 10;
     max-width: 80%;
 }
+
+.menu {
+    margin-top: 20px;
+    text-align: center;
+}
+
+select#view-selector {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
