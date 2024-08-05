@@ -87,7 +87,7 @@ def tournoi_list(request):
 from django.http import JsonResponse
 
 def match_list_json(request):
-    matches = Match.objects.select_related('player1', 'player2', 'winner', 'tournoi').all()
+    matches = Match.objects.all()
     data = {
         'matches': list(matches.values(
             'id', 'player1__name', 'player2__name', 'score_player1', 'score_player2',

@@ -253,39 +253,60 @@ button:hover {
     max-width: 80%;
 }
 
+/* Styles pour la barre de navigation */
 .navbar {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: absolute; /* Positionne la barre de navigation relativement à son conteneur */
+    top: 10px; /* Ajuste la position du menu déroulant par rapport au haut */
+    right: 10px; /* Ajuste la position du menu déroulant par rapport à la droite */
     padding: 10px;
 }
 
+/* Styles pour le bouton du menu burger */
 .burger-menu {
     font-size: 24px;
     background: none;
     border: none;
-    color: white; 
+    color: #00ffff; /* Couleur du texte du bouton */
     cursor: pointer;
+    transition: color 0.3s ease;
 }
 
+.burger-menu:hover {
+    color: #ffffff; /* Couleur du texte au survol */
+}
+
+/* Styles pour le menu déroulant */
 .dropdown-content {
     display: none;
     position: absolute;
-    right: 0;
-    background-color: #f9f9f9;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    top: 100%; /* Positionne le menu directement sous le bouton */
+    right: 0; /* Aligne le menu avec le bouton */
+    margin-top: 10px; /* Espace entre le bouton et le menu */
+    background-color: #1a1a2e; /* Couleur de fond du menu */
+    color: #ffffff; /* Couleur du texte du menu */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
     z-index: 1;
+    width: max-content; /* Ajuste la largeur du menu en fonction du contenu */
 }
 
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
+/* Affiche le menu déroulant lorsqu'il est actif */
+.dropdown-content.show {
     display: block;
 }
 
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
+/* Styles pour les liens du menu déroulant */
+.dropdown-content a {
+    color: #ffffff; /* Couleur du texte des liens */
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Ligne de séparation entre les éléments */
+    transition: background-color 0.3s ease; /* Transition pour le fond au survol */
 }
 
-.show {display: block;}
+/* Styles pour les liens au survol */
+.dropdown-content a:hover {
+    background-color: #333; /* Couleur de fond au survol */
+    color: #00ffff; /* Couleur du texte au survol */
+}
