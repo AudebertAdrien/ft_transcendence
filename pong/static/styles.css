@@ -142,10 +142,12 @@ button:hover {
     position: absolute;
     top: 20px;
     left: 20px;
-    font-size: 3rem;
-    color: #00ffff;
-    text-shadow: 0 0 15px #00ffff;
     z-index: 20;
+}
+
+.logo img {
+    max-width: 100%;
+    height: auto;
 }
 
 .stars {
