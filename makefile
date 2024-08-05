@@ -28,8 +28,6 @@ destroy:
 logs:
 	$(COMPOSE) logs -f $(CONTAINER)
 
-re: destroy up
-
 ps:
 	$(COMPOSE) ps
 

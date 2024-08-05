@@ -126,9 +126,13 @@ class Game:
         # Check for scoring
         if self.game_state['ball_position']['x'] <= 10:
             self.game_state['player2_score'] += 1
+            if self.game_state['player2_score'] >= 5:
+                self.end_game()
             self.reset_ball()
         elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
+            if self.game_state['player1_score'] >= 5:
+                self.end_game()
             self.reset_ball()
 
     def reset_ball(self):

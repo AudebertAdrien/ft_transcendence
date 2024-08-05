@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const formBlock = document.getElementById('block-form');
-
+    const pongElements = document.getElementById('pong-elements');
+    const logo = document.querySelector('.logo');
 
     let socket;
     let token;
@@ -95,6 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     registerForm.style.display = 'none';
                     gameContainer.style.display = 'flex';
                     formBlock.style.display = 'none';
+                    logo.style.display = 'none';
+                    pongElements.style.display = 'none';
                     startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
@@ -131,6 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginForm.style.display = 'none';
                 gameContainer.style.display = 'flex';
                 formBlock.style.display = 'none';
+                logo.style.display = 'none';
+                pongElements.style.display = 'none';
                 startWebSocketConnection(token);
             } else {
                 alert('Authentication failed. Please try again.');

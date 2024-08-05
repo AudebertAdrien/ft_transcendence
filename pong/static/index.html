@@ -10,14 +10,13 @@
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-
 </head>
 
 <body>
     <div class="background">
         <div class="stars" id="stars"></div>
     </div>
-    <div class="pong-elements">
+    <div id="pong-elements" style="display: flex;">
         <div class="paddle paddle-left"></div>
         <div class="paddle paddle-right"></div>
         <div class="ball_anim"></div>
@@ -71,8 +70,6 @@
             star.style.animationDuration = `${Math.random() * 2 + 1}s`;
             starsContainer.appendChild(star);
         }
-
-        setInterval(createTrail, 100);
     </script>
 </body>
 
