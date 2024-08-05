@@ -45,12 +45,12 @@
         </div>
     </div>
 
-    <div class="menu">
-        <select id="view-selector">
-            <option value="none">-- Select View --</option>
-            <option value="player-list">Players</option>
-            <option value="match-list">Matches</option>
-        </select>
+    <div class="navbar">
+        <button class="burger-menu">☰</button>
+        <div id="dropdown-menu" class="dropdown-content">
+            <a href="#" data-table="player-list">Players</a>
+            <a href="#" data-table="match-list">Matches</a>
+        </div>
     </div>
 
     <div id="game1" style="display: none;">
@@ -66,9 +66,9 @@
         </div>
     </div>
 
-    <div id="match-list" style="display: none;">
-        <h1>Matches List</h1>
-        <table border="1">
+    <div id="match-list" class="content-list" style="display: none;">
+        <h1>Matches</h1>
+        <table>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -110,9 +110,9 @@
         </table>
     </div>
 
-    <div id="player-list" style="display: none;">
-        <h1>Players List</h1>
-        <table border="1">
+    <div id="player-list" class="content-list" style="display:none;">
+        <h1>Players</h1>
+        <table>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -171,6 +171,7 @@
         }
 
         setInterval(createTrail, 100);
+        
 
     </script>
 </body>

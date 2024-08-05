@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired'); 
     const checkNicknameButton = document.getElementById('check-nickname');
     const registerButton = document.getElementById('register');
     const loginButton = document.getElementById('login');
@@ -11,9 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const formBlock = document.getElementById('block-form');
-    const viewSelector = document.getElementById('view-selector');
+    //const viewSelector = document.getElementById('view-selector');
+    //const viewPlayersButton = document.getElementById('view-players');
+    //const viewMatchesButton = document.getElementById('view-matches');
+    const menuButton = document.querySelector('.burger-menu');
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
+    const dropdownMenu = document.getElementById('dropdown-menu');
 
 
     let socket;
@@ -244,22 +249,75 @@ document.addEventListener('DOMContentLoaded', () => {
         player2Score.textContent = gameState.player2_score;
     }
 
-    viewSelector.addEventListener('change', function() {
-        const selectedView = this.value;
+    // viewSelector.addEventListener('change', function() {
+      //  const selectedView = this.value;
         
         // Masquer les deux listes par défaut
-        playerList.style.display = 'none';
-        matchList.style.display = 'none';
+       // playerList.style.display = 'none';
+       // matchList.style.display = 'none';
 
         // Afficher la liste sélectionnée
-        if (selectedView === 'player-list') {
-            playerList.style.display = 'block';
+       // if (selectedView === 'player-list') {
+       //     playerList.style.display = 'block';
+       //     fetchPlayers();
+        //} else if (selectedView === 'match-list') {
+        //    matchList.style.display = 'block';
+        //    fetchMatches();
+        //}
+    //}) 
+
+    console.log('Here');
+
+    function toggleMenu() {
+        console.log('Menu toggled');
+        if (dropdownMenu.style.display === "block") {
+            dropdownMenu.style.display = "none";
+        } else {
+            dropdownMenu.style.display = "block";
+        }
+    }
+
+    function showTable(tableId) {
+        // Masquer tous les tableaux
+        if (playerList) {
+            playerList.style.display = 'none';
+        }
+        if (matchList) {
+            matchList.style.display = 'none';
+        }
+
+        // Afficher le tableau sélectionné
+        if (tableId === 'player-list') {
+            if (playerList) {
+                playerList.style.display = 'block';
+            }
             fetchPlayers();
-        } else if (selectedView === 'match-list') {
-            matchList.style.display = 'block';
+        } else if (tableId === 'match-list') {
+            if (matchList) {
+                matchList.style.display = 'block';
+            }
             fetchMatches();
         }
-    })
+
+        // Masquer le menu après la sélection
+        if (dropdownMenu) {
+            dropdownMenu.style.display = 'none';
+        }
+    }
+
+    // Ajouter les gestionnaires d'événements
+    if (menuButton) {
+        menuButton.addEventListener('click', toggleMenu);
+    }
+
+    const links = document.querySelectorAll('#dropdown-menu a');
+    links.forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault(); // Empêche le comportement par défaut du lien
+            const tableId = link.getAttribute('data-table');
+            showTable(tableId);
+        });
+    });
 
     function fetchMatches() {
         fetch('/api/match_list/')
