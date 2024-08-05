@@ -40,13 +40,19 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: es01
     volumes:
       - pong_logstash_data_01:/usr/share/elasticsearch/data
     ports:
-      - ${ES_PORT}:9200
+      - "127.0.0.1:9200:9200"
     networks:
       - app-network
     environment:
@@ -54,6 +60,8 @@ services:
       - cluster.name=${CLUSTER_NAME}
       - discovery.type=single-node
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.enabled=false 
+      - xpack.license.self_generated.type=trial
     mem_limit: ${ES_MEM_LIMIT}
     ulimits:
       memlock:
@@ -65,34 +73,36 @@ services:
       - es01
       - kibana
     image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
-    container_name: logstash
+    container_name: logstash01
     volumes:
-      - pong_logstash_data_01:/usr/share/logstash/data/logstash.conf
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     ports:
       - "5044:5044"
     networks:
       - app-network
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTIC_HOSTS=http://es01:9200
+      - ELASTIC_USER=${ELASTIC_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.monitoring.enabled=false
 
   kibana:
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    depends_on:
+      - es01
     container_name: kibana
     volumes:
       - pong_kibana:/usr/share/kibana/data
-      - pong_logstash_data_01:/usr/share/logstash/data
-    user: root
+    user: "1000:1000"
     ports:
       - 5601:5601
     networks:
       - app-network
     environment:
-      - SERVERNAME=kibana
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - SERVERNAME=pong.kibana.org
+      - ELASTICSEARCH_HOSTS=http://es01:9200
+      - ELASTICSEARCH_USERNAME=${ELASTIC_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
     mem_limit: ${KB_MEM_LIMIT}
       #healthcheck:
       #test: ["CMD-SHELL", "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'"]
@@ -109,28 +119,12 @@ volumes:
       o: bind
   pong_pg_data:
     driver: local
-    driver_opts:
-      type: none
-      device: ${POSTGRES_DATA_PATH}
-      o: bind
   pong_es_data_01:
     driver: local
-    driver_opts:
-      type: none
-      device: ${ES_DATA_PATH}
-      o: bind
   pong_kibana:
     driver: local
-    driver_opts:
-      type: none
-      device: ${KIBA_DATA_PATH}
-      o: bind
   pong_logstash_data_01:
     driver: local
-    driver_opts:
-      type: none
-      device: ${LSTASH_DATA_PATH}
-      o: bind
 
 networks:
   app-network:
