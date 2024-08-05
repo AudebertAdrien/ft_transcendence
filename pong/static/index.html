@@ -10,7 +10,6 @@
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-
 </head>
 
 <body>
@@ -46,6 +45,14 @@
         </div>
     </div>
 
+    <div class="navbar">
+        <button class="burger-menu">☰</button>
+        <div id="dropdown-menu" class="dropdown-content">
+            <a href="#" data-table="player-list">Players</a>
+            <a href="#" data-table="match-list">Matches</a>
+        </div>
+    </div>
+
     <div id="game1" style="display: none;">
         <div id="gameCode" class="game-code">Game Code : </div>
         <div id="player1-name" class="name">Player 1</div>
@@ -58,6 +65,97 @@
             <div id="ball"></div>
         </div>
     </div>
+
+    <div id="match-list" class="content-list" style="display: none;">
+        <h1>Matches</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Player 1</th>
+                    <th>Player 2</th>
+                    <th>Score Player 1</th>
+                    <th>Score Player 2</th>
+                    <th>Winner</th>
+                    <th>Ball Touches Player 1</th>
+                    <th>Ball Touches Player 2</th>
+                    <th>Duration</th>
+                    <th>Date</th>
+                    <th>Is Tournament</th>
+                    <th>Tournament</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in matches %}
+                <tr>
+                    <td>{{ match.id }}</td>
+                    <td>{{ match.player1.name }}</td>
+                    <td>{{ match.player2.name }}</td>
+                    <td>{{ match.score_player1 }}</td>
+                    <td>{{ match.score_player2 }}</td>
+                    <td>{{ match.winner.name }}</td>
+                    <td>{{ match.nbr_ball_touch_p1 }}</td>
+                    <td>{{ match.nbr_ball_touch_p2 }}</td>
+                    <td>{{ match.duration }}</td>
+                    <td>{{ match.date }}</td>
+                    <td>{{ match.is_tournoi }}</td>
+                    <td>{{ match.tournoi.name }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="12">No matches found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="player-list" class="content-list" style="display:none;">
+        <h1>Players</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Total Matches</th>
+                    <th>Total Wins</th>
+                    <th>Win Percentage</th>
+                    <th>Average Match Score</th>
+                    <th>Average Opponent Score</th>
+                    <th>Best Score</th>
+                    <th>Average Ball Touches</th>
+                    <th>Total Duration</th>
+                    <th>Average Duration</th>
+                    <th>Participated Tournaments</th>
+                    <th>Won Tournaments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players %}
+                <tr>
+                    <td>{{ player.id }}</td>
+                    <td>{{ player.name }}</td>
+                    <td>{{ player.total_match }}</td>
+                    <td>{{ player.total_win }}</td>
+                    <td>{{ player.p_win }}</td>
+                    <td>{{ player.m_score_match }}</td>
+                    <td>{{ player.m_score_adv_match }}</td>
+                    <td>{{ player.best_score }}</td>
+                    <td>{{ player.m_nbr_ball_touch }}</td>
+                    <td>{{ player.total_duration }}</td>
+                    <td>{{ player.m_duration }}</td>
+                    <td>{{ player.num_participated_tournaments }}</td>
+                    <td>{{ player.num_won_tournaments }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="13">No players found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     <script src="{% static 'game.js' %}"></script>
     <script>
         const starsContainer = document.getElementById('stars');
@@ -73,6 +171,8 @@
         }
 
         setInterval(createTrail, 100);
+        
+
     </script>
 </body>
 

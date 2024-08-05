@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired'); 
     const checkNicknameButton = document.getElementById('check-nickname');
     const registerButton = document.getElementById('register');
     const loginButton = document.getElementById('login');
@@ -11,6 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const formBlock = document.getElementById('block-form');
+    //const viewSelector = document.getElementById('view-selector');
+    //const viewPlayersButton = document.getElementById('view-players');
+    //const viewMatchesButton = document.getElementById('view-matches');
+    const menuButton = document.querySelector('.burger-menu');
+    const playerList = document.getElementById('player-list');
+    const matchList = document.getElementById('match-list');
+    const dropdownMenu = document.getElementById('dropdown-menu');
 
 
     let socket;
@@ -237,6 +245,147 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const player2Score = document.getElementById('player2-score');
         player2Score.textContent = gameState.player2_score;
+    }
+
+    // viewSelector.addEventListener('change', function() {
+      //  const selectedView = this.value;
+        
+        // Masquer les deux listes par défaut
+       // playerList.style.display = 'none';
+       // matchList.style.display = 'none';
+
+        // Afficher la liste sélectionnée
+       // if (selectedView === 'player-list') {
+       //     playerList.style.display = 'block';
+       //     fetchPlayers();
+        //} else if (selectedView === 'match-list') {
+        //    matchList.style.display = 'block';
+        //    fetchMatches();
+        //}
+    //}) 
+
+    console.log('Here');
+
+    function toggleMenu() {
+        console.log('Menu toggled');
+        if (dropdownMenu.style.display === "block") {
+            dropdownMenu.style.display = "none";
+        } else {
+            dropdownMenu.style.display = "block";
+        }
+    }
+
+    function showTable(tableId) {
+        // Masquer tous les tableaux
+        if (playerList) {
+            playerList.style.display = 'none';
+        }
+        if (matchList) {
+            matchList.style.display = 'none';
+        }
+
+        // Afficher le tableau sélectionné
+        if (tableId === 'player-list') {
+            if (playerList) {
+                playerList.style.display = 'block';
+            }
+            fetchPlayers();
+        } else if (tableId === 'match-list') {
+            if (matchList) {
+                matchList.style.display = 'block';
+            }
+            fetchMatches();
+        }
+
+        // Masquer le menu après la sélection
+        if (dropdownMenu) {
+            dropdownMenu.style.display = 'none';
+        }
+    }
+
+    // Ajouter les gestionnaires d'événements
+    if (menuButton) {
+        menuButton.addEventListener('click', toggleMenu);
+    }
+
+    const links = document.querySelectorAll('#dropdown-menu a');
+    links.forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault(); // Empêche le comportement par défaut du lien
+            const tableId = link.getAttribute('data-table');
+            showTable(tableId);
+        });
+    });
+
+    function fetchMatches() {
+        fetch('/api/match_list/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.matches) {
+                    displayMatches(data.matches);
+                }
+            })
+            .catch(error => console.error('Error fetching match data:', error));
+    }
+
+    function fetchPlayers(){
+        fetch('/api/player_list/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.players) {
+                    displayPlayers(data.players);
+                }
+            })
+            .catch(error => console.error('Error fetching match data:', error));
+    }
+
+    function displayMatches(matches) {
+        const matchListBody = document.querySelector('#match-list tbody');
+        matchListBody.innerHTML = '';
+
+        matches.forEach(match => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${match.id}</td>
+                <td>${match.player1__name}</td>
+                <td>${match.player2__name}</td>
+                <td>${match.score_player1}</td>
+                <td>${match.score_player2}</td>
+                <td>${match.winner__name}</td>
+                <td>${match.nbr_ball_touch_p1}</td>
+                <td>${match.nbr_ball_touch_p2}</td>
+                <td>${match.duration}</td>
+                <td>${match.date}</td>
+                <td>${match.is_tournoi}</td>
+                <td>${match.tournoi__name}</td>
+            `;
+            matchListBody.appendChild(row);
+        });
+    }
+
+    function displayPlayers(players) {
+        const playersListBody = document.querySelector('#player-list tbody');
+        playersListBody.innerHTML = '';
+
+        players.forEach(player => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${player.id}</td>
+                <td>${player.name}</td>
+                <td>${player.total_match}</td>
+                <td>${player.total_win}</td>
+                <td>${player.p_win}</td>
+                <td>${player.m_score_match}</td>
+                <td>${player.m_score_adv_match}</td>
+                <td>${player.best_score}</td>
+                <td>${player.m_nbr_ball_touch}</td>
+                <td>${player.total_duration}</td>
+                <td>${player.m_duration}</td>
+                <td>${player.num_participated_tournaments}</td>
+                <td>${player.num_won_tournaments}</td>
+            `;
+            playersListBody.appendChild(row);
+        });
     }
 
 });
