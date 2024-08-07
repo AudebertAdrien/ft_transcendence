@@ -1,4 +1,4 @@
-COMPOSE_FILE=docker-compose.yaml
+COMPOSE_FILE=docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
@@ -44,4 +44,3 @@ help:
 	@echo "  make logs [c=service]         # Tail logs of containers"
 	@echo "  make ps                       # List containers"
 	@echo "  make help                     # Show this help"
-
