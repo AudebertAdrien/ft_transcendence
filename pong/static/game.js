@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const matchList = document.getElementById('match-list');
     const dropdownMenu = document.getElementById('dropdown-menu');
 
+    const pongElements = document.getElementById('pong-elements');
+    const logo = document.querySelector('.logo');
 
     let socket;
     let token;
@@ -37,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     checkNicknameButton.addEventListener('click', handleCheckNickname);
     registerButton.addEventListener('click', handleRegister);
     loginButton.addEventListener('click', handleLogin);
-
 
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -101,10 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const result = await registerUser(nickname, password);
                 if (result) {
-                    //await createPlayer(nickname);
                     registerForm.style.display = 'none';
                     gameContainer.style.display = 'flex';
                     formBlock.style.display = 'none';
+                    logo.style.display = 'none';
+                    pongElements.style.display = 'none';
                     startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
@@ -141,6 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginForm.style.display = 'none';
                 gameContainer.style.display = 'flex';
                 formBlock.style.display = 'none';
+                logo.style.display = 'none';
+                pongElements.style.display = 'none';
                 startWebSocketConnection(token);
             } else {
                 alert('Authentication failed. Please try again.');
