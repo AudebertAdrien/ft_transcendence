@@ -2,12 +2,12 @@ COMPOSE_FILE=docker-compose.yaml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
-up:
-	sudo mkdir -p $$PWD/data/db
+up: down
+	sudo mkdir -p data/db
 	$(COMPOSE) build 
 	$(COMPOSE) up $(CONTAINER)
 
-build:
+build: 
 	$(COMPOSE) build $(CONTAINER)
 
 start:
@@ -21,7 +21,7 @@ down:
 
 destroy:
 	$(COMPOSE) down -v --rmi all
-	sudo rm -rf $$PWD/data/db
+	sudo rm -rf data
 	#sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	#sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
@@ -46,4 +46,3 @@ help:
 	@echo "  make logs [c=service]         # Tail logs of containers"
 	@echo "  make ps                       # List containers"
 	@echo "  make help                     # Show this help"
-

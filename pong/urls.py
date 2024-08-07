@@ -6,8 +6,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    #path('admin/', admin.site.urls),
-    path('api/', include('pong.game.urls')),
+    # Disable the admin page
+    # path('admin/', admin.site.urls),
+    # path('api/', include('pong.game.urls')),
     path('', include('pong.game.urls')),
 ]
 

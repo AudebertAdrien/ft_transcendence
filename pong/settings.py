@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',  # Add Django Channels
     'pong.game',  # Your game app
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

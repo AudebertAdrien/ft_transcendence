@@ -5,10 +5,16 @@ from django.shortcuts import render
 def index(request):
     return render(request, 'index.html')
 
+from django.core.exceptions import ObjectDoesNotExist
+from .models import Player, Tournoi, Match
+from .utils import create_player, create_tournoi, create_match
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
+""" from .serializers import MatchSerializer """
+from rest_framework import viewsets
+
 import json
 import uuid
 
@@ -80,3 +86,49 @@ def dashboards(request):
     }
     return render(request, 'dashboards.html', context)
 
+####################### THEOUCHE PART ############################
+
+def player_list(request):
+    players = Player.objects.all()
+    return render(request, 'pong/player_list.html', {'players': players})
+
+def match_list(request):
+    matches = Match.objects.select_related('player1', 'player2', 'winner', 'tournoi').all()
+    return render(request, 'pong/match_list.html', {'matches': matches})
+
+def tournoi_list(request):
+    tournois = Tournoi.objects.select_related('winner').all()
+    return render(request, 'pong/tournoi_list.html', {'tournois': tournois})
+
+from django.http import JsonResponse
+
+def match_list_json(request):
+    matches = Match.objects.select_related('player1', 'player2', 'winner', 'tournoi').all()
+    data = {
+        'matches': list(matches.values(
+            'id', 'player1__name', 'player2__name', 'score_player1', 'score_player2',
+            'winner__name', 'nbr_ball_touch_p1', 'nbr_ball_touch_p2', 'duration', 'date',
+            'is_tournoi', 'tournoi__name'
+        ))
+    }
+    return JsonResponse(data)
+
+def player_list_json(request):
+    # Récupère tous les joueurs
+    players = Player.objects.all()
+    
+    # Crée un dictionnaire avec les informations des joueurs
+    data = {
+        'players': list(players.values(
+            'id', 'name', 'total_match', 'total_win', 'p_win',
+            'm_score_match', 'm_score_adv_match', 'best_score',
+            'm_nbr_ball_touch', 'total_duration', 'm_duration',
+            'num_participated_tournaments', 'num_won_tournaments'
+        ))
+    }
+    
+    # Renvoie les données en JSON
+    return JsonResponse(data)
+
+
+####################### THEOUCHE PART ############################
