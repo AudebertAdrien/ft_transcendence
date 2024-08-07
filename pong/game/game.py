@@ -176,3 +176,7 @@ class Game:
             await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, 42, False, None)
+
+
+
+######################################################## Test amelioration IA ########################################################
