@@ -79,6 +79,15 @@ class Game:
                 self.game_state['player2_position'] -= 10
             elif key == 'arrowdown' and self.game_state['player2_position'] < 550:
                 self.game_state['player2_position'] += 10
+    
+
+    # Method necessary to pass the information of a state to the IA
+    def get_observation(self):
+        return {
+            'player2_position': self.game_state['player2_position'],
+            'ball_position': self.game_state['ball_position'],
+            'ball_velocity': self.game_state['ball_velocity'],
+        }
 
     async def end_game(self):
         if self.game_loop_task:

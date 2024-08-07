@@ -53,7 +53,7 @@ ROOT_URLCONF = 'pong.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'pong', 'static')],  # Ensure templates are found
+        'DIRS': [os.path.join(BASE_DIR, 'pong', 'static', 'game.templates')],  # Ensure templates are found
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

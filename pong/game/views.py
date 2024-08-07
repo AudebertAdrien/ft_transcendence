@@ -62,3 +62,21 @@ def get_or_create_token(user):
                 user.save()
                 break
     return user.auth_token
+
+
+from .models import Match
+
+def dashboards(request):
+    # Fetches all Match objects from the database
+    matches = Match.objects.all()
+    # List of strings that will be used as the x-axis of the chart (using str.format() to convert match ids to strings)
+    labels = ["Match {}".format(match.id) for match in matches]
+    # List of data used as points for the chart (e.g. for bars, needed to be the same nbr of label strings and data)
+    data = [match.score_player1 + match.score_player2 for match in matches]
+    # Creates dictionary
+    context = {
+        'labels': json.dumps(labels),
+        'data': json.dumps(data),
+    }
+    return render(request, 'dashboards.html', context)
+

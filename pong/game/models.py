@@ -26,13 +26,13 @@ class Match(models.Model):
     player2 = models.ForeignKey('Player', related_name='match_as_player2', on_delete=models.CASCADE)
     score_player1 = models.PositiveSmallIntegerField()
     score_player2 = models.PositiveSmallIntegerField()
-    winner = models.ForeignKey('Player', related_name='won_matches',on_delete=models.CASCADE)
-    nbr_ball_touch_p1 = models.PositiveIntegerField()
-    nbr_ball_touch_p2 = models.PositiveIntegerField()
-    duration = models.DurationField()
-    date = models.DateField(auto_now_add=True)
-    is_tournoi = models.BooleanField()
-    tournoi = models.ForeignKey('Tournoi', related_name='matches', on_delete=models.SET_NULL, null=True)
+    #winner = models.ForeignKey('Player', related_name='won_matches',on_delete=models.CASCADE)
+    #nbr_ball_touch_p1 = models.PositiveIntegerField()
+    #nbr_ball_touch_p2 = models.PositiveIntegerField()
+    #duration = models.DurationField()
+    #date = models.DateField(auto_now_add=True)
+    #is_tournoi = models.BooleanField()
+    #tournoi = models.ForeignKey('Tournoi', related_name='matches', on_delete=models.SET_NULL, null=True)
 
     def clean(self):
         if self.score_player1 < 0 or self.score_player2 < 0:
