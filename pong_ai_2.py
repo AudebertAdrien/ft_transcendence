@@ -10,7 +10,7 @@ class PongEnv(gymnasium.Env):
     def __init__(self, game):
         self.game = game
         self.action_space = Discrete(3)
-        self.observation_space = Box(0, 255, (self.game_width, self.game_height, 3), uint8)
+        self.observation_space = Box(0, 255, (self, self.game_height, 3), uint8)
 
         self.action_to_direction = {
             0: np.array([-5, 0]), # move paddle up by 5 pixels

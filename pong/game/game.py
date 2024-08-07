@@ -225,6 +225,8 @@ class Game:
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, 42, False, None)
 
+            
+
 ### pour Theo ###
 # nickname player1
 # nickname player2
