@@ -5,50 +5,6 @@ import asyncio
 import random
 from .utils import endfortheouche
 
-class BotPlayer:
-    def __init__(self, game_state, speed):
-        self.game_state = game_state
-        self.speed = speed
-
-    async def update_bot_position(self):
-        print("Update bot position started") 
-        try:
-            target_y = self.predict_ball_position()
-            #print(f"Target Y: {target_y}")
-            player2_position = self.game_state['player2_position']
-            #print(f"Player2 Position: {player2_position}")
-
-            if player2_position < target_y < player2_position + 80:
-                print("Bot is already aligned with the ball, no move needed.")
-            elif player2_position < target_y:
-                new_position = min(player2_position + (5 * self.speed), 300)
-                print(f"Moving bot down to {new_position}")
-                self.game_state['player2_position'] = new_position
-            elif player2_position + 80 > target_y:
-                new_position = max(player2_position - (5 * self.speed), 0)
-                print(f"Moving bot up to {new_position}")
-                self.game_state['player2_position'] = new_position
-    
-            #await asyncio.sleep(1)  # Rafraîchir toutes les secondes
-        except Exception as e:
-            print(f"Error in BotPlayer.update_bot_position: {e}")
-      
-
-    def predict_ball_position(self):
-        # Prédire la future position de la balle en tenant compte de sa vitesse
-        ball_y = self.game_state['ball_position']['y']
-        ball_speed_y = self.game_state['ball_velocity']['y']
-        # Prédiction simple, peut être améliorée pour plus de précision
-        future_ball_y = ball_y + ball_speed_y * 1  # prédire pour la prochaine seconde
-
-        # Gérer les rebonds sur les limites
-        if future_ball_y < 0:
-            future_ball_y = -future_ball_y
-        elif future_ball_y > 300:
-            future_ball_y = 600 - future_ball_y
-
-        return future_ball_y
-
 
 class Game:
     def __init__(self, game_id, player1, player2):
@@ -73,6 +29,8 @@ class Game:
         self.p2_mov = 0
         self.bt1 = 0
         self.bt2 = 0
+        self.last_update_time = 0
+        self.update_interval = 1
 
         if self.botgame:
             self.bot_player = BotPlayer(self.game_state, self.speed)
@@ -82,13 +40,14 @@ class Game:
         self.game_loop_task = asyncio.create_task(self.game_loop())
 
     async def game_loop(self):
-        #print("Here, ok")
         while True:
             if self.botgame:
-                #print('still ok')
-                #await self.bot_player.update_bot_position()
-                await self.update_bot_position()
-            #print('is it ok ?? ')
+                current_time = asyncio.get_event_loop().time()
+                if current_time - self.last_update_time >= self.update_interval:
+                    await self.update_bot_position()
+                    self.last_update_time = current_time
+                #await self.update_bot_position()
+            
             await self.handle_pad_movement()
             self.update_game_state()
             await self.send_game_state()
@@ -102,6 +61,31 @@ class Game:
             self.game_state['player2_position'] = min(self.game_state['player2_position'] + (5 * self.speed), 300)
         elif self.game_state['player2_position'] + 80 > target_y:
             self.game_state['player2_position'] = max(self.game_state['player2_position'] - (5 * self.speed), 0)
+
+    """ async def update_bot_position(self):
+        target_y = self.predict_ball_position()
+        current_pos = self.game_state['player2_position']
+
+        if abs(current_pos - target_y) < 5:  # Add some randomness to mimic human error
+            return
+
+        if current_pos < target_y:
+            self.game_state['player2_position'] = min(current_pos + (5 * self.speed), 300)
+        else:
+            self.game_state['player2_position'] = max(current_pos - (5 * self.speed), 0)
+
+    def predict_ball_position(self):
+        ball_pos = self.game_state['ball_position']
+        ball_velocity = self.game_state['ball_velocity']
+        
+        # Simple prediction of ball position in future, considering only current velocity
+        predicted_y = ball_pos['y'] + ball_velocity['y']
+        
+        # Handle ball rebounding off the top or bottom of the game area
+        if predicted_y < 0 or predicted_y > 300:  # Assuming game height is 300
+            predicted_y = 300 - abs(predicted_y % 300)
+        
+        return predicted_y """
 
     def update_game_state(self):
         # Update ball position
@@ -224,19 +208,3 @@ class Game:
             await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, 42, False, None)
-
-### pour Theo ###
-# nickname player1
-# nickname player2
-# score p1
-# score p2
-# winner
-# ball touch p1
-# ball touch p2
-# match time
-# match type: 'quick match'
-
-# match type: 'tournament'
-#              -> tournament id
-
-#endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_p2, dur, is_tournoi, name_tournament)
