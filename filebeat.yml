@@ -1,32 +1,10 @@
 filebeat.inputs:
-#- type: docker
-  #containers.ids:
-  #  - "*"
-- type: filestream
-  id: default-filestream
-  paths:
-    - ingest_data/*.log
-
-filebeat.autodiscover:
- providers:
-   - type: docker
-     hints.enabled: true
+- type: docker
+  containers.ids:
+    - "*"
 
 processors:
 - add_docker_metadata: ~
 
-
-setup.kibana:
- host: ${KIBANA_HOSTS}
- username: ${ELASTIC_USER}
- password: ${ELASTIC_PASSWORD}
-
-
-output.elasticsearch:
- hosts: ${ELASTIC_HOSTS}
- username: ${ELASTIC_USER}
- password: ${ELASTIC_PASSWORD}
- ssl.enabled: false
-
-#output.logstash:
-  #hosts: ["http://logstash01:9600"]
+output.logstash:
+  hosts: ["http://logstash01:5044"]

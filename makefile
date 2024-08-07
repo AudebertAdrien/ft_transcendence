@@ -1,10 +1,10 @@
-COMPOSE_FILE=docker-compose.yml
+COMPOSE_FILE=docker-compose.yaml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
 up:
 	$(COMPOSE) build 
-	$(COMPOSE) up $(CONTAINER)
+	$(COMPOSE) up
 
 build:
 	$(COMPOSE) build $(CONTAINER)
