@@ -29,11 +29,7 @@ class Game:
         self.p2_mov = 0
         self.bt1 = 0
         self.bt2 = 0
-        self.last_update_time = 0
-        self.update_interval = 1
-
-        if self.botgame:
-            self.bot_player = BotPlayer(self.game_state, self.speed)
+        
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED")
@@ -42,11 +38,7 @@ class Game:
     async def game_loop(self):
         while True:
             if self.botgame:
-                current_time = asyncio.get_event_loop().time()
-                if current_time - self.last_update_time >= self.update_interval:
-                    await self.update_bot_position()
-                    self.last_update_time = current_time
-                #await self.update_bot_position()
+                await self.update_bot_position()
             
             await self.handle_pad_movement()
             self.update_game_state()
@@ -62,30 +54,6 @@ class Game:
         elif self.game_state['player2_position'] + 80 > target_y:
             self.game_state['player2_position'] = max(self.game_state['player2_position'] - (5 * self.speed), 0)
 
-    """ async def update_bot_position(self):
-        target_y = self.predict_ball_position()
-        current_pos = self.game_state['player2_position']
-
-        if abs(current_pos - target_y) < 5:  # Add some randomness to mimic human error
-            return
-
-        if current_pos < target_y:
-            self.game_state['player2_position'] = min(current_pos + (5 * self.speed), 300)
-        else:
-            self.game_state['player2_position'] = max(current_pos - (5 * self.speed), 0)
-
-    def predict_ball_position(self):
-        ball_pos = self.game_state['ball_position']
-        ball_velocity = self.game_state['ball_velocity']
-        
-        # Simple prediction of ball position in future, considering only current velocity
-        predicted_y = ball_pos['y'] + ball_velocity['y']
-        
-        # Handle ball rebounding off the top or bottom of the game area
-        if predicted_y < 0 or predicted_y > 300:  # Assuming game height is 300
-            predicted_y = 300 - abs(predicted_y % 300)
-        
-        return predicted_y """
 
     def update_game_state(self):
         # Update ball position

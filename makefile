@@ -34,6 +34,8 @@ ps:
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
 
+re : destroy down up
+
 help:
 	@echo "Usage:"
 	@echo "  make build [c=service]        # Build images"
