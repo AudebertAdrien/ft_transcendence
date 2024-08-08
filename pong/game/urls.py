@@ -9,6 +9,7 @@ urlpatterns = [
     path('check_user_exists/', views.check_user_exists, name='check_user_exists'),
     path('register_user/', views.register_user, name='register_user'),
     path('authenticate_user/', views.authenticate_user, name='authenticate_user'),
+    path('web3/', views.read_data, name='read_data'),
     path('players/', player_list, name='player_list'),
     path('matches/', match_list, name='match_list'),
     path('tournois/', tournoi_list, name='tournoi_list'),
