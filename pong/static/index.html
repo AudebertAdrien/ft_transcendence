@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -10,9 +10,117 @@
     <div class="logo">
         <img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
     </div>
-</head>
+    <style>
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
 
+        .language-switcher img {
+            width: 30px;
+            height: 20px;
+            cursor: pointer;
+        }
+    </style>
+    <style>
+        body {
+            color: rgb(0, 255, 255); /* Valeur par défaut */
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+        }
+    </style>
+    <style>
+        #settings-btn {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            cursor: pointer;
+            z-index: 1000;
+            border: none;
+            border-radius: 50%;
+            padding: 10px;
+            font-size: 18px;
+        }
+    
+        #settings-menu {
+            position: fixed;
+            bottom: 50px;
+            right: 10px;
+            padding: 20px;
+            background-color: rgb(66, 63, 63);
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            z-index: 1000;
+        }
+    
+        #close-settings {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 5px solid #888;
+            width: 80%;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+    
+</head>
 <body>
+    <div class="language-switcher">
+        <img src="{% static 'flags/fr.svg' %}" alt="Français" onclick="changeLanguage('fr')">
+        <img src="{% static 'flags/us.svg' %}" alt="English" onclick="changeLanguage('en')">
+        <img src="{% static 'flags/it.svg' %}" alt="Italiano" onclick="changeLanguage('it')">
+        <img src="{% static 'flags/es.svg' %}" alt="Español" onclick="changeLanguage('es')">
+        <img src="{% static 'flags/de.svg' %}" alt="Deutsch" onclick="changeLanguage('de')">
+    </div>
     <div class="background">
         <div class="stars" id="stars"></div>
     </div>
@@ -21,24 +129,74 @@
         <div class="paddle paddle-right"></div>
         <div class="ball_anim"></div>
     </div>
+    <button id="settings-btn">⚙️ Réglages</button>
+    <div id="settings-menu" style="display: none;">
+        <button id="close-settings">✖️</button>
+        <h2>Réglages</h2>
+        <label for="color-picker">Couleur:</label>
+        <input type="color" id="color-picker">
+        <br>
+        <label for="font-selector">Police:</label>
+        <select id="font-selector">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+        </select>
+        <br>
+        <label for="font-size-slider">Taille:</label>
+        <input type="range" id="font-size-slider" min="12" max="36" value="16">
+    </div>
+    
 
+    <button id="myBtn">Resultat</button>
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <pre id="jsonContent"></pre>
+      </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var modal = document.getElementById("myModal");
+            var btn = document.getElementById("myBtn");
+            var span = document.getElementsByClassName("close")[0];
+            var jsonContent = document.getElementById("jsonContent");
+            btn.onclick = function() {
+                fetch('/web3/')
+                    .then(response => response.json())
+                    .then(data => {
+                        jsonContent.textContent = JSON.stringify(data, null, 2);
+                        modal.style.display = "block";
+                    });
+            }
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        });
+    </script>
     <div class="container" id="block-form">
-        <h1>BIENVENUE DANS LE PONG 42</h1>
+        <h1 id="welcome">BIENVENUE DANS LE PONG 42</h1>
         <div class="input-container">
             <div id="auth-form">
-                <label for="nickname">Enter your nickname:</label>
+                <label for="nickname" id="label-nickname">Enter your nickname:</label>
                 <input type="text" id="nickname" name="nickname">
                 <button id="check-nickname">Check Nickname</button>
             </div>
             <div id="register-form" style="display: none;">
-                <label for="password">Enter your password:</label>
+                <label for="password" id="label-password">Enter your password:</label>
                 <input type="password" id="password" name="password">
-                <label for="confirm-password">Confirm your password:</label>
+                <label for="confirm-password" id="label-confirm-password">Confirm your password:</label>
                 <input type="password" id="confirm-password" name="confirm-password">
                 <button id="register">Register</button>
             </div>
             <div id="login-form" style="display: none;">
-                <label for="login-password">Enter your password:</label>
+                <label for="login-password" id="label-login-password">Enter your password:</label>
                 <input type="password" id="login-password" name="login-password">
                 <button id="login">Login</button>
             </div>
@@ -158,6 +316,52 @@
 
     <script src="{% static 'game.js' %}"></script>
     <script>
+        const translations = {
+            fr: {
+                welcome: "BIENVENUE DANS LE PONG 42",
+                labelNickname: "Entrez votre surnom:",
+                labelPassword: "Entrez votre mot de passe:",
+                labelConfirmPassword: "Confirmez votre mot de passe:",
+                labelLoginPassword: "Entrez votre mot de passe:"
+            },
+            en: {
+                welcome: "WELCOME TO PONG 42",
+                labelNickname: "Enter your nickname:",
+                labelPassword: "Enter your password:",
+                labelConfirmPassword: "Confirm your password:",
+                labelLoginPassword: "Enter your password:"
+            },
+            it: {
+                welcome: "BENVENUTO A PONG 42",
+                labelNickname: "Inserisci il tuo soprannome:",
+                labelPassword: "Inserisci la tua password:",
+                labelConfirmPassword: "Conferma la tua password:",
+                labelLoginPassword: "Inserisci la tua password:"
+            },
+            es: {
+                welcome: "BIENVENIDO A PONG 42",
+                labelNickname: "Introduce tu apodo:",
+                labelPassword: "Introduce tu contraseña:",
+                labelConfirmPassword: "Confirma tu contraseña:",
+                labelLoginPassword: "Introduce tu contraseña:"
+            },
+            de: {
+                welcome: "WILLKOMMEN BEI PONG 42",
+                labelNickname: "Geben Sie Ihren Spitznamen ein:",
+                labelPassword: "Geben Sie Ihr Passwort ein:",
+                labelConfirmPassword: "Bestätigen Sie Ihr Passwort:",
+                labelLoginPassword: "Geben Sie Ihr Passwort ein:"
+            }
+        };
+
+        function changeLanguage(lang) {
+            document.getElementById('welcome').innerText = translations[lang].welcome;
+            document.getElementById('label-nickname').innerText = translations[lang].labelNickname;
+            document.getElementById('label-password').innerText = translations[lang].labelPassword;
+            document.getElementById('label-confirm-password').innerText = translations[lang].labelConfirmPassword;
+            document.getElementById('label-login-password').innerText = translations[lang].labelLoginPassword;
+        }
+
         const starsContainer = document.getElementById('stars');
         for (let i = 0; i < 500; i++) {
             const star = document.createElement('div');
@@ -169,6 +373,77 @@
             star.style.animationDuration = `${Math.random() * 2 + 1}s`;
             starsContainer.appendChild(star);
         }
+    </script>
+    <script>
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days*24*60*60*1000));
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+    
+        function getCookie(name) {
+            const cname = name + "=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const ca = decodedCookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(cname) === 0) {
+                    return c.substring(cname.length, c.length);
+                }
+            }
+            return "";
+        }
+    
+        function changeLanguage(lang) {
+            setCookie('preferredLanguage', lang, 365);  // Store the language preference for 1 year
+            document.getElementById('welcome').innerText = translations[lang].welcome;
+            document.getElementById('label-nickname').innerText = translations[lang].labelNickname;
+            document.getElementById('label-password').innerText = translations[lang].labelPassword;
+            document.getElementById('label-confirm-password').innerText = translations[lang].labelConfirmPassword;
+            document.getElementById('label-login-password').innerText = translations[lang].labelLoginPassword;
+        }
+    
+        // Function to set the language based on the cookie
+        function setLanguageFromCookie() {
+            const preferredLanguage = getCookie('preferredLanguage');
+            if (preferredLanguage && translations[preferredLanguage]) {
+                changeLanguage(preferredLanguage);
+            } else {
+                changeLanguage('fr'); // Default to French if no cookie is found
+            }
+        }
+    
+        // Set the language when the page loads
+        window.onload = setLanguageFromCookie;
+    </script>
+    <script>
+    document.getElementById('settings-btn').addEventListener('click', function() {
+        document.getElementById('settings-menu').style.display = 'block';
+    });
+
+    document.getElementById('close-settings').addEventListener('click', function() {
+        document.getElementById('settings-menu').style.display = 'none';
+    });
+
+    // Change the color of the text
+    document.getElementById('color-picker').addEventListener('input', function() {
+        document.body.style.color = this.value;
+        document.querySelectorAll('button').forEach(function(button) {
+            button.style.backgroundColor = this.value;  // Change la couleur de fond des boutons
+        }, this);
+    });
+
+    document.getElementById('font-selector').addEventListener('change', function() {
+        document.body.style.fontFamily = this.value;
+    });
+
+    document.getElementById('font-size-slider').addEventListener('input', function() {
+        document.body.style.fontSize = this.value + 'px';
+    });
     </script>
 </body>
 
