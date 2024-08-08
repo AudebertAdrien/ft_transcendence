@@ -30,13 +30,14 @@ class Game:
         self.bt1 = 0
         self.bt2 = 0
         
+        
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED")
         self.game_loop_task = asyncio.create_task(self.game_loop())
 
     async def game_loop(self):
-        while True:
+        while not self.ended:
             if self.botgame:
                 await self.update_bot_position()
             
@@ -56,6 +57,8 @@ class Game:
 
 
     def update_game_state(self):
+        if self.ended:
+            return
         # Update ball position
         self.game_state['ball_position']['x'] += self.game_state['ball_velocity']['x']
         self.game_state['ball_position']['y'] += self.game_state['ball_velocity']['y']
@@ -140,6 +143,8 @@ class Game:
     async def handle_pad_movement(self):
         #print(f"P1 mov: {self.p1_mov}")
         #print(f"P2 mov: {self.p2_mov}")
+        if self.ended:
+            return
         if self.p1_mov == -1:
             self.game_state['player1_position'] = max(self.game_state['player1_position'] - (5 * self.speed), 0)
         elif self.p1_mov == 1:
