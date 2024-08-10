@@ -3,6 +3,7 @@
 import json
 import asyncio
 import random
+from datetime import datetime
 from .utils import endfortheouche
 
 
@@ -29,12 +30,16 @@ class Game:
         self.p2_mov = 0
         self.bt1 = 0
         self.bt2 = 0
+        self.start_time = None
         
         
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED")
         self.game_loop_task = asyncio.create_task(self.game_loop())
+        print(" begin MATCH at : ")
+        self.start_time = datetime.now()
+        print(f" begin MATCH : {self.start_time} ")
 
     async def game_loop(self):
         while not self.ended:
@@ -160,6 +165,10 @@ class Game:
             if self.game_loop_task:
                 self.game_loop_task.cancel()            
             print(f"- Game #{self.game_id} ENDED")
+
+            end_time = datetime.now()
+            duration = (end_time -  self.start_time).total_seconds() / 60
+
             # Notify that one player left the game      
             if disconnected_player:
                 remaining_player = self.player2 if disconnected_player == self.player1 else self.player1
@@ -180,8 +189,5 @@ class Game:
                 await self.player2.send(end_message)
             await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, 42, False, None)
+                           self.bt1, self.bt2, duration, False, None)
 
-
-
-######################################################## Test amelioration IA ########################################################
