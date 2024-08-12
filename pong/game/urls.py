@@ -4,9 +4,7 @@ from django.urls import path, include
 from . import views
 from .views import player_list, tournoi_list, match_list
 from rest_framework.routers import DefaultRouter
-from .views import match_list_json
-from .views import player_list_json
-
+from .views import match_list_json, player_list_json, tournoi_list_json
 
 
 urlpatterns = [
@@ -20,4 +18,5 @@ urlpatterns = [
     path('tournois/', tournoi_list, name='tournoi_list'),
     path('api/match_list/', match_list_json, name='match_list_json'),
     path('api/player_list/', player_list_json, name='player_list_json'),
+    path('api/tournoi_list/', tournoi_list_json, name='tournoi_list_json')
 ]

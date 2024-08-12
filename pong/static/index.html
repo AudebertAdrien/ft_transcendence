@@ -208,6 +208,8 @@
         <div id="dropdown-menu" class="dropdown-content">
             <a href="#" data-table="player-list">Players</a>
             <a href="#" data-table="match-list">Matches</a>
+            <a href="#" data-table="tournoi-list">Tournois</a>
+            <a href="#" data-table="blockchain-list">blockchain</a>
         </div>
     </div>
 
@@ -268,7 +270,7 @@
         </table>
     </div>
 
-    <div id="player-list" class="content-list" style="display:none;">
+    <div id="player-list" class="content-list" style="display: none;">
         <h1>Players</h1>
         <table>
             <thead>
@@ -308,6 +310,36 @@
                 {% empty %}
                 <tr>
                     <td colspan="13">No players found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="tournoi-list" class="content-list" style="display: none;">
+        <h1>Tournois</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Nbr_players</th>
+                    <th>Date</th>
+                    <th>Winner</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tournoi in tournois %}
+                <tr>
+                    <td>{{ tournoi.id }}</td>
+                    <td>{{ tournoi.name }}</td>
+                    <td>{{ tournoi.nbr_player }}</td>
+                    <td>{{ tournoi.date }}</td>
+                    <td>{{ tournoi.winner.name }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="14">No tournois found.</td>
                 </tr>
                 {% endfor %}
             </tbody>

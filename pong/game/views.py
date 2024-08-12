@@ -114,6 +114,20 @@ def player_list_json(request):
     # Renvoie les données en JSON
     return JsonResponse(data)
 
+def tournoi_list_json(request):
+    # Récupère tous les joueurs
+    tournois = Tournoi.objects.all()
+    
+    # Crée un dictionnaire avec les informations des joueurs
+    data = {
+        'tournois': list(tournois.values(
+            'id', 'name', 'nbr_player', 'date', 'winner'
+        ))
+    }
+    
+    # Renvoie les données en JSON
+    return JsonResponse(data)
+
 
 ####################### THEOUCHE PART ############################
 

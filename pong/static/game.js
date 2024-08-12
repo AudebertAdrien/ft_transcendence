@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuButton = document.querySelector('.burger-menu');
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
+    const tournoiList = document.getElementById('tournoi-list');
     const dropdownMenu = document.getElementById('dropdown-menu');
 
     const pongElements = document.getElementById('pong-elements');
@@ -283,26 +284,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showTable(tableId) {
         // Masquer tous les tableaux
-        if (playerList) {
-            playerList.style.display = 'none';
-        }
-        if (matchList) {
-            matchList.style.display = 'none';
-        }
-
+        printf('Entering showTable')
+        console.log('Entering showTable', tableId);
+        if (playerList) playerList.style.display = 'none';
+        if (matchList) matchList.style.display = 'none';
+        if (tournoiList) tournoiList.style.display = 'none';
+    
         // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
-            if (playerList) {
-                playerList.style.display = 'block';
-            }
+            print('Showing player list');
+            if (playerList) playerList.style.display = 'block';
             fetchPlayers();
         } else if (tableId === 'match-list') {
-            if (matchList) {
-                matchList.style.display = 'block';
-            }
+            print('Showing match list');
+            if (matchList) matchList.style.display = 'block';
             fetchMatches();
+        } else if (tableId === 'tournoi-list') {
+            print('Showing tournoi list');
+            if (tournoiList) tournoiList.style.display = 'block';
+            fetchTournois();
         }
-
         // Masquer le menu après la sélection
         if (dropdownMenu) {
             dropdownMenu.style.display = 'none';
@@ -340,6 +341,19 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (data.players) {
                     displayPlayers(data.players);
+                }
+            })
+            .catch(error => console.error('Error fetching match data:', error));
+    }
+
+    function fetchTournois(){
+        print('Fetching tournois...');
+        fetch('/api/tournoi_list/')
+            .then(response => response.json())
+            .then(data => {
+                print('Tournois data:', data);
+                if (data.tournois) {
+                    displayTournois(data.tournois);
                 }
             })
             .catch(error => console.error('Error fetching match data:', error));
@@ -391,6 +405,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${player.num_won_tournaments}</td>
             `;
             playersListBody.appendChild(row);
+        });
+    }
+
+    function displayTournois(tournois) {
+        print('Displaying tournois:');
+        const tournoisListBody = document.querySelector('#tournoi-list tbody');
+        tournoisListBody.innerHTML = '';
+
+        if (tournois.length === 0) {
+            print('No tournois to display');
+        }
+
+        tournois.forEach(tournoi => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${tournoi.id}</td>
+                <td>${tournoi.name}</td>
+                <td>${tournoi.nbr_player}</td>
+                <td>${tournoi.date}</td>
+                <td>${tournoi.winner.name}</td>
+            `;
+            tournoisListBody.appendChild(row);
         });
     }
 
