@@ -271,6 +271,11 @@ document.addEventListener('DOMContentLoaded', () => {
         //}
     //}) 
 
+    //if (menuButton) {
+        //console.log("menu bouton ok")
+        menuButton.addEventListener('click', toggleMenu);
+    //}
+
     function toggleMenu() {
         console.log('Menu toggled');
         if (dropdownMenu.style.display === "block") {
@@ -278,11 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             dropdownMenu.style.display = "block";
         }
-    }
-
-    if (menuButton) {
-        //console.log("menu bouton ok")
-        menuButton.addEventListener('click', toggleMenu);
     }
 
     const links = document.querySelectorAll('#dropdown-menu a');
