@@ -307,24 +307,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Ajouter les gestionnaires d'événements
-    menuButton.addEventListener('click', toggleMenu);
+    //menuButton.addEventListener('click', toggleMenu);
 
-    /* if (menuButton) {
+    if (menuButton) {
+        console.log("menu bouton ok")
         menuButton.addEventListener('click', toggleMenu);
+    }
 
-        const links = document.querySelectorAll('#dropdown-menu a');
-        console.log("Here !!!!!!!!!!!!");
-        console.log(links);
+    const links = document.querySelectorAll('#dropdown-menu a');
+    console.log("Here !!!!!!!!!!!!");
+    console.log(links);
 
-        links.forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault(); // Empêche le comportement par défaut du lien
-                const tableId = link.getAttribute('data-table');
-                //showTable(tableId);
-            });
+    links.forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault(); // Empêche le comportement par défaut du lien
+            const tableId = link.getAttribute('data-table');
+            //showTable(tableId);
         });
-    } */
+    });
     
 
     function fetchMatches() {
