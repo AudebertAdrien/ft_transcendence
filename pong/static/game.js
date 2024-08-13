@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //const viewSelector = document.getElementById('view-selector');
     //const viewPlayersButton = document.getElementById('view-players');
     //const viewMatchesButton = document.getElementById('view-matches');
-    const menuButton = document.querySelector('.burger-menu');
+    const menuButton = document.querySelector('burger-menu');
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
     const tournoiList = document.getElementById('tournoi-list');
@@ -271,8 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         //}
     //}) 
 
-    console.log('Here');
-
     function toggleMenu() {
         console.log('Menu toggled');
         if (dropdownMenu.style.display === "block") {
@@ -284,7 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showTable(tableId) {
         // Masquer tous les tableaux
-        printf('Entering showTable')
         console.log('Entering showTable', tableId);
         if (playerList) playerList.style.display = 'none';
         if (matchList) matchList.style.display = 'none';
@@ -311,18 +308,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Ajouter les gestionnaires d'événements
-    if (menuButton) {
-        menuButton.addEventListener('click', toggleMenu);
-    }
+    menuButton.addEventListener('click', toggleMenu);
 
-    const links = document.querySelectorAll('#dropdown-menu a');
-    links.forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault(); // Empêche le comportement par défaut du lien
-            const tableId = link.getAttribute('data-table');
-            showTable(tableId);
+    /* if (menuButton) {
+        menuButton.addEventListener('click', toggleMenu);
+
+        const links = document.querySelectorAll('#dropdown-menu a');
+        console.log("Here !!!!!!!!!!!!");
+        console.log(links);
+
+        links.forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault(); // Empêche le comportement par défaut du lien
+                const tableId = link.getAttribute('data-table');
+                //showTable(tableId);
+            });
         });
-    });
+    } */
+    
 
     function fetchMatches() {
         fetch('/api/match_list/')
