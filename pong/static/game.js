@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const formBlock = document.getElementById('block-form');
-    //const viewSelector = document.getElementById('view-selector');
-    //const viewPlayersButton = document.getElementById('view-players');
-    //const viewMatchesButton = document.getElementById('view-matches');
     const menuButton = document.querySelector('.burger-menu');
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
@@ -23,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pongElements = document.getElementById('pong-elements');
     const logo = document.querySelector('.logo');
+
+    const quickMatchButton = document.getElementById('quick-match');
+    const tournamentButton = document.getElementById('tournament');
 
     let socket;
     let token;
@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
     checkNicknameButton.addEventListener('click', handleCheckNickname);
     registerButton.addEventListener('click', handleRegister);
     loginButton.addEventListener('click', handleLogin);
+
+    quickMatchButton.addEventListener('click', startQuickMatch);
+    tournamentButton.addEventListener('click', startTournament);
+
+
 
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
@@ -104,11 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await registerUser(nickname, password);
                 if (result) {
                     registerForm.style.display = 'none';
-                    gameContainer.style.display = 'flex';
-                    formBlock.style.display = 'none';
-                    logo.style.display = 'none';
+                    //gameContainer.style.display = 'flex';
+                    //formBlock.style.display = 'none';
+                    //logo.style.display = 'none';
                     pongElements.style.display = 'none';
-                    startWebSocketConnection(token);
+                    console.log("new button must appear !");
+                    document.getElementById("post-form-buttons").style.display = 'block';
+                    //startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -133,7 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
             token = data.token;
         }
         return data.registered;
-    }
+    }quickMatchButton.style.display = 'block';
+    tournamentButton.style.display = 'block';
 
     async function handleLogin() {
         const nickname = nicknameInput.value.trim();
@@ -142,17 +150,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await authenticateUser(nickname, password);
             if (result) {
                 loginForm.style.display = 'none';
-                gameContainer.style.display = 'flex';
-                formBlock.style.display = 'none';
-                logo.style.display = 'none';
-                pongElements.style.display = 'none';
-                startWebSocketConnection(token);
+                //gameContainer.style.display = 'flex';
+                //formBlock.style.display = 'none';
+                //logo.style.display = 'none';
+                //pongElements.style.display = 'none';
+                console.log("new button must appear !");
+                document.getElementById("post-form-buttons").style.display = 'block';
+                //startWebSocketConnection(token);
             } else {
                 alert('Authentication failed. Please try again.');
             }
         } catch (error) {
             console.error('Error authenticating user:', error);
         }
+    }
+
+    function startQuickMatch() {
+        gameContainer.style.display = 'flex';
+        logo.style.display = 'none';
+        menuButton.style.display = 'none';
+        formBlock.style.display = 'none';
+        startWebSocketConnection(token);
+    }
+
+    function startTournament() {
+        console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
     }
 
     async function authenticateUser(username, password) {
@@ -254,27 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         player2Score.textContent = gameState.player2_score;
     }
 
-    // viewSelector.addEventListener('change', function() {
-      //  const selectedView = this.value;
-        
-        // Masquer les deux listes par défaut
-       // playerList.style.display = 'none';
-       // matchList.style.display = 'none';
-
-        // Afficher la liste sélectionnée
-       // if (selectedView === 'player-list') {
-       //     playerList.style.display = 'block';
-       //     fetchPlayers();
-        //} else if (selectedView === 'match-list') {
-        //    matchList.style.display = 'block';
-        //    fetchMatches();
-        //}
-    //}) 
-
-    //if (menuButton) {
-        //console.log("menu bouton ok")
-        menuButton.addEventListener('click', toggleMenu);
-    //}
+    menuButton.addEventListener('click', toggleMenu);
 
     function toggleMenu() {
         console.log('Menu toggled');
