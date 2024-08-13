@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //const viewSelector = document.getElementById('view-selector');
     //const viewPlayersButton = document.getElementById('view-players');
     //const viewMatchesButton = document.getElementById('view-matches');
-    const menuButton = document.querySelector('burger-menu');
+    const menuButton = document.querySelector('.burger-menu');
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
     const tournoiList = document.getElementById('tournoi-list');
@@ -280,6 +280,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    if (menuButton) {
+        //console.log("menu bouton ok")
+        menuButton.addEventListener('click', toggleMenu);
+    }
+
+    const links = document.querySelectorAll('#dropdown-menu a');
+    //console.log(links);
+
+    links.forEach(link => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault(); // Empêche le comportement par défaut du lien
+            const tableId = link.getAttribute('data-table');
+            console.log("Here !!!!!!!!!!!! NNNNNNNN");
+            showTable(tableId);
+        });
+    });
+    
     function showTable(tableId) {
         // Masquer tous les tableaux
         console.log('Entering showTable', tableId);
@@ -289,16 +306,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
         // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
-            print('Showing player list');
-            if (playerList) playerList.style.display = 'block';
+            console.log('Showing player list');
+            //if (playerList) {
+            playerList.style.display = 'block';
             fetchPlayers();
+            //}
         } else if (tableId === 'match-list') {
-            print('Showing match list');
-            if (matchList) matchList.style.display = 'block';
+            console.log('Showing match list');
+            //if (matchList) 
+            matchList.style.display = 'block';
             fetchMatches();
         } else if (tableId === 'tournoi-list') {
-            print('Showing tournoi list');
-            if (tournoiList) tournoiList.style.display = 'block';
+            console.log('Showing tournoi list');
+            //if (tournoiList) 
+            tournoiList.style.display = 'block';
             fetchTournois();
         }
         // Masquer le menu après la sélection
@@ -307,27 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    //menuButton.addEventListener('click', toggleMenu);
-
-    if (menuButton) {
-        console.log("menu bouton ok")
-        menuButton.addEventListener('click', toggleMenu);
-    }
-
-    const links = document.querySelectorAll('#dropdown-menu a');
-    console.log("Here !!!!!!!!!!!!");
-    console.log(links);
-
-    links.forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault(); // Empêche le comportement par défaut du lien
-            const tableId = link.getAttribute('data-table');
-            //showTable(tableId);
-        });
-    });
-    
-
     function fetchMatches() {
+        console.log('Fetching matches...');
         fetch('/api/match_list/')
             .then(response => response.json())
             .then(data => {
@@ -339,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function fetchPlayers(){
+        console.log('Fetching players...');
         fetch('/api/player_list/')
             .then(response => response.json())
             .then(data => {
@@ -350,11 +353,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function fetchTournois(){
-        print('Fetching tournois...');
+        console.log('Fetching tournois...');
         fetch('/api/tournoi_list/')
             .then(response => response.json())
             .then(data => {
-                print('Tournois data:', data);
                 if (data.tournois) {
                     displayTournois(data.tournois);
                 }
@@ -363,8 +365,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayMatches(matches) {
+        console.log('Displaying matches:');
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
+
+        if (matches.length === 0) {
+            console.log('No matches to display');
+        }
 
         matches.forEach(match => {
             const row = document.createElement('tr');
@@ -387,8 +394,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayPlayers(players) {
+        console.log('Displaying players:');
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
+
+        if (players.length === 0) {
+            console.log('No players to display');
+        }
+
 
         players.forEach(player => {
             const row = document.createElement('tr');
@@ -412,12 +425,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayTournois(tournois) {
-        print('Displaying tournois:');
+        console.log('Displaying tournois:');
         const tournoisListBody = document.querySelector('#tournoi-list tbody');
         tournoisListBody.innerHTML = '';
 
         if (tournois.length === 0) {
-            print('No tournois to display');
+            console.log('No tournois to display');
         }
 
         tournois.forEach(tournoi => {
