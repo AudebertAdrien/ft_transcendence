@@ -182,37 +182,4 @@ def get_player_p_win(player_name):
     return player.p_win
 
 
-""" def complete_match(match_id, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration):
-    try:
-        match = Match.objects.get(id=match_id)
-    except Match.DoesNotExist:
-        raise ValidationError(f"Match with id {match_id} does not exist")
-
-    match.score_player1 = score_player1
-    match.score_player2 = score_player2
-    match.nbr_ball_touch_p1 = nbr_ball_touch_p1
-    match.nbr_ball_touch_p2 = nbr_ball_touch_p2
-    match.duration = duration
-
-    if score_player1 > score_player2:
-        match.winner = match.player1
-    elif score_player2 > score_player1:
-        match.winner = match.player2
-    else:
-        match.winner = None
-
-    match.save()
-    return match """
-
-""" def complete_tournoi(tournoi_id, player):
-    try:
-        tournoi = Tournoi.objects.get(id = tournoi_id)
-    except Tournoi.DoesNotExist:
-        raise ValidationError(f"Tournoi with id {tournoi_id} does not exist")
-    
-    tournoi.winner = player
-    tournoi.save()
-    return tournoi """
-
-
     
