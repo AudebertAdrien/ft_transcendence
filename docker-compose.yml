@@ -1,58 +1,43 @@
 services:
   setup:
-   image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
-   volumes:
-     - certs:/usr/share/elasticsearch/config/certs
-   user: "0"
-   command: >
-     bash -c '
-       if [ x${ELASTIC_PASSWORD} == x ]; then
-         echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
-         exit 1;
-       elif [ x${KIBANA_PASSWORD} == x ]; then
-         echo "Set the KIBANA_PASSWORD environment variable in the .env file";
-         exit 1;
-       fi;
-       if [ ! -f config/certs/ca.zip ]; then
-         echo "Creating CA";
-         bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
-         unzip config/certs/ca.zip -d config/certs;
-       fi;
-       if [ ! -f config/certs/certs.zip ]; then
-         echo "Creating certs";
-         echo -ne \
-         "instances:\n"\
-         "  - name: es01\n"\
-         "    dns:\n"\
-         "      - es01\n"\
-         "      - localhost\n"\
-         "    ip:\n"\
-         "      - 127.0.0.1\n"\
-         "  - name: kibana\n"\
-         "    dns:\n"\
-         "      - kibana\n"\
-         "      - localhost\n"\
-         "    ip:\n"\
-         "      - 127.0.0.1\n"\
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: setup
+    user: "0"
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+    command: >
+      sh -c '
+      if [ ! -f /usr/share/elasticsearch/config/certs/elastic-certificate.p12 ]; then
+        echo "Creating elastic-certificate.p12...";
+        bin/elasticsearch-certutil cert --name elastic-certificate --days 365 --self-signed --out /usr/share/elasticsearch/config/certs/elastic-certificate.p12 --pass "";
+        else
+          echo "elastic-certificate.p12 already exists, skipping certificate creation.";
+      fi;
+
+      if [ ! -f /usr/share/elasticsearch/config/certs/instances.yml ]; then
+        echo "Creating certs";
+        echo -ne \
+        "instances:\n"\
+        "  - name: es01\n"\
+        "    dns:\n"\
+        "      - es01\n"\
+        "      - localhost\n"\
+        "    ip:\n"\
+        "      - 127.0.0.1\n"\
+        "  - name: kibana\n"\
+        "    dns:\n"\
+        "      - kibana\n"\
+        "      - localhost\n"\
+        "    ip:\n"\
+        "      - 127.0.0.1\n"\
          > config/certs/instances.yml;
-         bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
-         unzip config/certs/certs.zip -d config/certs;
-       fi;
-       echo "Setting file permissions"
-       chown -R root:root config/certs;
-       find . -type d -exec chmod 750 \{\} \;;
-       find . -type f -exec chmod 640 \{\} \;;
-       echo "Waiting for Elasticsearch availability";
-       until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
-       echo "Setting kibana_system password";
-       until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
-       echo "All done!";
-     '
-   healthcheck:
-     test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
-     interval: 1s
-     timeout: 5s
-     retries: 120 
+      fi;
+
+      echo "Setting file permissions";
+      find /usr/share/elasticsearch/config/certs -type d -exec chmod 750 \{\} \;;
+      find /usr/share/elasticsearch/config/certs -type f -exec chmod 640 \{\} \;;
+      tail -f /dev/null;
+      '
 
   backend:
     build:
@@ -80,6 +65,12 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   db:
     image: postgres:latest
@@ -95,20 +86,19 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    #healthcheck:
-      #test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      #interval: 10s
-      #timeout: 5s
-      #retries: 5
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     container_name: es01
     volumes:
-      - certs:/usr/share/elasticsearch/config/certs
-      - pong_logstash_data_01:/usr/share/elasticsearch/data
+      - certs:/usr/share/elasticsearch/config/certs:ro
     ports:
-      - "127.0.0.1:9200:9200"
+      - "9200:9200"
     networks:
       - app-network
     environment:
@@ -118,38 +108,25 @@ services:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
       - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=certs/es01/es01.key
-      - xpack.security.http.ssl.certificate=certs/es01/es01.crt
-      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.key=certs/es01/es01.key
-      - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
-      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
-      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.keystore.path=/usr/share/elasticsearch/config/certs/elastic-certificate.p12
+      - xpack.security.transport.ssl.keystore.type=PKCS12
+      - xpack.security.transport.ssl.keystore.password=""
       - xpack.license.self_generated.type=${LICENSE}
     depends_on:
+      - setup
       - logstash01
-
-  logstash01:
-    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
-    container_name: logstash01
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-    ports:
-      - "5044:5044"
-    networks:
-      - app-network
-    environment:
-      - ELASTIC_HOSTS=http://es01:9200
-      - ELASTIC_USER=${ELASTIC_USERNAME}
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - xpack.monitoring.enabled=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"'"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   kibana:
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     container_name: kibana
     volumes:
+      - certs:/usr/share/kibana/config/certs:ro
       - pong_kibana:/usr/share/kibana/data
     user: "1000:1000"
     ports:
@@ -163,30 +140,27 @@ services:
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
     depends_on:
       - es01
-    #healthcheck:
-      #test: ["CMD-SHELL", "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'"]
-      #interval: 20s
-      #timeout: 10s
-      #retries: 120
-
-  filebeat01:
-    depends_on:
-      - es01
-    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'"]
+      interval: 10s
+      timeout: 20s
+      retries: 200
+ 
+  logstash01:
+    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
+    container_name: logstash01
     volumes:
-      - pong_filebeat_data_01:/usr/share/filebeat/data
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - ELASTIC_USER=elastic
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - ELASTIC_HOSTS=https://es01:9200
-      - KIBANA_HOSTS=http://kibana:5601
-      - LOGSTASH_HOSTS=http://logstash01:9600
+      - ./config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "5044:5044"
     networks:
       - app-network
-
+    environment:
+      - ELASTIC_HOSTS=http://es01:9200
+      - ELASTIC_USER=${ELASTIC_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.monitoring.enabled=false
+      
 volumes:
   certs:
     driver: local
@@ -202,11 +176,32 @@ volumes:
     driver: local
   pong_kibana:
     driver: local
-  pong_logstash_data_01:
-    driver: local
-  pong_filebeat_data_01:
-    driver: local
 
 networks:
   app-network:
+    name: app-network
     driver: bridge
+
+
+
+  #filebeat01:
+  #depends_on:
+  #- es01
+  #  image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+  #  volumes:
+  #    - certs:/usr/share/logstash/certs
+  #    - pong_filebeat_data_01:/usr/share/filebeat/data
+  #    - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+  #    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #    - /var/run/docker.sock:/var/run/docker.sock:ro
+  #  environment:
+  #    - ELASTIC_USER=elastic
+  #    - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #    - ELASTIC_HOSTS=https://es01:9200
+  #    - KIBANA_HOSTS=http://kibana:5601
+  #    - LOGSTASH_HOSTS=http://logstash01:9600
+  #    - xpack.monitoring.enabled=false
+  #  networks:
+  #    - app-network
+
+

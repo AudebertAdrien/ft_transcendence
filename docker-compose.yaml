@@ -25,6 +25,12 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   db:
     image: postgres:latest
@@ -40,47 +46,33 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    #healthcheck:
-      #test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      #interval: 10s
-      #timeout: 5s
-      #retries: 5
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     container_name: es01
     volumes:
-      - pong_logstash_data_01:/usr/share/elasticsearch/data
+      - pong_es_data_01:/usr/share/elasticsearch/data
     ports:
-      - "127.0.0.1:9200:9200"
+     - "9200:9200"
     networks:
-      - app-network
+     - app-network
     environment:
-      - node.name=es01
-      - cluster.name=${CLUSTER_NAME}
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - xpack.security.enabled=false 
-      - xpack.license.self_generated.type=trial
-    depends_on:
-      - logstash01
-
-  logstash01:
-    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
-    container_name: logstash01
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    ports:
-      - "5044:5044"
-    networks:
-      - app-network
-    environment:
-      - ELASTIC_HOSTS=http://es01:9200
-      - ELASTIC_USER=${ELASTIC_USERNAME}
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - xpack.monitoring.enabled=false
+     - node.name=es01
+     - cluster.name=${CLUSTER_NAME}
+     - discovery.type=single-node
+     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+     - bootstrap.memory_lock=true
+     - xpack.security.enabled=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"'"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   kibana:
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
@@ -99,11 +91,27 @@ services:
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
     depends_on:
       - es01
-    #healthcheck:
-      #test: ["CMD-SHELL", "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'"]
-      #interval: 20s
-      #timeout: 10s
-      #retries: 120
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -I http://localhost:5601 | grep -q '200 OK'"]
+      interval: 10s
+      timeout: 20s
+      retries: 200
+
+    
+  logstash01:
+    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
+    container_name: logstash01
+    volumes:
+      - ./config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "5044:5044"
+    networks:
+      - app-network
+    environment:
+      - ELASTIC_HOSTS=http://es01:9200
+      - ELASTIC_USER=${ELASTIC_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.monitoring.enabled=false
 
 volumes:
   pong:
@@ -118,10 +126,8 @@ volumes:
     driver: local
   pong_kibana:
     driver: local
-  pong_logstash_data_01:
-    driver: local
-  pong_filebeat_data_01:
-    driver: local
+
+  
 
 networks:
   app-network:
