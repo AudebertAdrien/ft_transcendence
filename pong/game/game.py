@@ -47,7 +47,7 @@ class Game:
                 await self.update_bot_position()
             
             await self.handle_pad_movement()
-            self.update_game_state()
+            await self.update_game_state()
             await self.send_game_state()
             await asyncio.sleep(1/60)  # Around 60 FPS
 
@@ -61,7 +61,7 @@ class Game:
             self.game_state['player2_position'] = max(self.game_state['player2_position'] - (5 * self.speed), 0)
 
 
-    def update_game_state(self):
+    async def update_game_state(self):
         if self.ended:
             return
         # Update ball position
@@ -84,15 +84,19 @@ class Game:
                 self.bt2 += 1
             self.update_ball_velocity()
         # Check for scoring
+        print(f"########### score user 1 {self.game_state['player1_score']} ###########")
+        print(f"§§§§§§§§§§§ score user 2 {self.game_state['player2_score']} §§§§§§§§§§§")
+
         if self.game_state['ball_position']['x'] <= 10:
             self.game_state['player2_score'] += 1
-            if self.game_state['player2_score'] >= 5:
-                self.end_game()
+            if self.game_state['player2_score'] >= 2:
+                print("Here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                await self.end_game()
             self.reset_ball()
         elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
-            if self.game_state['player1_score'] >= 5:
-                self.end_game()
+            if self.game_state['player1_score'] >= 2:
+                await self.end_game()
             self.reset_ball()
 
     def reset_ball(self):
@@ -160,7 +164,9 @@ class Game:
             self.game_state['player2_position'] = min(self.game_state['player2_position'] + (5 * self.speed), 300)
 
     async def end_game(self, disconnected_player=None):
+        print("end GAME CALLED")
         if not self.ended:
+            print("Game ended !!!!! ")
             self.ended = True
             if self.game_loop_task:
                 self.game_loop_task.cancel()            
@@ -187,6 +193,7 @@ class Game:
             await self.player1.send(end_message)
             if not self.botgame:
                 await self.player2.send(end_message)
+            print("save data")
             await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)
