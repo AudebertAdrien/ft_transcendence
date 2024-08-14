@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     //logo.style.display = 'none';
                     pongElements.style.display = 'none';
                     console.log("new button must appear !");
-                    document.getElementById("post-form-buttons").style.display = 'block';
+                    document.getElementById("post-form-buttons").style.display = 'inline-block';
                     //startWebSocketConnection(token);
                 } else {
                     alert('Registration failed. Please try again.');
@@ -140,8 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             token = data.token;
         }
         return data.registered;
-    }quickMatchButton.style.display = 'block';
-    tournamentButton.style.display = 'block';
+    }
 
     async function handleLogin() {
         const nickname = nicknameInput.value.trim();
@@ -155,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 //logo.style.display = 'none';
                 //pongElements.style.display = 'none';
                 console.log("new button must appear !");
-                document.getElementById("post-form-buttons").style.display = 'block';
+                document.getElementById("post-form-buttons").style.display = 'inline-block';
                 //startWebSocketConnection(token);
             } else {
                 alert('Authentication failed. Please try again.');
