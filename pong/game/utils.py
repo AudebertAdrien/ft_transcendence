@@ -10,36 +10,26 @@ from channels.db import database_sync_to_async
 async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
         print("here endfortheouche §!!!")
-
-        """ await database_sync_to_async(Player.objects.filter(name=p1).exists)()
-        print("ok") """
         
         if not await database_sync_to_async(Player.objects.filter(name=p1).exists)():
-            print("############# player 1 not existed .... creating player #############")
             player_1 = await create_player(p1)
-            print("############# PLAYER DONE ############")
+            print("############# PLAYER DONE")
         else:
-            print("############# Player 1 find, get data #############")
             player_1 = await database_sync_to_async(Player.objects.get)(name=p1)
-            print("############# Player get #############")
 
         if not await database_sync_to_async(Player.objects.filter(name=p2).exists)():
-            print("############# player 2 not existed .... creating player #############")
             player_2 = await create_player(p2)
             print("############# PLAYER DONE")
         else:
-            print("############# Player 2 find, get data #############")
             player_2 = await database_sync_to_async(Player.objects.get)(name=p2)
-            print("############# Player get #############")
         
         print("############# BEFORE MATCH")
         await create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
         print("############# AFTER DONE")
 
-        await uptdate_player_statistics(p1)
+        await update_player_statistics(p1)
         print("############# END STAT P1")
-        await uptdate_player_statistics(p2) 
-        
+        await update_player_statistics(p2)
     except Exception as e:
         print(f"Error in endfortheouche: {e}")
 
