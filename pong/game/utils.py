@@ -17,6 +17,8 @@ async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_
         else:
             player_1 = await database_sync_to_async(Player.objects.get)(name=p1)
 
+        print("ok")
+
         if not await database_sync_to_async(Player.objects.filter(name=p2).exists)():
             player_2 = await create_player(p2)
             print("############# PLAYER DONE")
@@ -100,7 +102,7 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
     return match
 
 @database_sync_to_async
-def uptdate_player_statistics(player_name):
+def update_player_statistics(player_name):
     print("############# BEG STAT P")
     player = get_object_or_404(Player, name=player_name)
 
