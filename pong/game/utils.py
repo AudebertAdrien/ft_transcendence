@@ -10,7 +10,6 @@ from channels.db import database_sync_to_async
 async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
         print("here endfortheouche §!!!")
-        
         if not await database_sync_to_async(Player.objects.filter(name=p1).exists)():
             player_1 = await create_player(p1)
             print("############# PLAYER DONE")
