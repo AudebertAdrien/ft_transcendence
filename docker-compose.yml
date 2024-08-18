@@ -10,11 +10,11 @@ services:
       venv/bin/python manage.py makemigrations --noinput &&
       venv/bin/python manage.py migrate --noinput && 
       venv/bin/python manage.py collectstatic --noinput &&
-      venv/bin/daphne -b 0.0.0.0 -p 8080 pong.asgi:application"
+      venv/bin/daphne -b 0.0.0.0 -p 80 pong.asgi:application"
     volumes:
       - pong:/transcendence/pong
     ports:
-      - "8080:8080"
+      - "80:80"
     networks:
       - app-network
     environment:

@@ -1,26 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded event fired'); 
-    const checkNicknameButton = document.getElementById('check-nickname');
-    const registerButton = document.getElementById('register');
-    const loginButton = document.getElementById('login');
+    const formBlock = document.getElementById('block-form');
+
     const authForm = document.getElementById('auth-form');
-    const gameContainer = document.getElementById('game1');
     const nicknameInput = document.getElementById('nickname');
+    const checkNicknameButton = document.getElementById('check-nickname');
+
+    const registerForm = document.getElementById('register-form');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm-password');
-    const loginPasswordInput = document.getElementById('login-password');
+    const registerButton = document.getElementById('register');
+
     const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const formBlock = document.getElementById('block-form');
+    const loginPasswordInput = document.getElementById('login-password');
+    const loginButton = document.getElementById('login');
+
+    const authForm2 = document.getElementById('auth-form2');
+    const nicknameInput2 = document.getElementById('nickname2');
+    const checkNicknameButton2 = document.getElementById('check-nickname2');
+
+    const registerForm2 = document.getElementById('register-form2');
+    const passwordInput2 = document.getElementById('password2');
+    const confirmPasswordInput2 = document.getElementById('confirm-password2');
+    const registerButton2 = document.getElementById('register2');
+
+    const loginForm2 = document.getElementById('login-form2');
+    const loginPasswordInput2 = document.getElementById('login-password2');
+    const loginButton2 = document.getElementById('login2');
+
+    const gameContainer = document.getElementById('game1');
+
     const menuButton = document.querySelector('.burger-menu');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
     const tournoiList = document.getElementById('tournoi-list');
-    const dropdownMenu = document.getElementById('dropdown-menu');
 
     const pongElements = document.getElementById('pong-elements');
     const logo = document.querySelector('.logo');
 
+    const localGameButton = document.getElementById('local-game');
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
 
@@ -41,9 +60,13 @@ document.addEventListener('DOMContentLoaded', () => {
     registerButton.addEventListener('click', handleRegister);
     loginButton.addEventListener('click', handleLogin);
 
+    checkNicknameButton2.addEventListener('click', handleCheckNickname2);
+    registerButton2.addEventListener('click', handleRegister2);
+    loginButton2.addEventListener('click', handleLogin2);
+
+    localGameButton.addEventListener('click', startLocalGame);
     quickMatchButton.addEventListener('click', startQuickMatch);
     tournamentButton.addEventListener('click', startTournament);
-
 
 
     async function handleCheckNickname() {
@@ -109,13 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await registerUser(nickname, password);
                 if (result) {
                     registerForm.style.display = 'none';
-                    //gameContainer.style.display = 'flex';
-                    //formBlock.style.display = 'none';
-                    //logo.style.display = 'none';
-                    pongElements.style.display = 'none';
-                    console.log("new button must appear !");
-                    document.getElementById("post-form-buttons").style.display = 'inline-block';
-                    //startWebSocketConnection(token);
+                    document.getElementById("post-form-buttons").style.display = 'block';
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -149,31 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await authenticateUser(nickname, password);
             if (result) {
                 loginForm.style.display = 'none';
-                //gameContainer.style.display = 'flex';
-                //formBlock.style.display = 'none';
-                //logo.style.display = 'none';
-                //pongElements.style.display = 'none';
-                console.log("new button must appear !");
-                document.getElementById("post-form-buttons").style.display = 'inline-block';
-                //startWebSocketConnection(token);
+                document.getElementById("post-form-buttons").style.display = 'block';
             } else {
                 alert('Authentication failed. Please try again.');
             }
         } catch (error) {
             console.error('Error authenticating user:', error);
         }
-    }
-
-    function startQuickMatch() {
-        gameContainer.style.display = 'flex';
-        logo.style.display = 'none';
-        menuButton.style.display = 'none';
-        formBlock.style.display = 'none';
-        startWebSocketConnection(token);
-    }
-
-    function startTournament() {
-        console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
     }
 
     async function authenticateUser(username, password) {
@@ -191,12 +190,176 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.authenticated;
     }
 
-    function startWebSocketConnection(token) {
+    // functions to handle the second player
+
+    async function handleCheckNickname2() {
+        const nickname2 = nicknameInput2.value.trim();
+        if (nickname2) {
+            try {
+                const exists = await checkUserExists2(nickname2);
+                if (exists) {
+                    authForm2.style.display = 'none';
+                    loginForm2.style.display = 'block';
+                    // Auto-focus and key handling for LOGIN-FORM2
+                    loginPasswordInput2.focus();
+                    loginPasswordInput2.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            loginButton2.click();
+                        }
+                    });
+                } else {
+                    authForm2.style.display = 'none';
+                    registerForm2.style.display = 'block';
+                    // Auto-focus and key handling for REGISTER-FORM2
+                    passwordInput2.focus();
+                    passwordInput2.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            confirmPasswordInput2.focus();
+                            confirmPasswordInput2.addEventListener('keypress', function (event) {
+                                if (event.key === 'Enter') {
+                                    event.preventDefault();
+                                    registerButton2.click();
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error checking user existence:', error);
+            }
+        } else {
+            alert('Please enter a nickname.');
+        }
+    }
+
+    async function checkUserExists2(username) {
+        const response = await fetch('/check_user_exists/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username })
+        });
+        const data = await response.json();
+        return data.exists;
+    }
+
+    async function handleRegister2() {
+        const nickname2 = nicknameInput2.value.trim();
+        const password2 = passwordInput2.value.trim();
+        const confirmPassword2 = confirmPasswordInput2.value.trim();
+
+        if (password2 === confirmPassword2) {
+            try {
+                const result = await registerUser2(nickname2, password2);
+                if (result) {
+                    registerForm2.style.display = 'none';
+                    startLocalGame2();
+                } else {
+                    alert('Registration failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error registering user:', error);
+            }
+        } else {
+            alert('Passwords do not match.');
+        }
+    }
+
+    async function registerUser2(username, password) {
+        const response = await fetch('/register_user/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (data.registered) {
+            token2 = data.token;
+        }
+        return data.registered;
+    }
+
+    async function handleLogin2() {
+        const nickname2 = nicknameInput2.value.trim();
+        const password2 = loginPasswordInput2.value.trim();
+        try {
+            const result = await authenticateUser2(nickname2, password2);
+            if (result) {
+                loginForm2.style.display = 'none';
+                startLocalGame2();
+            } else {
+                alert('Authentication failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error authenticating user:', error);
+        }
+    }
+
+    async function authenticateUser2(username, password) {
+        const response = await fetch('/authenticate_user/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (data.authenticated) {
+            token2 = data.token;
+        }
+        return data.authenticated;
+    }
+
+    function startLocalGame() {
+        console.log("starting a Local Game..");
+        document.getElementById("post-form-buttons").style.display = 'none';
+        authForm2.style.display = 'block';
+        nicknameInput2.focus();
+        nicknameInput2.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                checkNicknameButton2.click();
+            }
+        });
+    }
+
+    function startLocalGame2() {
+        gameContainer.style.display = 'flex';
+        logo.style.display = 'none';
+        pongElements.style.display = 'none';
+        menuButton.style.display = 'none';
+        formBlock.style.display = 'none';
+        startWebSocketConnection(token, 2);
+    }
+
+    function startQuickMatch() {
+        gameContainer.style.display = 'flex';
+        logo.style.display = 'none';
+        pongElements.style.display = 'none';
+        menuButton.style.display = 'none';
+        formBlock.style.display = 'none';
+        startWebSocketConnection(token, 1);
+    }
+
+    function startTournament() {
+        console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
+    }
+
+    function startWebSocketConnection(token, players) {
         socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
 
         socket.onopen = function (event) {
             console.log('WebSocket connection established');
-            socket.send(JSON.stringify({ type: 'authenticate', token: token }));
+            if (players === 1) {
+                console.log("Sending token for 1 player game");
+                socket.send(JSON.stringify({ type: 'authenticate', token: token }));
+            } else {
+                console.log("Sending tokens for 2 player game");
+                socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+            }
         };
 
         socket.onmessage = function (event) {
@@ -239,15 +402,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleKeyDown(event) {
-        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-            console.log('Key press: ', event.key);
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
+            //console.log('Key press: ', event.key);
             sendKeyPress(event.key.toLowerCase());
         }
     }
 
     function sendKeyPress(key) {
         if (socket.readyState === WebSocket.OPEN) {
-            console.log('Key sent: ', key);
+            //console.log('Key sent: ', key);
             socket.send(JSON.stringify({ type: 'key_press', key }));
         }
     }
@@ -402,7 +565,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (players.length === 0) {
             console.log('No players to display');
         }
-
 
         players.forEach(player => {
             const row = document.createElement('tr');
