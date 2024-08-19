@@ -146,13 +146,13 @@ class Game:
             return
         if self.localgame:
             if key == 'arrowup':
-                self.p1_mov = -1
-            elif key == 'arrowdown':
-                self.p1_mov = 1
-            elif key == 'w':
                 self.p2_mov = -1
-            elif key == 's':
+            elif key == 'arrowdown':
                 self.p2_mov = 1
+            elif key == 'w':
+                self.p1_mov = -1
+            elif key == 's':
+                self.p1_mov = 1
         elif player == self.player1:
             if key == 'arrowup':
                 self.p1_mov = -1
@@ -205,7 +205,8 @@ class Game:
             })
             await self.player1.send(end_message)
             if not self.botgame:
-                await self.player2.send(end_message)
+                if not self.localgame:
+                    await self.player2.send(end_message)
             print("save data")
             await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
