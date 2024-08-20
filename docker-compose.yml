@@ -225,6 +225,8 @@ volumes:
     driver: local
   pong_logstash_data01:
     driver: local
+  certs:
+    driver: local
 
 networks:
   app-network:
