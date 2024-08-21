@@ -275,6 +275,9 @@ document.addEventListener('DOMContentLoaded', () => {
         player2Score.textContent = gameState.player2_score;
     }
 
+
+    ////////////////////////////// BEG BURGER BUTTON ////////////////////////////////
+
     menuButton.addEventListener('click', toggleMenu);
 
     function toggleMenu() {
@@ -287,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const links = document.querySelectorAll('#dropdown-menu a');
-    //console.log(links);
 
     links.forEach(link => {
         link.addEventListener('click', (event) => {
@@ -447,6 +449,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    ////////////////////////////// END BURGER BUTTON ////////////////////////////////
+
+
+    //////////////////////////////    BEG STARS      ////////////////////////////////
+
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 500; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.width = `${Math.random() * 3}px`;
+        star.style.height = star.style.width;
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.animationDuration = `${Math.random() * 2 + 1}s`;
+        starsContainer.appendChild(star);
+    }
+
+    //////////////////////////////    END STARS      ////////////////////////////////
+
+    
+
     var modal = document.getElementById("myModal");
     var btn = document.getElementById("myBtn");
     var span = document.getElementsByClassName("close")[0];
@@ -470,6 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    //////////////////////////////    BEG LANGAGE    ////////////////////////////////
     const translations = {
         fr: {
             welcome: "BIENVENUE DANS LE PONG 42",
@@ -507,26 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
             labelLoginPassword: "Geben Sie Ihr Passwort ein:"
         }
     };
-
-    function changeLanguage(lang) {
-        document.getElementById('welcome').innerText = translations[lang].welcome;
-        document.getElementById('label-nickname').innerText = translations[lang].labelNickname;
-        document.getElementById('label-password').innerText = translations[lang].labelPassword;
-        document.getElementById('label-confirm-password').innerText = translations[lang].labelConfirmPassword;
-        document.getElementById('label-login-password').innerText = translations[lang].labelLoginPassword;
-    }
-
-    const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 500; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.width = `${Math.random() * 3}px`;
-        star.style.height = star.style.width;
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.animationDuration = `${Math.random() * 2 + 1}s`;
-        starsContainer.appendChild(star);
-    }
 
     function setCookie(name, value, days) {
         const d = new Date();
@@ -570,9 +574,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    document.getElementById('lang-fr').addEventListener('click', () => changeLanguage('fr'));
+    document.getElementById('lang-en').addEventListener('click', () => changeLanguage('en'));
+    document.getElementById('lang-it').addEventListener('click', () => changeLanguage('it'));
+    document.getElementById('lang-es').addEventListener('click', () => changeLanguage('es'));
+    document.getElementById('lang-de').addEventListener('click', () => changeLanguage('de'));
+
     // Set the language when the page loads
     window.onload = setLanguageFromCookie;
 
+    //////////////////////////////   END LANGAGE    ////////////////////////////////
+
+
+
+    //////////////////////////////    BEG SETTING     ////////////////////////////////
+    
     document.getElementById('settings-btn').addEventListener('click', function() {
         document.getElementById('settings-menu').style.display = 'block';
     });
@@ -596,5 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('font-size-slider').addEventListener('input', function() {
         document.body.style.fontSize = this.value + 'px';
     });
+
+    //////////////////////////////    END SETTING     ////////////////////////////////
 
 });
