@@ -25,6 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
 
+ /*    const modal = document.getElementById("myModal");
+    const btn = document.getElementById("myBtn");
+    const span = document.getElementsByClassName("close")[0];
+    const jsonContent = document.getElementById("jsonContent"); */
+
     let socket;
     let token;
     let gameState;
@@ -168,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function startQuickMatch() {
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
-        menuButton.style.display = 'none';
+        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token);
     }
@@ -316,31 +321,32 @@ document.addEventListener('DOMContentLoaded', () => {
     
         // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
-            console.log('Showing player list');
+            console.log('Showing player list 2');
             //if (playerList) {
             playerList.style.display = 'block';
             fetchPlayers();
             //}
         } else if (tableId === 'match-list') {
-            console.log('Showing match list');
+            console.log('Showing match list 2');
             //if (matchList) 
             matchList.style.display = 'block';
             fetchMatches();
         } else if (tableId === 'tournoi-list') {
-            console.log('Showing tournoi list');
+            console.log('Showing tournoi list 2');
             //if (tournoiList) 
             tournoiList.style.display = 'block';
             fetchTournois();
-        } else if (tableId === blockchainList) {
-            console.log('Showing tournoi list');
-            blockchainList.style.display = 'block';
-            fetch('/web3/')
-            .then(response => response.json())
-            .then(data => {
-                jsonContent.textContent = JSON.stringify(data, null, 2);
-                //modal.style.display = "block";
-            });
+        } else if (tableId === 'blockchain-list') {
+            console.log('Opening external page in a new tab');
+            window.open('https://sepolia.etherscan.io/address/0x078d04eb6fb97cd863361fc86000647dc876441b', '_blank');
+            /* fetch('/web3/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('ok here !!');
+                    jsonContent.textContent = JSON.stringify(data, null, 2);
+                }); */
         }
+        
         // Masquer le menu après la sélection
         if (dropdownMenu) {
             dropdownMenu.style.display = 'none';
@@ -485,15 +491,11 @@ document.addEventListener('DOMContentLoaded', () => {
     //////////////////////////////    END STARS      ////////////////////////////////
 
     
-
-    var modal = document.getElementById("myModal");
-    var btn = document.getElementById("myBtn");
-    var span = document.getElementsByClassName("close")[0];
-    var jsonContent = document.getElementById("jsonContent");
-    btn.onclick = function() {
+   /*  btn.onclick = function() {
         fetch('/web3/')
             .then(response => response.json())
             .then(data => {
+                console.log('ok here !!');
                 jsonContent.textContent = JSON.stringify(data, null, 2);
                 modal.style.display = "block";
             });
@@ -507,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target == modal) {
             modal.style.display = "none";
         }
-    }
+    } */
 
     //////////////////////////////    BEG LANGAGE    ////////////////////////////////
     const translations = {
