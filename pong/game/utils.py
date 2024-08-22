@@ -4,25 +4,34 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Max, Sum, F
 from datetime import timedelta
 from channels.db import database_sync_to_async
-#from asgiref.sync import database_sync_to_async
-
 
 async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
         print("here endfortheouche §!!!")
-        if not await database_sync_to_async(Player.objects.filter(name=p1).exists)():
+
+        # Handle Player 1
+        exists = await database_sync_to_async(Player.objects.filter(name=p1).exists)()
+        if exists:
+            print(f"Player {p1} exists.")
+        else:
+            print(f"Player {p1} does not exist.")
+            
+        player_1 = await get_name(p1)
+        print(f"Player 1 retrieval result: {player_1}")
+        if player_1 is None:
+            print("############# CREATING PLAYER")
             player_1 = await create_player(p1)
-            print("############# PLAYER DONE")
         else:
-            player_1 = await database_sync_to_async(Player.objects.get)(name=p1)
-
-        print("ok")
-
-        if not await database_sync_to_async(Player.objects.filter(name=p2).exists)():
+            print("############# PLAYER FOUND")
+        
+        # Handle Player 2
+        player_2 = await get_name(p2)
+        print(f"Player 2 retrieval result: {player_2}")
+        if player_2 is None:
+            print("############# CREATING PLAYER")
             player_2 = await create_player(p2)
-            print("############# PLAYER DONE")
         else:
-            player_2 = await database_sync_to_async(Player.objects.get)(name=p2)
+            print("############# PLAYER FOUND")
         
         print("############# BEFORE MATCH")
         await create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
@@ -31,8 +40,18 @@ async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_
         await update_player_statistics(p1)
         print("############# END STAT P1")
         await update_player_statistics(p2)
+        print("############# END STAT P2")
     except Exception as e:
         print(f"Error in endfortheouche: {e}")
+
+@database_sync_to_async
+def get_name(p):
+    print(f"in get_name({p})..")
+    try:
+        return Player.objects.get(name=p)
+    except Player.DoesNotExist:
+        print("get_name() exception")
+        return None    
 
 @database_sync_to_async
 def create_player(
