@@ -2,9 +2,7 @@ COMPOSE_FILE=docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
-.PHONY: up build start stop down destroy logs ps db-shell help
-
-up:
+up: down
 	$(COMPOSE) build 
 	$(COMPOSE) up $(CONTAINER) || true
 
@@ -47,4 +45,6 @@ help:
 	@echo "  make logs [c=service]         # Tail logs of containers"
 	@echo "  make ps                       # List containers"
 	@echo "  make help                     # Show this help"
+
+.PHONY: up build start stop down destroy logs ps db-shell help
 
