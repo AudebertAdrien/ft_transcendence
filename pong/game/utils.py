@@ -6,7 +6,6 @@ from datetime import timedelta
 from channels.db import database_sync_to_async
 #from asgiref.sync import database_sync_to_async
 
-
 async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
         print("here endfortheouche §!!!")

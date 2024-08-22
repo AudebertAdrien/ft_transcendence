@@ -100,12 +100,14 @@ class Game:
             self.game_state['player2_score'] += 1
             if self.game_state['player2_score'] > 2:
                 print("Here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                await self.send_game_state()
                 await self.end_game()
             self.reset_ball()
         elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
             if self.game_state['player1_score'] > 2:
                 print("Here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                await self.send_game_state()
                 await self.end_game()
             self.reset_ball()
 
