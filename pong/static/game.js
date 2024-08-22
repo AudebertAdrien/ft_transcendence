@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerList = document.getElementById('player-list');
     const matchList = document.getElementById('match-list');
     const tournoiList = document.getElementById('tournoi-list');
+    const blockchainList = document.getElementById('blockchain-list');
     const dropdownMenu = document.getElementById('dropdown-menu');
 
     const pongElements = document.getElementById('pong-elements');
@@ -284,9 +285,17 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Menu toggled');
         if (dropdownMenu.style.display === "block") {
             dropdownMenu.style.display = "none";
+            hideAllTables();
         } else {
             dropdownMenu.style.display = "block";
         }
+    }
+
+    function hideAllTables(){
+        if (playerList) playerList.style.display = 'none';
+        if (matchList) matchList.style.display = 'none';
+        if (tournoiList) tournoiList.style.display = 'none';
+        if (blockchainList) blockchainList.style.display = 'none';
     }
 
     const links = document.querySelectorAll('#dropdown-menu a');
@@ -295,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (event) => {
             event.preventDefault(); // Empêche le comportement par défaut du lien
             const tableId = link.getAttribute('data-table');
-            console.log("Here !!!!!!!!!!!! NNNNNNNN");
+            //console.log("Here !!!!!!!!!!!! NNNNNNNN");
             showTable(tableId);
         });
     });
@@ -303,9 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showTable(tableId) {
         // Masquer tous les tableaux
         console.log('Entering showTable', tableId);
-        if (playerList) playerList.style.display = 'none';
-        if (matchList) matchList.style.display = 'none';
-        if (tournoiList) tournoiList.style.display = 'none';
+        hideAllTables();
     
         // Afficher le tableau sélectionné
         if (tableId === 'player-list') {
@@ -324,6 +331,15 @@ document.addEventListener('DOMContentLoaded', () => {
             //if (tournoiList) 
             tournoiList.style.display = 'block';
             fetchTournois();
+        } else if (tableId === blockchainList) {
+            console.log('Showing tournoi list');
+            blockchainList.style.display = 'block';
+            fetch('/web3/')
+            .then(response => response.json())
+            .then(data => {
+                jsonContent.textContent = JSON.stringify(data, null, 2);
+                //modal.style.display = "block";
+            });
         }
         // Masquer le menu après la sélection
         if (dropdownMenu) {
