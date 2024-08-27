@@ -213,7 +213,8 @@ def get_player_p_win(player_name):
 ######## try synchrone version ########
 def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
-        print("here endfortheouche §!!!")
+        print("Debut de endfortheouche")
+        print(f"Paramètres : p1={p1}, p2={p2}, s_p1={s_p1}, s_p2={s_p2}")
         # Vérification de l'existence des joueurs et création si nécessaire
         player_1 = get_or_create_player(p1)
         player_2 = get_or_create_player(p2)
