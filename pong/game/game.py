@@ -5,6 +5,8 @@ import asyncio
 import random
 from datetime import datetime
 from .utils import endfortheouche
+from asgiref.sync import sync_to_async
+
 
 class Game:
     def __init__(self, game_id, player1, player2, localgame):
@@ -214,6 +216,6 @@ class Game:
                 if not self.localgame:
                     await self.player2.send(end_message)
             print("save data")
-            await endfortheouche(self.game_state['player1_name'], self.game_state['player2_name'],
+            await sync_to_async(endfortheouche)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)
