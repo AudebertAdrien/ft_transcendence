@@ -1,1 +1,2 @@
 {"message": "Not Found: /totofaitduvelo", "taskName": null, "status_code": 404, "request": "<ASGIRequest: GET '/totofaitduvelo'>"}
+{"message": "Not Found: /favicon.ico", "taskName": null, "status_code": 404, "request": "<ASGIRequest: GET '/favicon.ico'>"}
