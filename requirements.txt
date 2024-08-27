@@ -5,4 +5,4 @@ channels
 daphne
 djangorestframework
 web3
-asyncpg
+python-json-logger==2.0.7

@@ -4,35 +4,17 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Max, Sum, F
 from datetime import timedelta
 from channels.db import database_sync_to_async
+#from asgiref.sync import database_sync_to_async
 
 async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
         print("here endfortheouche §!!!")
+        # Vérification de l'existence des joueurs et création si nécessaire
+        player_1 = await get_or_create_player(p1)
+        player_2 = await get_or_create_player(p2)
 
-        # Handle Player 1
-        exists = await database_sync_to_async(Player.objects.filter(name=p1).exists)()
-        if exists:
-            print(f"Player {p1} exists.")
-        else:
-            print(f"Player {p1} does not exist.")
-            
-        player_1 = await get_name(p1)
-        print(f"Player 1 retrieval result: {player_1}")
-        if player_1 is None:
-            print("############# CREATING PLAYER")
-            player_1 = await create_player(p1)
-        else:
-            print("############# PLAYER FOUND")
-        
-        # Handle Player 2
-        player_2 = await get_name(p2)
-        print(f"Player 2 retrieval result: {player_2}")
-        if player_2 is None:
-            print("############# CREATING PLAYER")
-            player_2 = await create_player(p2)
-        else:
-            print("############# PLAYER FOUND")
-        
+        print("ok")
+
         print("############# BEFORE MATCH")
         await create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
         print("############# AFTER DONE")
@@ -45,13 +27,34 @@ async def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_
         print(f"Error in endfortheouche: {e}")
 
 @database_sync_to_async
-def get_name(p):
-    print(f"in get_name({p})..")
-    try:
-        return Player.objects.get(name=p)
-    except Player.DoesNotExist:
-        print("get_name() exception")
-        return None    
+def get_player_by_name(name):
+    print(f"Checking if player '{name}' exists")
+    exists = Player.objects.filter(name=name).exists()
+    print(f"Player exists: {exists}")
+    return exists
+
+
+@database_sync_to_async
+def get_player(name):
+    return Player.objects.get(name=name)
+
+
+async def get_or_create_player(name):
+    print("here !!")
+    print(f"Checking existence for player: {name}")
+    player_exists = await get_player_by_name(name)
+    print(f"END search in database!! (Player exists: {player_exists})")
+    if not player_exists:
+        print("Player does not exist, creating player...")
+        player = await create_player(name)
+        print(f"Player created: {player}")
+        return player
+    else:
+        print("Player exists, fetching player...")
+        player = await get_player(name)
+        print(f"Player fetched: {player}")
+        return player 
+
 
 @database_sync_to_async
 def create_player(
@@ -69,8 +72,6 @@ def create_player(
     num_won_tournaments=0
 ):
     print("create player !!!")
-    """ if database_sync_to_async(Player.objects.filter(name=name).exists)():
-        raise ValueError(f"A player with the name '{name}' already exists.") """
     
     player = Player(
         name=name,
@@ -150,9 +151,9 @@ def update_player_statistics(player_name):
         return
     
     won_matches = Match.objects.filter(winner=player)
-    """ part_tourn_as_p1 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player1=player)
-    part_tourn_as_p2 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player2=player)
-    won_tourn = Tournoi.objects.filter(winner=player) """
+    #part_tourn_as_p1 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player1=player)
+    #part_tourn_as_p2 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player2=player)
+    #won_tourn = Tournoi.objects.filter(winner=player) 
 
     total_score = matches_as_player1.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
     total_score += matches_as_player2.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
@@ -174,10 +175,10 @@ def update_player_statistics(player_name):
     total_duration += matches_as_player2.aggregate(Sum('duration'))['duration__sum'] or 0
     m_duration = total_duration / total_match
 
-    """ total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
-    total_win_tourn = won_tourn.count()
-    p_win_tourn = (total_win_tourn / total_tourn_p) * 100 if total_tourn_p else 0
- """
+    #total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
+    #total_win_tourn = won_tourn.count()
+    #p_win_tourn = (total_win_tourn / total_tourn_p) * 100 if total_tourn_p else 0
+ 
     best_score_as_player1 = matches_as_player1.aggregate(Max('score_player1'))['score_player1__max'] or 0
     best_score_as_player2 = matches_as_player2.aggregate(Max('score_player2'))['score_player2__max'] or 0
     best_score = max(best_score_as_player1, best_score_as_player2)
@@ -192,8 +193,8 @@ def update_player_statistics(player_name):
     player.m_nbr_ball_touch = m_nbr_ball_touch
     player.total_duration = total_duration
     player.m_duration = m_duration
-    """ player.num_participated_tournaments = total_tourn_p
-    player.num_won_tournaments = total_win_tourn """
+    # player.num_participated_tournaments = total_tourn_p
+    #player.num_won_tournaments = total_win_tourn 
 
     player.save()
     print("CHAKU IS THE BEST")
@@ -205,4 +206,100 @@ def get_player_p_win(player_name):
     return player.p_win
 
 
+
+
+
+
+
+######## try synchrone version ########
+
+""" def endfortheouche_sync(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
+    try:
+        print("here endfortheouche §!!!")
+        player_1 = get_or_create_player_sync(p1)
+        player_2 = get_or_create_player_sync(p2)
+
+        print("ok")
+
+        print("############# BEFORE MATCH")
+        create_match_sync(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
+        print("############# AFTER DONE")
+
+        #update_player_statistics_sync(p1)
+        print("############# END STAT P1")
+        #update_player_statistics_sync(p2)
+    except Exception as e:
+        print(f"Error in endfortheouche: {e}")
+
+def get_player_sync(name):
+    print(f"Getting player '{name}'")
+    return Player.objects.get(name=name)
+
+
+def get_or_create_player_sync(name):
+    print("here !!")
+    player_exists = Player.objects.filter(name=name).exists()
+    print("search in database!!")
+    if not player_exists:
+        print(f"Player '{name}' does not exist, creating new player.")
+        return create_player_sync(name)
+    else:
+        print(f"Player '{name}' exists.")
+        return get_player_sync(name)
+
+def create_player(
+    name, 
+    total_match=0, 
+    total_win=0, 
+    p_win= None, 
+    m_score_match= None, 
+    m_score_adv_match= None, 
+    best_score=0, 
+    m_nbr_ball_touch= None, 
+    total_duration= None, 
+    m_duration= None, 
+    num_participated_tournaments=0, 
+    num_won_tournaments=0
+):
+    print("create player !!!")
     
+    player = Player(
+        name=name,
+        total_match=total_match,
+        total_win=total_win,
+        p_win=p_win,
+        m_score_match=m_score_match,
+        m_score_adv_match=m_score_adv_match,
+        best_score=best_score,
+        m_nbr_ball_touch=m_nbr_ball_touch,
+        total_duration=total_duration,
+        m_duration=m_duration,
+        num_participated_tournaments=num_participated_tournaments,
+        num_won_tournaments=num_won_tournaments
+    )
+    player.save()
+    return player
+
+
+def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration, is_tournoi, tournoi):
+    match = Match(
+        player1=player1,
+        player2=player2,
+        score_player1=score_player1,
+        score_player2=score_player2,
+        nbr_ball_touch_p1=nbr_ball_touch_p1,
+        nbr_ball_touch_p2=nbr_ball_touch_p2,
+        duration=duration,
+        is_tournoi=is_tournoi,
+        tournoi=tournoi
+    )
+
+    if score_player1 > score_player2:
+        match.winner = match.player1
+    elif score_player2 > score_player1:
+        match.winner = match.player2
+    else:
+        match.winner = None
+    
+    match.save()
+    return match """

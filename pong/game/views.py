@@ -72,18 +72,6 @@ def get_or_create_token(user):
 
 ####################### THEOUCHE PART ############################
 
-def player_list(request):
-    players = Player.objects.all()
-    return render(request, 'pong/player_list.html', {'players': players})
-
-def match_list(request):
-    matches = Match.objects.select_related('player1', 'player2', 'winner', 'tournoi').all()
-    return render(request, 'pong/match_list.html', {'matches': matches})
-
-def tournoi_list(request):
-    tournois = Tournoi.objects.select_related('winner').all()
-    return render(request, 'pong/tournoi_list.html', {'tournois': tournois})
-
 from django.http import JsonResponse
 
 def match_list_json(request):
