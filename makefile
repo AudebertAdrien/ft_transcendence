@@ -32,7 +32,7 @@ ps:
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
 
-re: destroy down up
+re: destroy up
 
 help:
 	@echo "Usage:"
