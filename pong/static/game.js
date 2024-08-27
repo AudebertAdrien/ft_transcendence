@@ -557,9 +557,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
 
-		const row = document.createElement('tr');
 		if (matches.length != 0) {
 			matches.forEach(match => {
+				const row = document.createElement('tr');
 				row.innerHTML = `
 					<td>${match.id}</td>
 					<td>${match.player1__name}</td>
@@ -589,9 +589,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
 
-		const row = document.createElement('tr');
 		if (players.length != 0) {
 			players.forEach(player => {
+				const row = document.createElement('tr');
 				row.innerHTML = `
 					<td>${player.id}</td>
 					<td>${player.name}</td>
@@ -622,9 +622,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		const tournoisListBody = document.querySelector('#tournoi-list tbody');
 		tournoisListBody.innerHTML = '';
 
-		const row = document.createElement('tr');
 		if (tournois.length != 0) {
 			tournois.forEach(tournoi => {
+				const row = document.createElement('tr');
 				row.innerHTML = `
 					<td>${tournoi.id}</td>
 					<td>${tournoi.name}</td>
