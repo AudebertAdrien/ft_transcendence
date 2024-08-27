@@ -86,8 +86,8 @@ def tournoi_list(request):
 
 from django.http import JsonResponse
 
-async def match_list_json(request):
-    matches = await Match.objects.all()
+def match_list_json(request):
+    matches = Match.objects.all()
     data = {
         'matches': list(matches.values(
             'id', 'player1__name', 'player2__name', 'score_player1', 'score_player2',
@@ -97,9 +97,9 @@ async def match_list_json(request):
     }
     return JsonResponse(data)
 
-async def player_list_json(request):
+def player_list_json(request):
     # Récupère tous les joueurs
-    players = await Player.objects.all()
+    players = Player.objects.all()
     
     # Crée un dictionnaire avec les informations des joueurs
     data = {
@@ -114,9 +114,9 @@ async def player_list_json(request):
     # Renvoie les données en JSON
     return JsonResponse(data)
 
-async def tournoi_list_json(request):
+def tournoi_list_json(request):
     # Récupère tous les joueurs
-    tournois = await Tournoi.objects.all()
+    tournois = Tournoi.objects.all()
     
     # Crée un dictionnaire avec les informations des joueurs
     data = {
