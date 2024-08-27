@@ -557,28 +557,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
 
-        if (matches.length === 0) {
-            console.log('No matches to display');
-        }
-
-        matches.forEach(match => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${match.id}</td>
-                <td>${match.player1__name}</td>
-                <td>${match.player2__name}</td>
-                <td>${match.score_player1}</td>
-                <td>${match.score_player2}</td>
-                <td>${match.winner__name}</td>
-                <td>${match.nbr_ball_touch_p1}</td>
-                <td>${match.nbr_ball_touch_p2}</td>
-                <td>${match.duration}</td>
-                <td>${match.date}</td>
-                <td>${match.is_tournoi}</td>
-                <td>${match.tournoi__name}</td>
-            `;
-            matchListBody.appendChild(row);
-        });
+		const row = document.createElement('tr');
+		if (matches.length != 0) {
+			matches.forEach(match => {
+				row.innerHTML = `
+					<td>${match.id}</td>
+					<td>${match.player1__name}</td>
+					<td>${match.player2__name}</td>
+					<td>${match.score_player1}</td>
+					<td>${match.score_player2}</td>
+					<td>${match.winner__name}</td>
+					<td>${match.nbr_ball_touch_p1}</td>
+					<td>${match.nbr_ball_touch_p2}</td>
+					<td>${match.duration}</td>
+					<td>${match.date}</td>
+					<td>${match.is_tournoi}</td>
+					<td>${match.tournoi__name}</td>
+					`;
+				matchListBody.appendChild(row);
+			});
+		} else {
+			row.innerHTML = `
+				<td colspan="12">No matches found.</td>
+			`;
+			matchListBody.appendChild(row);
+		}
     }
 
     function displayPlayers(players) {
@@ -586,51 +589,58 @@ document.addEventListener('DOMContentLoaded', () => {
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
 
-        if (players.length === 0) {
-            console.log('No players to display');
-        }
+		const row = document.createElement('tr');
+		if (players.length != 0) {
+			players.forEach(player => {
+				row.innerHTML = `
+					<td>${player.id}</td>
+					<td>${player.name}</td>
+					<td>${player.total_match}</td>
+					<td>${player.total_win}</td>
+					<td>${player.p_win}</td>
+					<td>${player.m_score_match}</td>
+					<td>${player.m_score_adv_match}</td>
+					<td>${player.best_score}</td>
+					<td>${player.m_nbr_ball_touch}</td>
+					<td>${player.total_duration}</td>
+					<td>${player.m_duration}</td>
+					<td>${player.num_participated_tournaments}</td>
+					<td>${player.num_won_tournaments}</td>
+					`;
+				playersListBody.appendChild(row);
+			});
+		} else {
+			row.innerHTML = `
+				<td colspan="12">No matches found.</td>
+				`
+			playersListBody.appendChild(row);
+		}
+	}
 
-        players.forEach(player => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${player.id}</td>
-                <td>${player.name}</td>
-                <td>${player.total_match}</td>
-                <td>${player.total_win}</td>
-                <td>${player.p_win}</td>
-                <td>${player.m_score_match}</td>
-                <td>${player.m_score_adv_match}</td>
-                <td>${player.best_score}</td>
-                <td>${player.m_nbr_ball_touch}</td>
-                <td>${player.total_duration}</td>
-                <td>${player.m_duration}</td>
-                <td>${player.num_participated_tournaments}</td>
-                <td>${player.num_won_tournaments}</td>
-            `;
-            playersListBody.appendChild(row);
-        });
-    }
+	function displayTournois(tournois) {
+		console.log('Displaying tournois:');
+		const tournoisListBody = document.querySelector('#tournoi-list tbody');
+		tournoisListBody.innerHTML = '';
 
-    function displayTournois(tournois) {
-        console.log('Displaying tournois:');
-        const tournoisListBody = document.querySelector('#tournoi-list tbody');
-        tournoisListBody.innerHTML = '';
-
-        if (tournois.length === 0) {
-            console.log('No tournois to display');
-        }
-
-        tournois.forEach(tournoi => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${tournoi.id}</td>
-                <td>${tournoi.name}</td>
-                <td>${tournoi.nbr_player}</td>
-                <td>${tournoi.date}</td>
-                <td>${tournoi.winner.name}</td>
-            `;
-            tournoisListBody.appendChild(row);
-        });
+		const row = document.createElement('tr');
+		if (tournois.length != 0) {
+			tournois.forEach(tournoi => {
+				row.innerHTML = `
+					<td>${tournoi.id}</td>
+					<td>${tournoi.name}</td>
+					<td>${tournoi.nbr_player}</td>
+					<td>${tournoi.date}</td>
+					<td>${tournoi.winner.name}</td>
+					`;
+				tournoisListBody.appendChild(row);
+			});
+		} else {
+			row.innerHTML = `
+				<td colspan="12">No matches found.</td>
+				`
+			tournoisListBody.appendChild(row);
+		}
+ 
     }
 
     ////////////////////////////// END BURGER BUTTON ////////////////////////////////
