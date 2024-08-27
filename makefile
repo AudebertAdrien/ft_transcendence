@@ -4,7 +4,7 @@ CONTAINER=$(c)
 
 up: down
 	$(COMPOSE) build 
-	$(COMPOSE) up $(CONTAINER) || true
+	$(COMPOSE) up -d $(CONTAINER) || true
 
 build:
 	$(COMPOSE) build $(CONTAINER)
