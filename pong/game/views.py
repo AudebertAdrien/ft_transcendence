@@ -19,6 +19,16 @@ import json
 import uuid
 
 @csrf_exempt
+def check_user_exists(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'exists': True})
+        return JsonResponse({'exists': False})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
 def register_user(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -29,16 +39,6 @@ def register_user(request):
             token = get_or_create_token(user)
             return JsonResponse({'registered': True, 'token': token})
         return JsonResponse({'registered': False, 'error': 'User already exists'})
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-@csrf_exempt
-def check_user_exists(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data.get('username')
-        if User.objects.filter(username=username).exists():
-            return JsonResponse({'exists': True})
-        return JsonResponse({'exists': False})
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
@@ -86,8 +86,8 @@ def tournoi_list(request):
 
 from django.http import JsonResponse
 
-def match_list_json(request):
-    matches = Match.objects.all()
+async def match_list_json(request):
+    matches = await Match.objects.all()
     data = {
         'matches': list(matches.values(
             'id', 'player1__name', 'player2__name', 'score_player1', 'score_player2',
@@ -97,9 +97,9 @@ def match_list_json(request):
     }
     return JsonResponse(data)
 
-def player_list_json(request):
+async def player_list_json(request):
     # Récupère tous les joueurs
-    players = Player.objects.all()
+    players = await Player.objects.all()
     
     # Crée un dictionnaire avec les informations des joueurs
     data = {
@@ -114,9 +114,9 @@ def player_list_json(request):
     # Renvoie les données en JSON
     return JsonResponse(data)
 
-def tournoi_list_json(request):
+async def tournoi_list_json(request):
     # Récupère tous les joueurs
-    tournois = Tournoi.objects.all()
+    tournois = await Tournoi.objects.all()
     
     # Crée un dictionnaire avec les informations des joueurs
     data = {

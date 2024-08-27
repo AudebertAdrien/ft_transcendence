@@ -153,7 +153,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',  # Minimum log level to be handled (INFO and above)
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'django.log'),  # The file where logs will be saved
+            'filename': os.path.join(BASE_DIR, 'logs/django.log'),  # The file where logs will be saved
             'formatter': 'json',  # Uses the JSON formatter defined above
         },
         'console': {
