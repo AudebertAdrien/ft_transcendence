@@ -22,7 +22,8 @@ class Game:
                 'ball_position': {'x': 390, 'y': 190},
                 'ball_velocity': {'x': random.choice([-5, 5]), 'y': random.choice([-5, 5])},
                 'player1_score': 0,
-                'player2_score': 0
+                'player2_score': 0,
+                'game_text': ''
             }
         else:
             self.botgame = player2 is None
@@ -34,7 +35,8 @@ class Game:
                 'ball_position': {'x': 390, 'y': 190},
                 'ball_velocity': {'x': random.choice([-5, 5]), 'y': random.choice([-5, 5])},
                 'player1_score': 0,
-                'player2_score': 0
+                'player2_score': 0,
+                'game-text': ''
             }
         self.speed = 1
         self.game_loop_task = None
@@ -53,9 +55,13 @@ class Game:
 
     async def game_loop(self):
         print("  In the game loop..")
+        x = 0
         while not self.ended:
             if self.botgame:
-                await self.update_bot_position()            
+                x += 1
+                if x == 60:
+                    await self.update_bot_position()
+                    x = 0
             await self.handle_pad_movement()
             await self.update_game_state()
             await self.send_game_state()
@@ -66,9 +72,9 @@ class Game:
         if self.game_state['player2_position'] < target_y < self.game_state['player2_position'] + 80:
             pass
         elif self.game_state['player2_position'] < target_y:
-            self.game_state['player2_position'] = min(self.game_state['player2_position'] + (5 * self.speed), 300)
+            self.game_state['player2_position'] = min(self.game_state['player2_position'] + (50 * self.speed), 300)
         elif self.game_state['player2_position'] + 80 > target_y:
-            self.game_state['player2_position'] = max(self.game_state['player2_position'] - (5 * self.speed), 0)
+            self.game_state['player2_position'] = max(self.game_state['player2_position'] - (50 * self.speed), 0)
 
     async def update_game_state(self):
         if self.ended:
@@ -92,21 +98,18 @@ class Game:
                 self.game_state['ball_velocity']['x'] *= -1
                 self.bt2 += 1
             self.update_ball_velocity()
-        # Check for scoring
-        #print(f"########### score user 1 {self.game_state['player1_score']} ###########")
-        #print(f"§§§§§§§§§§§ score user 2 {self.game_state['player2_score']} §§§§§§§§§§§")
-
+        # Check if some player won the game
         if self.game_state['ball_position']['x'] <= 10:
             self.game_state['player2_score'] += 1
             if self.game_state['player2_score'] > 2:
-                print("Here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                self.game_state['game_text'] = f"{self.game_state['player2_name']} WINS!"
                 await self.send_game_state()
                 await self.end_game()
             self.reset_ball()
         elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
             if self.game_state['player1_score'] > 2:
-                print("Here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                self.game_state['game_text'] = f"{self.game_state['player1_name']} WINS!"
                 await self.send_game_state()
                 await self.end_game()
             self.reset_ball()

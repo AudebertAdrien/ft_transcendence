@@ -110,6 +110,3 @@ class MatchMaker:
 
 # Instance of the class
 match_maker = MatchMaker()
-
-# to get what you want use get_player_p_win(player_name) !! (voir utils.py)
-#

@@ -59,20 +59,10 @@ button:hover {
     align-items: center;
 }
 
-.game-code {
-    font-size: 24px;
-    position: absolute;
-    top: 10px;
-}
-
-#gameCode {
-    left: 10px;
-}
-
 .name {
     font-size: 24px;
     position: absolute;
-    top: 30px;
+    top: 20px;
 }
 
 #player1-name {
@@ -142,6 +132,13 @@ button:hover {
     background-color: #00ffff;
     border-radius: 50%;
     position: absolute;
+}
+
+#game-text {
+    font-size: 64px;
+    color: #00ffff;
+    position: absolute;
+    top: 150px;
 }
 
 .logo {
