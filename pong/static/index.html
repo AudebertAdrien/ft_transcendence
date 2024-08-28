@@ -111,8 +111,9 @@
         </div>
     </div>
 
+    <div id="tournament-bracket" style="display: none;"></div>
+
     <div id="game1" style="display: none;">
-        <div id="gameCode" class="game-code">Game Code : </div>
         <div id="player1-name" class="name">Player 1</div>
         <div id="player2-name" class="name">Player 2</div>
         <div id="game2">
@@ -121,6 +122,7 @@
             <div id="player1-pad" class="pad"></div>
             <div id="player2-pad" class="pad"></div>
             <div id="ball"></div>
+            <div id="game-text" class="gameText"></div>
         </div>
     </div>
 
@@ -144,27 +146,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for match in matches %}
-                <tr>
-                    <td>{{ match.id }}</td>
-                    <td>{{ match.player1.name }}</td>
-                    <td>{{ match.player2.name }}</td>
-                    <td>{{ match.score_player1 }}</td>
-                    <td>{{ match.score_player2 }}</td>
-                    <td>{{ match.winner.name }}</td>
-                    <td>{{ match.nbr_ball_touch_p1 }}</td>
-                    <td>{{ match.nbr_ball_touch_p2 }}</td>
-                    <td>{{ match.duration }}</td>
-                    <td>{{ match.date }}</td>
-                    <td>{{ match.is_tournoi }}</td>
-                    <td>{{ match.tournoi.name }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="12">No matches found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+			</tbody>
         </table>
     </div>
 
@@ -189,28 +171,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for player in players %}
-                <tr>
-                    <td>{{ player.id }}</td>
-                    <td>{{ player.name }}</td>
-                    <td>{{ player.total_match }}</td>
-                    <td>{{ player.total_win }}</td>
-                    <td>{{ player.p_win }}</td>
-                    <td>{{ player.m_score_match }}</td>
-                    <td>{{ player.m_score_adv_match }}</td>
-                    <td>{{ player.best_score }}</td>
-                    <td>{{ player.m_nbr_ball_touch }}</td>
-                    <td>{{ player.total_duration }}</td>
-                    <td>{{ player.m_duration }}</td>
-                    <td>{{ player.num_participated_tournaments }}</td>
-                    <td>{{ player.num_won_tournaments }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="13">No players found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+	        </tbody>
         </table>
     </div>
 
@@ -226,21 +187,8 @@
                     <th>Winner</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for tournoi in tournois %}
-                <tr>
-                    <td>{{ tournoi.id }}</td>
-                    <td>{{ tournoi.name }}</td>
-                    <td>{{ tournoi.nbr_player }}</td>
-                    <td>{{ tournoi.date }}</td>
-                    <td>{{ tournoi.winner.name }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="14">No tournois found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+			<tbody>
+			</tbody>
         </table>
     </div>
 

@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginButton2 = document.getElementById('login2');
 
     const gameContainer = document.getElementById('game1');
+    const tournamentContainer = document.getElementById('tournament-bracket');
 
     const menuButton = document.querySelector('.burger-menu');
     const dropdownMenu = document.getElementById('dropdown-menu');
@@ -351,7 +352,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startTournament() {
-        console.log("For now, do nothing, hurry up and work Senor chaku !!!!")
+        tournamentContainer.style.display = 'flex';
+        logo.style.display = 'none';
+        pongElements.style.display = 'none';
+        //menuButton.style.display = 'none';
+        formBlock.style.display = 'none';
+        startWebSocketConnection(token, 42);
     }
 
     function startWebSocketConnection(token, players) {
@@ -360,11 +366,14 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.onopen = function (event) {
             console.log('WebSocket connection established');
             if (players === 1) {
-                console.log("Sending token for 1 player game");
+                console.log("Sending token for a quick match game");
                 socket.send(JSON.stringify({ type: 'authenticate', token: token }));
-            } else {
-                console.log("Sending tokens for 2 player game");
+            } else if (players === 2) {
+                console.log("Sending tokens for a local game");
                 socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+            } else {
+                console.log("Sending token for a tournament game")
+                socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
             }
         };
 
@@ -376,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Entered the WAITING ROOM');
             } else if (data.type === 'game_start') {
                 console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-                startGame(data.game_id, data.player1, data.player2);
+                document.addEventListener('keydown', handleKeyDown);
             } else if (data.type === 'game_state_update') {
                 updateGameState(data.game_state);
             } else if (data.type === 'player_disconnected') {
@@ -385,6 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Game ended:", data.game_id);
             } else if (data.type === 'error') {
                 console.error(data.message);
+            } else if (data.type === 'update_waiting_room') {
+                document.getElementById('tournament-bracket').innerHTML = data.html;
             } else {
                 console.log('Message from server:', data.type, data.message);
             }
@@ -397,14 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.onerror = function (error) {
             console.error('WebSocket error:', error);
         };
-    }
-
-    function startGame(gameCode, player1_name, player2_name) {
-        document.getElementById('gameCode').textContent = `Game Code: ${gameCode}`;
-        document.getElementById('player1-name').textContent = `${player1_name}`;
-        document.getElementById('player2-name').textContent = `${player2_name}`;
-        document.addEventListener('keydown', handleKeyDown);
-
     }
 
     function handleKeyDown(event) {
@@ -427,23 +430,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderGame() {
-        const player1Pad = document.getElementById('player1-pad');
-        player1Pad.style.top = `${gameState.player1_position}px`;
+        document.getElementById('player1-name').textContent = `${gameState.player1_name}`;
+        document.getElementById('player2-name').textContent = `${gameState.player2_name}`;
 
-        const player2Pad = document.getElementById('player2-pad');
-        player2Pad.style.top = `${gameState.player2_position}px`;
+        document.getElementById('player1-pad').style.top = `${gameState.player1_position}px`;
+        document.getElementById('player2-pad').style.top = `${gameState.player2_position}px`;
 
-        const ball = document.getElementById('ball');
-        ball.style.left = `${gameState.ball_position.x}px`;
-        ball.style.top = `${gameState.ball_position.y}px`;
+        document.getElementById('ball').style.left = `${gameState.ball_position.x}px`;
+        document.getElementById('ball').style.top = `${gameState.ball_position.y}px`;
 
-        const player1Score = document.getElementById('player1-score');
-        player1Score.textContent = gameState.player1_score;
+        document.getElementById('player1-score').textContent = gameState.player1_score;
+        document.getElementById('player2-score').textContent = gameState.player2_score;
 
-        const player2Score = document.getElementById('player2-score');
-        player2Score.textContent = gameState.player2_score;
+        document.getElementById('game-text').textContent = gameState.game_text;
     }
-
 
     ////////////////////////////// BEG BURGER BUTTON ////////////////////////////////
 
@@ -557,28 +557,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
 
-        if (matches.length === 0) {
-            console.log('No matches to display');
-        }
-
-        matches.forEach(match => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${match.id}</td>
-                <td>${match.player1__name}</td>
-                <td>${match.player2__name}</td>
-                <td>${match.score_player1}</td>
-                <td>${match.score_player2}</td>
-                <td>${match.winner__name}</td>
-                <td>${match.nbr_ball_touch_p1}</td>
-                <td>${match.nbr_ball_touch_p2}</td>
-                <td>${match.duration}</td>
-                <td>${match.date}</td>
-                <td>${match.is_tournoi}</td>
-                <td>${match.tournoi__name}</td>
-            `;
-            matchListBody.appendChild(row);
-        });
+		if (matches.length != 0) {
+			matches.forEach(match => {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+					<td>${match.id}</td>
+					<td>${match.player1__name}</td>
+					<td>${match.player2__name}</td>
+					<td>${match.score_player1}</td>
+					<td>${match.score_player2}</td>
+					<td>${match.winner__name}</td>
+					<td>${match.nbr_ball_touch_p1}</td>
+					<td>${match.nbr_ball_touch_p2}</td>
+					<td>${match.duration}</td>
+					<td>${match.date}</td>
+					<td>${match.is_tournoi}</td>
+					<td>${match.tournoi__name}</td>
+					`;
+				matchListBody.appendChild(row);
+			});
+		} else {
+			row.innerHTML = `
+				<td colspan="12">No matches found.</td>
+			`;
+			matchListBody.appendChild(row);
+		}
     }
 
     function displayPlayers(players) {
@@ -586,51 +589,58 @@ document.addEventListener('DOMContentLoaded', () => {
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
 
-        if (players.length === 0) {
-            console.log('No players to display');
-        }
+		if (players.length != 0) {
+			players.forEach(player => {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+					<td>${player.id}</td>
+					<td>${player.name}</td>
+					<td>${player.total_match}</td>
+					<td>${player.total_win}</td>
+					<td>${player.p_win}</td>
+					<td>${player.m_score_match}</td>
+					<td>${player.m_score_adv_match}</td>
+					<td>${player.best_score}</td>
+					<td>${player.m_nbr_ball_touch}</td>
+					<td>${player.total_duration}</td>
+					<td>${player.m_duration}</td>
+					<td>${player.num_participated_tournaments}</td>
+					<td>${player.num_won_tournaments}</td>
+					`;
+				playersListBody.appendChild(row);
+			});
+		} else {
+			row.innerHTML = `
+				<td colspan="12">No matches found.</td>
+				`
+			playersListBody.appendChild(row);
+		}
+	}
 
-        players.forEach(player => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${player.id}</td>
-                <td>${player.name}</td>
-                <td>${player.total_match}</td>
-                <td>${player.total_win}</td>
-                <td>${player.p_win}</td>
-                <td>${player.m_score_match}</td>
-                <td>${player.m_score_adv_match}</td>
-                <td>${player.best_score}</td>
-                <td>${player.m_nbr_ball_touch}</td>
-                <td>${player.total_duration}</td>
-                <td>${player.m_duration}</td>
-                <td>${player.num_participated_tournaments}</td>
-                <td>${player.num_won_tournaments}</td>
-            `;
-            playersListBody.appendChild(row);
-        });
-    }
+	function displayTournois(tournois) {
+		console.log('Displaying tournois:');
+		const tournoisListBody = document.querySelector('#tournoi-list tbody');
+		tournoisListBody.innerHTML = '';
 
-    function displayTournois(tournois) {
-        console.log('Displaying tournois:');
-        const tournoisListBody = document.querySelector('#tournoi-list tbody');
-        tournoisListBody.innerHTML = '';
-
-        if (tournois.length === 0) {
-            console.log('No tournois to display');
-        }
-
-        tournois.forEach(tournoi => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${tournoi.id}</td>
-                <td>${tournoi.name}</td>
-                <td>${tournoi.nbr_player}</td>
-                <td>${tournoi.date}</td>
-                <td>${tournoi.winner.name}</td>
-            `;
-            tournoisListBody.appendChild(row);
-        });
+		if (tournois.length != 0) {
+			tournois.forEach(tournoi => {
+				const row = document.createElement('tr');
+				row.innerHTML = `
+					<td>${tournoi.id}</td>
+					<td>${tournoi.name}</td>
+					<td>${tournoi.nbr_player}</td>
+					<td>${tournoi.date}</td>
+					<td>${tournoi.winner.name}</td>
+					`;
+				tournoisListBody.appendChild(row);
+			});
+		} else {
+			row.innerHTML = `
+				<td colspan="12">No matches found.</td>
+				`
+			tournoisListBody.appendChild(row);
+		}
+ 
     }
 
     ////////////////////////////// END BURGER BUTTON ////////////////////////////////

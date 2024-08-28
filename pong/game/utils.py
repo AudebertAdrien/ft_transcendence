@@ -22,6 +22,7 @@ from channels.db import database_sync_to_async
         await update_player_statistics(p1)
         print("############# END STAT P1")
         await update_player_statistics(p2)
+        print("############# END STAT P2")
     except Exception as e:
         print(f"Error in endfortheouche: {e}")
 
