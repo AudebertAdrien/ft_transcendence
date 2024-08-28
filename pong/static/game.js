@@ -45,11 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
 
- /*    const modal = document.getElementById("myModal");
-    const btn = document.getElementById("myBtn");
-    const span = document.getElementsByClassName("close")[0];
-    const jsonContent = document.getElementById("jsonContent"); */
-
     let socket;
     let token;
     let gameState;
@@ -646,6 +641,67 @@ document.addEventListener('DOMContentLoaded', () => {
     ////////////////////////////// END BURGER BUTTON ////////////////////////////////
 
 
+    //////////////////////////////    BEG STAT SPE      ////////////////////////////////
+
+    document.getElementById('search-player').addEventListener('input', filterPlayers);
+    document.getElementById('search-match-player').addEventListener('input', filterMatches);
+    document.getElementById('search-match-date').addEventListener('input', filterMatches);
+
+    function filterPlayers() {
+        const searchValue = document.getElementById('search-player').value.toLowerCase();
+        const playersListBody = document.querySelector('#player-list tbody');
+        const rows = playersListBody.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const nameCell = rows[i].getElementsByTagName('td')[1]; // The 'Name' column
+            if (nameCell) {
+                const nameValue = nameCell.textContent || nameCell.innerText;
+                if (nameValue.toLowerCase().indexof(searchValue) > -1 ) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+    }
+
+    function filterMatches() {
+        const playerSearchValue = document.getElementById('search-match-player').value.toLowerCase();
+        const dateSearchValue = document.getElementById('search-match-date').value;
+        const matchListBody = document.querySelector('#match-list tbody');
+        const rows = matchListBody.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const player1Cell = rows[i].getElementsByTagName('td')[1]; // The 'Player 1' column
+            const player2Cell = rows[i].getElementsByTagName('td')[2]; // The 'Player 2' column
+            const dateCell = rows[i].getElementsByTagName('td')[9];    // The 'Date' column
+            
+            let playerMatch = true;
+            if (playerSearchValue) {
+                const player1Value = player1Cell.textContent || player1Cell.innerText;
+                const player2Value = player2Cell.textContent || player2Cell.innerText;
+                playerMatch = player1Value.toLowerCase().indexOf(playerSearchValue) > -1 ||
+                              player2Value.toLowerCase().indexOf(playerSearchValue) > -1;
+            }
+
+            let dateMatch = true;
+            if (dateSearchValue) {
+                const dateValue = dateCell.textContent || dateCell.innerText;
+                dateMatch = dateValue.startsWith(dateSearchValue);
+            }
+
+            if (playerMatch && dateMatch) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+
+    //////////////////////////////    END STAT SPE      ////////////////////////////////
+
+
+
     //////////////////////////////    BEG STARS      ////////////////////////////////
 
     const starsContainer = document.getElementById('stars');
@@ -662,26 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //////////////////////////////    END STARS      ////////////////////////////////
 
-    
-   /*  btn.onclick = function() {
-        fetch('/web3/')
-            .then(response => response.json())
-            .then(data => {
-                console.log('ok here !!');
-                jsonContent.textContent = JSON.stringify(data, null, 2);
-                modal.style.display = "block";
-            });
-    }
-
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    } */
 
     //////////////////////////////    BEG LANGAGE    ////////////////////////////////
     const translations = {

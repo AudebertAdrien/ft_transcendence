@@ -70,13 +70,35 @@ class Game:
             await asyncio.sleep(1/60)  # Around 60 FPS
 
     async def update_bot_position(self):
-        target_y = self.game_state['ball_position']['y']
-        if self.game_state['player2_position'] < target_y < self.game_state['player2_position'] + 80:
-            pass
-        elif self.game_state['player2_position'] < target_y:
-            self.game_state['player2_position'] = min(self.game_state['player2_position'] + (50 * self.speed), 300)
-        elif self.game_state['player2_position'] + 80 > target_y:
-            self.game_state['player2_position'] = max(self.game_state['player2_position'] - (50 * self.speed), 0)
+        future_ball_position = self.predict_ball_trajectory()
+
+        target_y = future_ball_position['y']
+        player2_position = self.game_state['player2_position']
+        
+        # Ajuste la position du bot en fonction de la position prévue de la balle
+        if player2_position < target_y < player2_position + 80:
+            pass  # Pas besoin de bouger, le bot est déjà bien placé
+        elif player2_position < target_y:
+            self.game_state['player2_position'] = min(player2_position + (50 * self.speed), 300)
+        elif player2_position + 80 > target_y:
+            self.game_state['player2_position'] = max(player2_position - (50 * self.speed), 0)
+
+    def predict_ball_trajectory(self, steps=60):
+    
+        future_x = self.game_state['ball_position']['x']
+        future_y = self.game_state['ball_position']['y']
+        velocity_x = self.game_state['ball_velocity']['x']
+        velocity_y = self.game_state['ball_velocity']['y']
+
+        for _ in range(steps):
+            future_x += velocity_x
+            future_y += velocity_y
+
+            # Gérer les rebonds sur les murs
+            if future_y <= 0 or future_y >= 300:
+                velocity_y = -velocity_y  # Inverser la direction du mouvement vertical
+
+        return {'x': future_x, 'y': future_y}
 
     async def update_game_state(self):
         if self.ended:
