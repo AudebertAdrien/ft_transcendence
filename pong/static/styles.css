@@ -1,5 +1,4 @@
 /* General styles */
-body,
 
 html {
     font-family: Arial, sans-serif;
@@ -434,4 +433,10 @@ pre {
 .tournament-waiting-room ul {
     list-style-type: none;
     padding: 0;
+}
+
+body {
+    color: rgb(0, 255, 255); /* Valeur par défaut */
+    font-family: Arial, sans-serif;
+    font-size: 16px;
 }

@@ -30,14 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameContainer = document.getElementById('game1');
     const tournamentContainer = document.getElementById('tournament-bracket');
 
-    const menuButton = document.querySelector('.burger-menu');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-
-    const playerList = document.getElementById('player-list');
-    const matchList = document.getElementById('match-list');
-    const tournoiList = document.getElementById('tournoi-list');
-    const blockchainList = document.getElementById('blockchain-list');
-
     const pongElements = document.getElementById('pong-elements');
     const logo = document.querySelector('.logo');
 
@@ -79,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (exists) {
                     authForm.style.display = 'none';
                     loginForm.style.display = 'block';
-                    // Auto-focus and key handling for LOGIN-FORM
                     loginPasswordInput.focus();
                     loginPasswordInput.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -90,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     authForm.style.display = 'none';
                     registerForm.style.display = 'block';
-                    // Auto-focus and key handling for REGISTER-FORM
                     passwordInput.focus();
                     passwordInput.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -192,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.authenticated;
     }
 
-    // functions to handle the second player
 
     async function handleCheckNickname2() {
         const nickname2 = nicknameInput2.value.trim();
@@ -202,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (exists) {
                     authForm2.style.display = 'none';
                     loginForm2.style.display = 'block';
-                    // Auto-focus and key handling for LOGIN-FORM2
                     loginPasswordInput2.focus();
                     loginPasswordInput2.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -213,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     authForm2.style.display = 'none';
                     registerForm2.style.display = 'block';
-                    // Auto-focus and key handling for REGISTER-FORM2
                     passwordInput2.focus();
                     passwordInput2.addEventListener('keypress', function (event) {
                         if (event.key === 'Enter') {
@@ -332,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
-        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 2);
     }
@@ -341,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
-        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 1);
     }
@@ -350,7 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tournamentContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
-        //menuButton.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 42);
     }
@@ -407,14 +391,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleKeyDown(event) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
-            //console.log('Key press: ', event.key);
             sendKeyPress(event.key.toLowerCase());
         }
     }
 
     function sendKeyPress(key) {
         if (socket.readyState === WebSocket.OPEN) {
-            //console.log('Key sent: ', key);
             socket.send(JSON.stringify({ type: 'key_press', key }));
         }
     }
@@ -440,270 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('game-text').textContent = gameState.game_text;
     }
 
-    ////////////////////////////// BEG BURGER BUTTON ////////////////////////////////
-
-    menuButton.addEventListener('click', toggleMenu);
-
-    function toggleMenu() {
-        console.log('Menu toggled');
-        if (dropdownMenu.style.display === "block") {
-            dropdownMenu.style.display = "none";
-            hideAllTables();
-        } else {
-            dropdownMenu.style.display = "block";
-        }
-    }
-
-    function hideAllTables(){
-        if (playerList) playerList.style.display = 'none';
-        if (matchList) matchList.style.display = 'none';
-        if (tournoiList) tournoiList.style.display = 'none';
-        if (blockchainList) blockchainList.style.display = 'none';
-    }
-
-    const links = document.querySelectorAll('#dropdown-menu a');
-
-    links.forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault(); // Empêche le comportement par défaut du lien
-            const tableId = link.getAttribute('data-table');
-            //console.log("Here !!!!!!!!!!!! NNNNNNNN");
-            showTable(tableId);
-        });
-    });
-    
-    function showTable(tableId) {
-        // Masquer tous les tableaux
-        console.log('Entering showTable', tableId);
-        hideAllTables();
-    
-        // Afficher le tableau sélectionné
-        if (tableId === 'player-list') {
-            console.log('Showing player list 2');
-            //if (playerList) {
-            playerList.style.display = 'block';
-            fetchPlayers();
-            //}
-        } else if (tableId === 'match-list') {
-            console.log('Showing match list 2');
-            //if (matchList) 
-            matchList.style.display = 'block';
-            fetchMatches();
-        } else if (tableId === 'tournoi-list') {
-            console.log('Showing tournoi list 2');
-            //if (tournoiList) 
-            tournoiList.style.display = 'block';
-            fetchTournois();
-        } else if (tableId === 'blockchain-list') {
-            console.log('Opening external page in a new tab');
-            window.open('https://sepolia.etherscan.io/address/0x078d04eb6fb97cd863361fc86000647dc876441b', '_blank');
-            /* fetch('/web3/')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('ok here !!');
-                    jsonContent.textContent = JSON.stringify(data, null, 2);
-                }); */
-        }
-        
-        // Masquer le menu après la sélection
-        if (dropdownMenu) {
-            dropdownMenu.style.display = 'none';
-        }
-    }
-
-    function fetchMatches() {
-        console.log('Fetching matches...');
-        fetch('/api/match_list/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.matches) {
-                    displayMatches(data.matches);
-                }
-            })
-            .catch(error => console.error('Error fetching match data:', error));
-    }
-
-    function fetchPlayers(){
-        console.log('Fetching players...');
-        fetch('/api/player_list/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.players) {
-                    displayPlayers(data.players);
-                }
-            })
-            .catch(error => console.error('Error fetching match data:', error));
-    }
-
-    function fetchTournois(){
-        console.log('Fetching tournois...');
-        fetch('/api/tournoi_list/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.tournois) {
-                    displayTournois(data.tournois);
-                }
-            })
-            .catch(error => console.error('Error fetching match data:', error));
-    }
-
-    function displayMatches(matches) {
-        console.log('Displaying matches:');
-        const matchListBody = document.querySelector('#match-list tbody');
-        matchListBody.innerHTML = '';
-
-		if (matches.length != 0) {
-			matches.forEach(match => {
-				const row = document.createElement('tr');
-				row.innerHTML = `
-					<td>${match.id}</td>
-					<td>${match.player1__name}</td>
-					<td>${match.player2__name}</td>
-					<td>${match.score_player1}</td>
-					<td>${match.score_player2}</td>
-					<td>${match.winner__name}</td>
-					<td>${match.nbr_ball_touch_p1}</td>
-					<td>${match.nbr_ball_touch_p2}</td>
-					<td>${match.duration}</td>
-					<td>${match.date}</td>
-					<td>${match.is_tournoi}</td>
-					<td>${match.tournoi__name}</td>
-					`;
-				matchListBody.appendChild(row);
-			});
-		} else {
-			row.innerHTML = `
-				<td colspan="12">No matches found.</td>
-			`;
-			matchListBody.appendChild(row);
-		}
-    }
-
-    function displayPlayers(players) {
-        console.log('Displaying players:');
-        const playersListBody = document.querySelector('#player-list tbody');
-        playersListBody.innerHTML = '';
-
-		if (players.length != 0) {
-			players.forEach(player => {
-				const row = document.createElement('tr');
-				row.innerHTML = `
-					<td>${player.id}</td>
-					<td>${player.name}</td>
-					<td>${player.total_match}</td>
-					<td>${player.total_win}</td>
-					<td>${player.p_win}</td>
-					<td>${player.m_score_match}</td>
-					<td>${player.m_score_adv_match}</td>
-					<td>${player.best_score}</td>
-					<td>${player.m_nbr_ball_touch}</td>
-					<td>${player.total_duration}</td>
-					<td>${player.m_duration}</td>
-					<td>${player.num_participated_tournaments}</td>
-					<td>${player.num_won_tournaments}</td>
-					`;
-				playersListBody.appendChild(row);
-			});
-		} else {
-			row.innerHTML = `
-				<td colspan="12">No matches found.</td>
-				`
-			playersListBody.appendChild(row);
-		}
-	}
-
-	function displayTournois(tournois) {
-		console.log('Displaying tournois:');
-		const tournoisListBody = document.querySelector('#tournoi-list tbody');
-		tournoisListBody.innerHTML = '';
-
-		if (tournois.length != 0) {
-			tournois.forEach(tournoi => {
-				const row = document.createElement('tr');
-				row.innerHTML = `
-					<td>${tournoi.id}</td>
-					<td>${tournoi.name}</td>
-					<td>${tournoi.nbr_player}</td>
-					<td>${tournoi.date}</td>
-					<td>${tournoi.winner.name}</td>
-					`;
-				tournoisListBody.appendChild(row);
-			});
-		} else {
-			row.innerHTML = `
-				<td colspan="12">No matches found.</td>
-				`
-			tournoisListBody.appendChild(row);
-		}
- 
-    }
-
-    ////////////////////////////// END BURGER BUTTON ////////////////////////////////
-
-
-    //////////////////////////////    BEG STAT SPE      ////////////////////////////////
-
-    document.getElementById('search-player').addEventListener('input', filterPlayers);
-    document.getElementById('search-match-player').addEventListener('input', filterMatches);
-    document.getElementById('search-match-date').addEventListener('input', filterMatches);
-
-    function filterPlayers() {
-        const searchValue = document.getElementById('search-player').value.toLowerCase();
-        const playersListBody = document.querySelector('#player-list tbody');
-        const rows = playersListBody.getElementsByTagName('tr');
-
-        for (let i = 0; i < rows.length; i++) {
-            const nameCell = rows[i].getElementsByTagName('td')[1]; // The 'Name' column
-            if (nameCell) {
-                const nameValue = nameCell.textContent || nameCell.innerText;
-                if (nameValue.toLowerCase().indexof(searchValue) > -1 ) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
-            }
-        }
-    }
-
-    function filterMatches() {
-        const playerSearchValue = document.getElementById('search-match-player').value.toLowerCase();
-        const dateSearchValue = document.getElementById('search-match-date').value;
-        const matchListBody = document.querySelector('#match-list tbody');
-        const rows = matchListBody.getElementsByTagName('tr');
-
-        for (let i = 0; i < rows.length; i++) {
-            const player1Cell = rows[i].getElementsByTagName('td')[1]; // The 'Player 1' column
-            const player2Cell = rows[i].getElementsByTagName('td')[2]; // The 'Player 2' column
-            const dateCell = rows[i].getElementsByTagName('td')[9];    // The 'Date' column
-            
-            let playerMatch = true;
-            if (playerSearchValue) {
-                const player1Value = player1Cell.textContent || player1Cell.innerText;
-                const player2Value = player2Cell.textContent || player2Cell.innerText;
-                playerMatch = player1Value.toLowerCase().indexOf(playerSearchValue) > -1 ||
-                              player2Value.toLowerCase().indexOf(playerSearchValue) > -1;
-            }
-
-            let dateMatch = true;
-            if (dateSearchValue) {
-                const dateValue = dateCell.textContent || dateCell.innerText;
-                dateMatch = dateValue.startsWith(dateSearchValue);
-            }
-
-            if (playerMatch && dateMatch) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
-            }
-        }
-    }
-
-    //////////////////////////////    END STAT SPE      ////////////////////////////////
-
-
-
-    //////////////////////////////    BEG STARS      ////////////////////////////////
-
     const starsContainer = document.getElementById('stars');
     for (let i = 0; i < 500; i++) {
         const star = document.createElement('div');
@@ -715,130 +433,5 @@ document.addEventListener('DOMContentLoaded', () => {
         star.style.animationDuration = `${Math.random() * 2 + 1}s`;
         starsContainer.appendChild(star);
     }
-
-    //////////////////////////////    END STARS      ////////////////////////////////
-
-
-    //////////////////////////////    BEG LANGAGE    ////////////////////////////////
-    const translations = {
-        fr: {
-            welcome: "BIENVENUE DANS LE PONG 42",
-            labelNickname: "Entrez votre surnom:",
-            labelPassword: "Entrez votre mot de passe:",
-            labelConfirmPassword: "Confirmez votre mot de passe:",
-            labelLoginPassword: "Entrez votre mot de passe:"
-        },
-        en: {
-            welcome: "WELCOME TO PONG 42",
-            labelNickname: "Enter your nickname:",
-            labelPassword: "Enter your password:",
-            labelConfirmPassword: "Confirm your password:",
-            labelLoginPassword: "Enter your password:"
-        },
-        it: {
-            welcome: "BENVENUTO A PONG 42",
-            labelNickname: "Inserisci il tuo soprannome:",
-            labelPassword: "Inserisci la tua password:",
-            labelConfirmPassword: "Conferma la tua password:",
-            labelLoginPassword: "Inserisci la tua password:"
-        },
-        es: {
-            welcome: "BIENVENIDO A PONG 42",
-            labelNickname: "Introduce tu apodo:",
-            labelPassword: "Introduce tu contraseña:",
-            labelConfirmPassword: "Confirma tu contraseña:",
-            labelLoginPassword: "Introduce tu contraseña:"
-        },
-        de: {
-            welcome: "WILLKOMMEN BEI PONG 42",
-            labelNickname: "Geben Sie Ihren Spitznamen ein:",
-            labelPassword: "Geben Sie Ihr Passwort ein:",
-            labelConfirmPassword: "Bestätigen Sie Ihr Passwort:",
-            labelLoginPassword: "Geben Sie Ihr Passwort ein:"
-        }
-    };
-
-    function setCookie(name, value, days) {
-        const d = new Date();
-        d.setTime(d.getTime() + (days*24*60*60*1000));
-        const expires = "expires=" + d.toUTCString();
-        document.cookie = name + "=" + value + ";" + expires + ";path=/";
-    }
-
-    function getCookie(name) {
-        const cname = name + "=";
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const ca = decodedCookie.split(';');
-        for(let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(cname) === 0) {
-                return c.substring(cname.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    function changeLanguage(lang) {
-        setCookie('preferredLanguage', lang, 365);  // Store the language preference for 1 year
-        document.getElementById('welcome').innerText = translations[lang].welcome;
-        document.getElementById('label-nickname').innerText = translations[lang].labelNickname;
-        document.getElementById('label-password').innerText = translations[lang].labelPassword;
-        document.getElementById('label-confirm-password').innerText = translations[lang].labelConfirmPassword;
-        document.getElementById('label-login-password').innerText = translations[lang].labelLoginPassword;
-    }
-
-    // Function to set the language based on the cookie
-    function setLanguageFromCookie() {
-        const preferredLanguage = getCookie('preferredLanguage');
-        if (preferredLanguage && translations[preferredLanguage]) {
-            changeLanguage(preferredLanguage);
-        } else {
-            changeLanguage('fr'); // Default to French if no cookie is found
-        }
-    }
-
-    document.getElementById('lang-fr').addEventListener('click', () => changeLanguage('fr'));
-    document.getElementById('lang-en').addEventListener('click', () => changeLanguage('en'));
-    document.getElementById('lang-it').addEventListener('click', () => changeLanguage('it'));
-    document.getElementById('lang-es').addEventListener('click', () => changeLanguage('es'));
-    document.getElementById('lang-de').addEventListener('click', () => changeLanguage('de'));
-
-    // Set the language when the page loads
-    window.onload = setLanguageFromCookie;
-
-    //////////////////////////////   END LANGAGE    ////////////////////////////////
-
-
-
-    //////////////////////////////    BEG SETTING     ////////////////////////////////
-    
-    document.getElementById('settings-btn').addEventListener('click', function() {
-        document.getElementById('settings-menu').style.display = 'block';
-    });
-
-    document.getElementById('close-settings').addEventListener('click', function() {
-        document.getElementById('settings-menu').style.display = 'none';
-    });
-
-    // Change the color of the text
-    document.getElementById('color-picker').addEventListener('input', function() {
-        document.body.style.color = this.value;
-        document.querySelectorAll('button').forEach(function(button) {
-            button.style.backgroundColor = this.value;  // Change la couleur de fond des boutons
-        }, this);
-    });
-
-    document.getElementById('font-selector').addEventListener('change', function() {
-        document.body.style.fontFamily = this.value;
-    });
-
-    document.getElementById('font-size-slider').addEventListener('input', function() {
-        document.body.style.fontSize = this.value + 'px';
-    });
-
-    //////////////////////////////    END SETTING     ////////////////////////////////
 
 });

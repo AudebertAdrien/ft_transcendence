@@ -4,34 +4,22 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Max, Sum, F
 from datetime import timedelta
 from channels.db import database_sync_to_async
-#from asgiref.sync import database_sync_to_async
 
-######## try synchrone version ########
-def endfortheouche(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
+def handle_game_data(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
-        print("Debut de endfortheouche")
-        print(f"Paramètres : p1={p1}, p2={p2}, s_p1={s_p1}, s_p2={s_p2}")
-        # Vérification de l'existence des joueurs et création si nécessaire
         player_1 = get_or_create_player(p1)
         player_2 = get_or_create_player(p2)
 
-        print("ok")
-
-        print("############# BEFORE MATCH")
         create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
-        print("############# AFTER DONE")
 
         update_player_statistics(p1)
-        print("############# END STAT P1")
         update_player_statistics(p2)
   
     except Exception as e:
         print(f"Error in endfortheouche: {e}")
 
 def get_player_by_name(name):
-    print(f"Checking if player '{name}' exists")
     exists = Player.objects.filter(name=name).exists()
-    print(f"Player exists: {exists}")
     return exists
 
 
@@ -40,19 +28,12 @@ def get_player(name):
 
 
 def get_or_create_player(name):
-    print("here !!")
-    print(f"Checking existence for player: {name}")
     player_exists = get_player_by_name(name)
-    print(f"END search in database!! (Player exists: {player_exists})")
     if not player_exists:
-        print("Player does not exist, creating player...")
         player = create_player(name)
-        print(f"Player created: {player}")
         return player
     else:
-        print("Player exists, fetching player...")
         player = get_player(name)
-        print(f"Player fetched: {player}")
         return player 
 
 
@@ -70,7 +51,6 @@ def create_player(
     num_participated_tournaments=0, 
     num_won_tournaments=0
 ):
-    print("create player !!!")
     
     player = Player(
         name=name,
@@ -118,20 +98,15 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
     return match
 
 def update_player_statistics(player_name):
-    print("############# BEG STAT P")
     player = get_object_or_404(Player, name=player_name)
 
-    # Filtrer les matchs où le joueur est joueur 1 ou joueur 2
-    print("############# HERE")
     matches_as_player1 = Match.objects.filter(player1=player)
     matches_as_player2 = Match.objects.filter(player2=player)
-    print("############# ACTUALLY, IT'S GOOD")
 
-    # Calculer les statistiques
     total_match = matches_as_player1.count() + matches_as_player2.count()
     
+    # avoid dividing by 0
     if total_match == 0:
-        # Eviter la division par zéro
         player.total_match = total_match
         player.total_win = 0
         player.p_win = 0
@@ -179,7 +154,6 @@ def update_player_statistics(player_name):
     best_score_as_player2 = matches_as_player2.aggregate(Max('score_player2'))['score_player2__max'] or 0
     best_score = max(best_score_as_player1, best_score_as_player2)
 
-    # Mettre à jour les champs du joueur
     player.total_match = total_match
     player.total_win = total_win
     player.p_win = p_win
@@ -193,11 +167,8 @@ def update_player_statistics(player_name):
     #player.num_won_tournaments = total_win_tourn 
 
     player.save()
-    print("CHAKU IS THE BEST")
 
 def get_player_p_win(player_name):
-    # Rechercher le joueur par son nom
     player = get_object_or_404(Player, name=player_name)
-    # Retourner la valeur de p_win
     return player.p_win
 

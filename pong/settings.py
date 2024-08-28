@@ -35,8 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels',  # Add Django Channels
-    'pong.game',  # Your game app
+    'channels', 
+    'pong.game',
     'rest_framework'
 ]
 
@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'pong.asgi.application'  # Add ASGI application
+ASGI_APPLICATION = 'pong.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

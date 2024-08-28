@@ -4,7 +4,7 @@ import json
 import asyncio
 import random
 from datetime import datetime
-from .utils import endfortheouche
+from .utils import handle_game_data
 from asgiref.sync import sync_to_async
 
 
@@ -75,9 +75,9 @@ class Game:
         target_y = future_ball_position['y']
         player2_position = self.game_state['player2_position']
         
-        # Ajuste la position du bot en fonction de la position prévue de la balle
+        # Adjusts bot position based on expected ball position
         if player2_position < target_y < player2_position + 80:
-            pass  # Pas besoin de bouger, le bot est déjà bien placé
+            pass  #bot already placed
         elif player2_position < target_y:
             self.game_state['player2_position'] = min(player2_position + (50 * self.speed), 300)
         elif player2_position + 80 > target_y:
@@ -94,9 +94,9 @@ class Game:
             future_x += velocity_x
             future_y += velocity_y
 
-            # Gérer les rebonds sur les murs
+            # Dealing with bounces off walls
             if future_y <= 0 or future_y >= 300:
-                velocity_y = -velocity_y  # Inverser la direction du mouvement vertical
+                velocity_y = -velocity_y  # Reverse the direction of vertical movement
 
         return {'x': future_x, 'y': future_y}
 
@@ -206,9 +206,7 @@ class Game:
             self.game_state['player2_position'] = min(self.game_state['player2_position'] + (5 * self.speed), 300)
 
     async def end_game(self, disconnected_player=None):
-        print("end GAME CALLED")
         if not self.ended:
-            print("Game ended !!!!! ")
             self.ended = True
             if self.game_loop_task:
                 self.game_loop_task.cancel()            
@@ -237,7 +235,6 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
-            print("save data")
-            await sync_to_async(endfortheouche)(self.game_state['player1_name'], self.game_state['player2_name'],
+            await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)
