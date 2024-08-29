@@ -11,7 +11,7 @@ html {
     align-items: center;
     justify-content: center;
     height: 100%;
-    overflow: hidden;
+    overflow: auto;
 }
 
 
@@ -255,6 +255,7 @@ button:hover {
     position: relative;
     z-index: 10;
     max-width: 80%;
+    overflow: auto;
 }
 
 
@@ -439,4 +440,10 @@ body {
     color: rgb(0, 255, 255); /* Valeur par défaut */
     font-family: Arial, sans-serif;
     font-size: 16px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
 }

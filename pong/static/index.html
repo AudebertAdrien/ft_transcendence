@@ -141,6 +141,8 @@
             <tbody>
 			</tbody>
         </table>
+        <button id="generate-match-chart">Générer le graphique</button>
+        <canvas id="match-chart" style="display:none;"></canvas>
     </div>
 
     <div id="player-list" class="content-list" style="display: none;">
@@ -167,6 +169,8 @@
             <tbody>
 	        </tbody>
         </table>
+        <button id="generate-player-chart">Générer le graphique</button>
+        <canvas id="player-chart" style="display:none;"></canvas>
     </div>
 
     <div id="tournoi-list" class="content-list" style="display: none;">
@@ -185,6 +189,10 @@
 			</tbody>
         </table>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
 
     <script src="{% static 'game.js' %}"></script>
     <script src="{% static 'burger.js' %}"></script>
