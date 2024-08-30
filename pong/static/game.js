@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pongElements = document.getElementById('pong-elements');
     const logo = document.querySelector('.logo');
 
+    const postFormButtons = document.getElementById('post-form-buttons');
     const localGameButton = document.getElementById('local-game');
     const quickMatchButton = document.getElementById('quick-match');
     const tournamentButton = document.getElementById('tournament');
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket;
     let token;
     let gameState;
+    let saveData = null;
 
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
@@ -66,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
         if (nickname) {
+            window.firstPlayerName = nickname;
             try {
                 const exists = await checkUserExists(nickname);
                 if (exists) {
@@ -316,6 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startLocalGame2() {
+        nickname = nicknameInput.value.trim();
+        nickname2 = nicknameInput2.value.trim();
+        saveData = {
+            type: 'local',
+            player1_name: nickname,
+            player2_name: nickname2
+        };
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
@@ -324,10 +334,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startQuickMatch() {
+        saveData = {
+            type: 'quick'
+        }
         gameContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
         formBlock.style.display = 'none';
+        document.getElementById('player1-name').textContent = "player 1";
+        document.getElementById('player2-name').textContent = "player 2";
+        document.getElementById('game-text').textContent = "";
+        document.getElementById('player1-score').textContent = 0;
+        document.getElementById('player2-score').textContent = 0;
+
         startWebSocketConnection(token, 1);
     }
 
@@ -404,6 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateGameState(newState) {
         gameState = newState;
         renderGame();
+        checkForWinner();
     }
 
     function renderGame() {
@@ -432,6 +452,46 @@ document.addEventListener('DOMContentLoaded', () => {
         star.style.top = `${Math.random() * 100}%`;
         star.style.animationDuration = `${Math.random() * 2 + 1}s`;
         starsContainer.appendChild(star);
+    }
+
+    const homeButton = document.getElementById('home');
+    const replayButton = document.getElementById('retry');
+    const gameControls = document.getElementById('game-controls');
+
+    homeButton.addEventListener('click', () => {
+        gameContainer.style.display = 'none';
+        gameControls.style.display = 'none';
+
+        logo.style.display = 'block'
+
+        formBlock.style.display = 'block';
+        postFormButtons.style.display = 'flex';
+    
+        setupFirstPlayer();
+    });
+
+    function setupFirstPlayer() {
+        const firstPlayerName = window.firstPlayerName; 
+        document.getElementById('player1-name').textContent = firstPlayerName;
+    }
+
+    replayButton.addEventListener('click', () => {
+        document.getElementById('player1-name').textContent = saveData.player1_name;
+        document.getElementById('player2-name').textContent = saveData.player2_name;
+        startLocalGame2();
+    });
+
+
+    function checkForWinner() {
+        if (gameState.player1_score === 3 || gameState.player2_score === 3) {
+            gameControls.style.display = 'flex';
+            homeButton.style.display = 'block';
+            replayButton.style.display = 'none';
+            console.log(saveData.type);
+            if (saveData.type === 'local'){
+                replayButton.style.display = 'block';
+            }
+        }
     }
 
 });
