@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Brackets</title>
+    <style>
+        .tournament-bracket {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            font-family: Arial, sans-serif;
+        }
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 200px;
+        }
+        .match {
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .player {
+            padding: 5px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+        .player.winner {
+            font-weight: bold;
+            background-color: #e6ffe6;
+        }
+        .player.loser {
+            color: #999;
+        }
+        .score {
+            float: right;
+            font-weight: normal;
+        }
+        .connector {
+            border-right: 2px solid #ccc;
+            height: 50px;
+            position: relative;
+            left: 200px;
+        }
+        .connector:before, .connector:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            border-top: 2px solid #ccc;
+            width: 10px;
+        }
+        .connector:before {
+            top: 0;
+        }
+        .connector:after {
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="tournament-bracket">
+        {% for round in tournament_rounds %}
+            <div class="round">
+                <h3>Round {{ forloop.counter }}</h3>
+                {% for match in round %}
+                    <div class="match">
+                        <div class="player {% if match.winner == match.player1 %}winner{% elif match.winner %}loser{% endif %}">
+                            {{ match.player1 }}
+                            {% if match.score1 is not None %}<span class="score">{{ match.score1 }}</span>{% endif %}
+                        </div>
+                        <div class="player {% if match.winner == match.player2 %}winner{% elif match.winner %}loser{% endif %}">
+                            {{ match.player2|default:"BYE" }}
+                            {% if match.score2 is not None %}<span class="score">{{ match.score2 }}</span>{% endif %}
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<div class="connector"></div>{% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

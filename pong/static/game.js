@@ -383,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Entered the WAITING ROOM');
             } else if (data.type === 'game_start') {
                 console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
+                gameContainer.style.display = 'flex';
                 document.addEventListener('keydown', handleKeyDown);
             } else if (data.type === 'game_state_update') {
                 updateGameState(data.game_state);
@@ -392,7 +393,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Game ended:", data.game_id);
             } else if (data.type === 'error') {
                 console.error(data.message);
-            } else if (data.type === 'update_waiting_room') {
+            // Assuming you're inside some WebSocket message handling function
+            } else if (data.type === 'update_tournament_waiting_room') {
+                // Update the HTML content of the tournament bracket
+                document.getElementById('tournament-bracket').innerHTML = data.html;
+
+                // Reattach the event listener to the "Start Tournament" button
+                const startButton = document.getElementById('start-tournament-btn');
+                if (startButton) {
+                    startButton.addEventListener('click', function() {
+                        if (typeof socket !== 'undefined' && socket.readyState === WebSocket.OPEN) {
+                            console.log("Start TOURNAMENT sent..");
+                            socket.send(JSON.stringify({type: 'start_tournament'}));
+                        } else {
+                            console.error("WebSocket is not open or undefined");
+                        }
+                    });
+                } else {
+                    console.error('Start button not found');
+                }
+            } else if (data.type === 'update_brackets') {
                 document.getElementById('tournament-bracket').innerHTML = data.html;
             } else {
                 console.log('Message from server:', data.type, data.message);
@@ -480,7 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('player2-name').textContent = saveData.player2_name;
         startLocalGame2();
     });
-
 
     function checkForWinner() {
         if (gameState.player1_score === 3 || gameState.player2_score === 3) {

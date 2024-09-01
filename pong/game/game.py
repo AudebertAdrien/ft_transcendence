@@ -7,7 +7,6 @@ from datetime import datetime
 from .utils import handle_game_data
 from asgiref.sync import sync_to_async
 
-
 class Game:
     def __init__(self, game_id, player1, player2, localgame):
         self.game_id = game_id
@@ -47,12 +46,11 @@ class Game:
         self.p2_mov = 0
         self.bt1 = 0
         self.bt2 = 0
-        self.start_time = None
+        self.start_time = datetime.now()
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED")
         self.game_loop_task = asyncio.create_task(self.game_loop())
-        self.start_time = datetime.now()
         print(f"  Begin MATCH at: {self.start_time}")
 
     async def game_loop(self):
@@ -213,7 +211,7 @@ class Game:
             print(f"- Game #{self.game_id} ENDED")
 
             end_time = datetime.now()
-            duration = (end_time -  self.start_time).total_seconds() / 60
+            duration = (end_time - self.start_time).total_seconds() / 60
 
             # Notify that one player left the game      
             if disconnected_player:

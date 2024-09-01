@@ -26,6 +26,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.game.handle_key_press(self, data['key'])
             else:
                 await match_maker.handle_key_press(self, data['key'])
+        elif data['type'] == 'start_tournament':
+            print("Start TOURNAMENT received..")
+            await tournament_match_maker.start_tournament()
 
     async def authenticate(self, token):
         user = await self.get_user_from_token(token)
@@ -82,11 +85,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         if user:
             self.user = user
             await self.send(text_data=json.dumps({'type': 'authenticated'}))
-            print(f"User {self.user} authenticated")
+            print(f"User {self.user.username} authenticated for tournament")
             await self.join_tournament_waiting_room()
         else:
             await self.send(text_data=json.dumps({'type': 'error', 'message': 'Authentication failed'}))
-            print("Authentication failed")
+            print("Tournament authentication failed")
 
     async def join_tournament_waiting_room(self):
         await tournament_match_maker.add_player(self)
