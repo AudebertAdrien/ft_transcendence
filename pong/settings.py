@@ -136,7 +136,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-LOGGING = {
+'''LOGGING = {
     'version': 1,  # The version of the logging configuration schema
     'disable_existing_loggers': False,  # Allows existing loggers to keep logging
     'formatters': {  # Defines how log messages will be formatted
@@ -169,4 +169,4 @@ LOGGING = {
             'propagate': True,  # If True, messages will be passed to the parent loggers as well
         },
     },
-}
+}'''

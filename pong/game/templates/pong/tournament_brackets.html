@@ -7,78 +7,82 @@
     <style>
         .tournament-bracket {
             display: flex;
-            flex-direction: row;
-            justify-content: space-around;
+            padding: 20px;
             font-family: Arial, sans-serif;
+            overflow-x: auto;
         }
         .round {
             display: flex;
             flex-direction: column;
             justify-content: space-around;
-            width: 200px;
+            margin-right: 40px;
         }
         .match {
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .player {
-            padding: 5px;
-            background-color: #f0f0f0;
-            border-bottom: 1px solid #ccc;
+            width: 150px;
+            height: 30px;
+            line-height: 30px;
+            background-color: #000000;
+            border: 1px solid #ffffff;
+            margin: 2px 0;
+            padding: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .player.winner {
+            background-color: #00ff3c;
             font-weight: bold;
-            background-color: #e6ffe6;
-        }
-        .player.loser {
-            color: #999;
-        }
-        .score {
-            float: right;
-            font-weight: normal;
         }
         .connector {
-            border-right: 2px solid #ccc;
-            height: 50px;
-            position: relative;
-            left: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        .connector:before, .connector:after {
+        .connector::before, .connector::after {
             content: '';
-            position: absolute;
-            left: 0;
-            border-top: 2px solid #ccc;
-            width: 10px;
+            border-top: 1px solid #ffffff;
+            width: 20px;
+            height: 50%;
         }
-        .connector:before {
-            top: 0;
+        .connector::before {
+            border-right: 1px solid #ffffff;
         }
-        .connector:after {
-            bottom: 0;
+        .connector::after {
+            border-right: 1px solid #ffffff;
+            align-self: flex-end;
+        }
+        .round:last-child .connector {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="tournament-bracket">
         {% for round in tournament_rounds %}
-            <div class="round">
-                <h3>Round {{ forloop.counter }}</h3>
-                {% for match in round %}
-                    <div class="match">
-                        <div class="player {% if match.winner == match.player1 %}winner{% elif match.winner %}loser{% endif %}">
-                            {{ match.player1 }}
-                            {% if match.score1 is not None %}<span class="score">{{ match.score1 }}</span>{% endif %}
-                        </div>
-                        <div class="player {% if match.winner == match.player2 %}winner{% elif match.winner %}loser{% endif %}">
-                            {{ match.player2|default:"BYE" }}
-                            {% if match.score2 is not None %}<span class="score">{{ match.score2 }}</span>{% endif %}
-                        </div>
-                    </div>
-                    {% if not forloop.last %}<div class="connector"></div>{% endif %}
-                {% endfor %}
+        <div class="round">
+            {% for match in round %}
+            <div class="match">
+                <div class="player {% if match.winner == match.player1 %}winner{% endif %}">
+                    {{ match.player1 }}
+                    {% if match.score1 is not None %}<span class="score">{{ match.score1 }}</span>{% endif %}
+                </div>
+                <div class="player {% if match.winner == match.player2 %}winner{% endif %}">
+                    {{ match.player2|default:"BYE" }}
+                    {% if match.score2 is not None %}<span class="score">{{ match.score2 }}</span>{% endif %}
+                </div>
             </div>
+            {% if not forloop.last %}
+            <div class="connector"></div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% if not forloop.last %}
+        <div class="connector"></div>
+        {% endif %}
         {% endfor %}
     </div>
 </body>

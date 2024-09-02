@@ -49,7 +49,7 @@ class Game:
         self.start_time = datetime.now()
 
     async def start_game(self):
-        print(f"- Game #{self.game_id} STARTED")
+        print(f"- Game #{self.game_id} STARTED ({self.game_state['player1_name']} vs {self.game_state['player2_name']})")
         self.game_loop_task = asyncio.create_task(self.game_loop())
         print(f"  Begin MATCH at: {self.start_time}")
 
