@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 from .matchmaking import match_maker
 from .tournament import tournament_match_maker
+import asyncio
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -24,11 +25,10 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif data['type'] == 'key_press':
             if self.game:
                 await self.game.handle_key_press(self, data['key'])
-            else:
-                await match_maker.handle_key_press(self, data['key'])
         elif data['type'] == 'start_tournament':
-            print("Start TOURNAMENT received..")
-            await tournament_match_maker.start_tournament()
+            print(f"Start TOURNAMENT received by {self.user}")
+            # Run the tournament in the background
+            asyncio.create_task(tournament_match_maker.start_tournament())
 
     async def authenticate(self, token):
         user = await self.get_user_from_token(token)
@@ -102,4 +102,5 @@ class GameConsumer(AsyncWebsocketConsumer):
         print(f"User {self.user.username if hasattr(self, 'user') else 'Unknown'} disconnected")
 
     async def set_game(self, game):
+        print(f"({self.user}) Game set to: {game}")
         self.game = game

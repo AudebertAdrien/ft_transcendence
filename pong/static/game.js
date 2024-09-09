@@ -64,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
     quickMatchButton.addEventListener('click', startQuickMatch);
     tournamentButton.addEventListener('click', startTournament);
 
-
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
         if (nickname) {
@@ -184,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return data.authenticated;
     }
-
 
     async function handleCheckNickname2() {
         const nickname2 = nicknameInput2.value.trim();

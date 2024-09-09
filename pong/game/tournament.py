@@ -14,9 +14,11 @@ class TournamentMatch(Game):
         # Store the current game instance in active games
         match_maker.active_games[game_id] = self        
         # Set the game for the players
-        player1.set_game(self)
+        '''player1.set_game(self)
+        print(f"{player1.user.username} set to game #{self}")
         if player2:
             player2.set_game(self)        
+            print(f"{player2.user.username} set to game #{self}")'''
         # Store the tournament instance
         self.tournament = tournament
 
@@ -25,7 +27,7 @@ class TournamentMatch(Game):
         await super().end_game(disconnected_player)
         # Handle the end of the match in the tournament context
         await self.tournament.handle_match_end(self)
-
+        del match_maker.active_games[self.game_id]
 
 class TournamentMatchMaker:
     def __init__(self):
@@ -82,7 +84,7 @@ class TournamentMatchMaker:
         while len(players) > 1:
             self.current_round += 1
             print(f"Starting round {self.current_round} with {len(players)} players")            
-            self.create_matches(players)
+            await self.create_matches(players)
             await self.update_brackets()
             await self.start_round_matches()            
             # Wait for all matches in the current round to finish
@@ -96,14 +98,24 @@ class TournamentMatchMaker:
         await self.update_brackets()
         await self.end_tournament(players[0] if players else None)
 
-    def create_matches(self, players):
+    async def create_matches(self, players):
         matches = []
         for i in range(0, len(players), 2):
             self.games += 1
             if i + 1 < len(players):
-                matches.append(TournamentMatch(self.games, players[i], players[i + 1], self))
+                # Create a new instance of TournamentMatch for this round
+                match = TournamentMatch(self.games, players[i], players[i + 1], self)
+                matches.append(match)
             else:
-                matches.append(TournamentMatch(self.games, players[i], None, self))  # BYE match
+                # Create a BYE match where the second player is None
+                match = TournamentMatch(self.games, players[i], None, self)  # BYE match
+                matches.append(match)
+            
+            # Assign the new match instance to the players
+            await players[i].set_game(match)
+            if i + 1 < len(players):
+                await players[i + 1].set_game(match)
+
         self.rounds.append(matches)
         self.matches.extend(matches)
 
