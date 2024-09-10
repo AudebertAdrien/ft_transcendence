@@ -7,6 +7,12 @@ import random
 from .matchmaking import match_maker
 from .game import Game
 
+TOURNAMENT_NAMES =  [
+    "Champion's Clash", "Ultimate Showdown", "Battle Royale",
+    "Victory's Cup", "Legends Tournament", "Elite Series", "Clash of 42",
+    "Shibuya Incident", "Cunning Game", "Elite of the Stars", "Chaku's Disciples"
+]
+
 class TournamentMatch(Game):
     def __init__(self, game_id, player1, player2, tournament):
         # Initialize the parent Game class with the provided parameters
@@ -32,6 +38,7 @@ class TournamentMatchMaker:
         self.current_round = 0
         self.games = 0
         self.tournament_state = "waiting" #Can be "waiting", "in_progress", or "ended"
+        self.name = random.choice(TOURNAMENT_NAMES)
 
     async def add_player(self, player):
         if self.tournament_state == "waiting" and player not in self.waiting_players:
@@ -70,6 +77,7 @@ class TournamentMatchMaker:
 
     # Tournament start method
     async def start_tournament(self):
+
         if len(self.waiting_players) < 2:
             return False
         if len(self.waiting_players) % 2 == 0:

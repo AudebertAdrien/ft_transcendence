@@ -4,8 +4,9 @@ import json
 import asyncio
 import random
 from datetime import datetime
-from .utils import handle_game_data
+from .utils import handle_game_data, getlen
 from asgiref.sync import sync_to_async
+from .models import Tournoi
 
 class Game:
     def __init__(self, game_id, player1, player2, localgame):
@@ -242,6 +243,12 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
-            await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+            if hasattr(self, 'tournament'):
+                len_tournament = await sync_to_async(getlen)()
+                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+                           self.game_state['player1_score'], self.game_state['player2_score'],
+                           self.bt1, self.bt2, duration, True, self.tournament.name + " #" + str(len_tournament + 1))
+            else:
+                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)
