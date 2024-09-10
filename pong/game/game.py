@@ -27,9 +27,10 @@ class Game:
                 'game_text': ''
             }
         else:
-            self.botgame = player2 is None
+            # Set botgame to True if either player1 or player2 is None
+            self.botgame = player1 is None or player2 is None
             self.game_state = {
-                'player1_name': player1.user.username,
+                'player1_name': player1.user.username if player1 else 'BOT',
                 'player2_name': player2.user.username if player2 else 'BOT',
                 'player1_position': 150,
                 'player2_position': 150,

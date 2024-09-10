@@ -21,7 +21,8 @@ class TournamentMatch(Game):
         await super().end_game(disconnected_player)
         # Handle the end of the match in the tournament context
         await self.tournament.handle_match_end(self)
-        del match_maker.active_games[self.game_id]
+        if self.game_id in match_maker.active_games:
+            del match_maker.active_games[self.game_id]
 
 class TournamentMatchMaker:
     def __init__(self):
@@ -51,10 +52,10 @@ class TournamentMatchMaker:
 
     def generate_waiting_room_html(self):
         context = {
-            'players': [player.user.username if player else 'BOT' for player in self.waiting_players],
+            'players': [player.user.username if player else 'BYE' for player in self.waiting_players],
             'tournament_state': self.tournament_state,
             'players_count': len(self.waiting_players),
-            'min_players_to_start': 2  # You can adjust this number as needed
+            'min_players_to_start': 3  # You can adjust this number as needed
         }
         return render_to_string('pong/tournament_waiting_room.html', context)
 
@@ -139,8 +140,8 @@ class TournamentMatchMaker:
         return [
             [
                 {
-                    'player1': match.player1.user.username if match.player1 else 'BOT',
-                    'player2': match.player2.user.username if match.player2 else 'BOT',
+                    'player1': match.player1.user.username if match.player1 else 'BYE',
+                    'player2': match.player2.user.username if match.player2 else 'BYE',
                     'winner': match.game_state['player1_name'] if match.game_state['player1_score'] > match.game_state['player2_score'] else match.game_state['player2_name'] if match.ended else None,
                     'score1': match.game_state['player1_score'],
                     'score2': match.game_state['player2_score']
@@ -159,18 +160,18 @@ class TournamentMatchMaker:
             elif match.player1:
                 # Handle BYE match
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
-                asyncio.create_task(match.start_game())
-                '''match.game_state['player1_score'] = 3
+                #asyncio.create_task(match.start_game())
+                match.game_state['player1_score'] = 3
                 match.game_state['player2_score'] = 0
-                await match.end_game()'''
+                await match.end_game()
 
     def get_round_winners(self):
         winners = []
         for match in self.rounds[-1]:
             if match.ended:
                 winner = match.player1 if match.game_state['player1_score'] > match.game_state['player2_score'] else match.player2
-                if winner:
-                    winners.append(winner)
+                #if winner:
+                winners.append(winner)
         return winners
 
     async def end_tournament(self, winner):
