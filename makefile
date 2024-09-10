@@ -19,7 +19,7 @@ down:
 	$(COMPOSE) down $(CONTAINER)
 
 destroy:
-	$(COMPOSE) down -v --rmi all --remove-orphans
+	$(COMPOSE) down -v --rmi all 
 	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
