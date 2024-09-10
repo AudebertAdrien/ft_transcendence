@@ -4,7 +4,7 @@ CONTAINER=$(c)
 
 up: down
 	$(COMPOSE) build 
-	$(COMPOSE) up --remove-orphans $(CONTAINER)
+	$(COMPOSE) up $(CONTAINER)
 
 build:
 	$(COMPOSE) build $(CONTAINER)
@@ -19,7 +19,7 @@ down:
 	$(COMPOSE) down $(CONTAINER)
 
 destroy:
-	$(COMPOSE) down -v --rmi all
+	$(COMPOSE) down -v --rmi all --remove-orphans
 	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
