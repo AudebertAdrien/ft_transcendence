@@ -4,8 +4,9 @@ import json
 import asyncio
 import random
 from datetime import datetime
-from .utils import handle_game_data
+from .utils import handle_game_data, getlen
 from asgiref.sync import sync_to_async
+from .models import Tournoi
 
 class Game:
     def __init__(self, game_id, player1, player2, localgame):
@@ -27,9 +28,10 @@ class Game:
                 'game_text': ''
             }
         else:
-            self.botgame = player2 is None
+            # Set botgame to True if either player1 or player2 is None
+            self.botgame = player1 is None or player2 is None
             self.game_state = {
-                'player1_name': player1.user.username,
+                'player1_name': player1.user.username if player1 else 'BOT',
                 'player2_name': player2.user.username if player2 else 'BOT',
                 'player1_position': 150,
                 'player2_position': 150,
@@ -241,6 +243,14 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
-            await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+            if hasattr(self, 'tournament'):
+                len_tournament = await sync_to_async(getlen)()
+                name_tournament = self.tournament.name + " #" + str(len_tournament + 1)
+                print(f"- Saving match game #{self.game_id} of tournament: {name_tournament}")
+                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+                           self.game_state['player1_score'], self.game_state['player2_score'],
+                           self.bt1, self.bt2, duration, True, name_tournament)
+            else:
+                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)
