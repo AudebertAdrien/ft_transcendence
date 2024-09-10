@@ -58,8 +58,6 @@ services:
      timeout: 5s
      retries: 120
 
-
-
   backend:
     build:
       context: .
