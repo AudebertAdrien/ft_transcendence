@@ -4,7 +4,7 @@ CONTAINER=$(c)
 
 up: down
 	$(COMPOSE) build 
-	$(COMPOSE) up -d $(CONTAINER) || true
+	$(COMPOSE) up --remove-orphans $(CONTAINER)
 
 build:
 	$(COMPOSE) build $(CONTAINER)
@@ -32,7 +32,7 @@ ps:
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
 
-re: destroy down up
+re: destroy up
 
 help:
 	@echo "Usage:"

@@ -35,8 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels',  # Add Django Channels
-    'pong.game',  # Your game app
+    'channels', 
+    'pong.game',
     'rest_framework'
 ]
 
@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'pong.asgi.application'  # Add ASGI application
+ASGI_APPLICATION = 'pong.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -136,7 +136,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-LOGGING = {
+'''LOGGING = {
     'version': 1,  # The version of the logging configuration schema
     'disable_existing_loggers': False,  # Allows existing loggers to keep logging
     'formatters': {  # Defines how log messages will be formatted
@@ -169,4 +169,4 @@ LOGGING = {
             'propagate': True,  # If True, messages will be passed to the parent loggers as well
         },
     },
-}
+}'''
