@@ -37,53 +37,18 @@
             background-color: #00ff3c;
             font-weight: bold;
         }
-        .connector {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .connector::before, .connector::after {
-            content: '';
-            border-top: 1px solid #ffffff;
-            width: 20px;
-            height: 50%;
-        }
-        .connector::before {
-            border-right: 1px solid #ffffff;
-        }
-        .connector::after {
-            border-right: 1px solid #ffffff;
-            align-self: flex-end;
-        }
-        .round:last-child .connector {
-            display: none;
-        }
     </style>
 </head>
 <body>
     <div class="tournament-bracket">
-        {% for round in tournament_rounds %}
         <div class="round">
-            {% for match in round %}
             <div class="match">
                 <div class="player {% if match.winner == match.player1 %}winner{% endif %}">
-                    {{ match.player1 }}
-                    {% if match.score1 is not None %}<span class="score">{{ match.score1 }}</span>{% endif %}
                 </div>
                 <div class="player {% if match.winner == match.player2 %}winner{% endif %}">
-                    {{ match.player2|default:"BYE" }}
-                    {% if match.score2 is not None %}<span class="score">{{ match.score2 }}</span>{% endif %}
                 </div>
             </div>
-            {% if not forloop.last %}
-            <div class="connector"></div>
-            {% endif %}
-            {% endfor %}
         </div>
-        {% if not forloop.last %}
-        <div class="connector"></div>
-        {% endif %}
-        {% endfor %}
     </div>
 </body>
 </html>
