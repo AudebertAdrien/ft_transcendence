@@ -245,9 +245,11 @@ class Game:
                     await self.player2.send(end_message)
             if hasattr(self, 'tournament'):
                 len_tournament = await sync_to_async(getlen)()
+                name_tournament = self.tournament.name + " #" + str(len_tournament + 1)
+                print(f"- Saving match game #{self.game_id} of tournament: {name_tournament}")
                 await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, duration, True, self.tournament.name + " #" + str(len_tournament + 1))
+                           self.bt1, self.bt2, duration, True, name_tournament)
             else:
                 await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
