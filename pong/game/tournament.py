@@ -13,12 +13,6 @@ class TournamentMatch(Game):
         super().__init__(game_id, player1, player2, False)        
         # Store the current game instance in active games
         match_maker.active_games[game_id] = self        
-        # Set the game for the players
-        '''player1.set_game(self)
-        print(f"{player1.user.username} set to game #{self}")
-        if player2:
-            player2.set_game(self)        
-            print(f"{player2.user.username} set to game #{self}")'''
         # Store the tournament instance
         self.tournament = tournament
 
@@ -36,12 +30,15 @@ class TournamentMatchMaker:
         self.rounds = []
         self.current_round = 0
         self.games = 0
-        self.tournament_state = "waiting"  # Can be "waiting", "in_progress", or "ended"
+        self.tournament_state = "waiting" #Can be "waiting", "in_progress", or "ended"
 
     async def add_player(self, player):
         if self.tournament_state == "waiting" and player not in self.waiting_players:
             self.waiting_players.append(player)
-            print(f"User {player.user.username} joins the TOURNAMENT WAITING ROOM")
+            if player:
+                print(f"User {player.user.username} joins the TOURNAMENT WAITING ROOM")
+            else:
+                print("BOT joins the TOURNAMENT WAITING ROOM")
             await self.update_waiting_room()
 
     async def update_waiting_room(self):
@@ -54,7 +51,7 @@ class TournamentMatchMaker:
 
     def generate_waiting_room_html(self):
         context = {
-            'players': [player.user.username for player in self.waiting_players],
+            'players': [player.user.username if player else 'BOT' for player in self.waiting_players],
             'tournament_state': self.tournament_state,
             'players_count': len(self.waiting_players),
             'min_players_to_start': 2  # You can adjust this number as needed
@@ -62,7 +59,8 @@ class TournamentMatchMaker:
         return render_to_string('pong/tournament_waiting_room.html', context)
 
     async def send_to_player(self, player, data):
-        await player.send(json.dumps(data))
+        if player:
+            await player.send(json.dumps(data))
 
     async def remove_player(self, player):
         if player in self.waiting_players:
@@ -72,7 +70,9 @@ class TournamentMatchMaker:
     # Tournament start method
     async def start_tournament(self):
         if len(self.waiting_players) < 2:
-            return False        
+            return False
+        if len(self.waiting_players) % 2 == 0:
+            await self.add_player(None)
         self.tournament_state = "in_progress"
         random.shuffle(self.waiting_players)
         self.current_round = 0
@@ -108,13 +108,15 @@ class TournamentMatchMaker:
                 matches.append(match)
             else:
                 # Create a BYE match where the second player is None
-                match = TournamentMatch(self.games, players[i], None, self)  # BYE match
+                match = TournamentMatch(self.games, players[i], None, self) # BYE match
                 matches.append(match)
             
             # Assign the new match instance to the players
-            await players[i].set_game(match)
+            if players[i]:
+                await players[i].set_game(match)
             if i + 1 < len(players):
-                await players[i + 1].set_game(match)
+                if players[i + 1]:
+                    await players[i + 1].set_game(match)
 
         self.rounds.append(matches)
         self.matches.extend(matches)
@@ -157,10 +159,10 @@ class TournamentMatchMaker:
             elif match.player1:
                 # Handle BYE match
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
-                match.game_state['player1_score'] = 3
+                asyncio.create_task(match.start_game())
+                '''match.game_state['player1_score'] = 3
                 match.game_state['player2_score'] = 0
-                await match.end_game()
-                #asyncio.create_task(match.start_game())
+                await match.end_game()'''
 
     def get_round_winners(self):
         winners = []
