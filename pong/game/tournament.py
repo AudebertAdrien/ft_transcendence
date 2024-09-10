@@ -6,6 +6,16 @@ from django.template.loader import render_to_string
 import random
 from .matchmaking import match_maker
 from .game import Game
+from .models import Tournoi
+from .utils import create_tournament
+from asgiref.sync import sync_to_async
+
+
+TOURNAMENT_NAMES = [
+    "Champions Clash", "Ultimate Showdown", "Battle Royale", 
+    "Victory Cup", "Legends Tournament", "Elite Series", "Clash of 42",
+    "Shibuya incident", "Cunning Game", "Elite of the Stars"
+]
 
 class TournamentMatch(Game):
     def __init__(self, game_id, player1, player2, tournament):
@@ -36,6 +46,7 @@ class TournamentMatchMaker:
         self.rounds = []
         self.current_round = 0
         self.games = 0
+        self.name = random.choice(TOURNAMENT_NAMES)
         self.tournament_state = "waiting"  # Can be "waiting", "in_progress", or "ended"
 
     async def add_player(self, player):
@@ -76,6 +87,7 @@ class TournamentMatchMaker:
         self.tournament_state = "in_progress"
         random.shuffle(self.waiting_players)
         self.current_round = 0
+        #await sync_to_async(create_tournament)(self.name, len(self.waiting_players))
         await self.advance_tournament()
         return True
 

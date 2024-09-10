@@ -172,3 +172,10 @@ def get_player_p_win(player_name):
     player = get_object_or_404(Player, name=player_name)
     return player.p_win
 
+def create_tournament(name, nbr_player):
+    print("here !!!")
+    tournoi=Tournoi(name=name, nbr_player=nbr_player, winner=None)
+    tournoi.save()
+
+
+
