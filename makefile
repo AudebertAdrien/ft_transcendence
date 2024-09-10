@@ -19,9 +19,16 @@ down:
 	$(COMPOSE) down $(CONTAINER)
 
 destroy:
-	$(COMPOSE) down -v --rmi all 
+	$(COMPOSE) down -v --rmi all
+
+kill-pid:
 	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
-	sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :5601 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :9200 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :8080 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :5044 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+
+
 
 logs:
 	$(COMPOSE) logs -f $(CONTAINER)
