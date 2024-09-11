@@ -25,7 +25,7 @@ class Player(models.Model):
 class Tournoi(models.Model):
     name = models.CharField(max_length=200)
     nbr_player = models.PositiveSmallIntegerField()
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
     winner = models.ForeignKey('Player', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):

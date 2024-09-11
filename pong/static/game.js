@@ -349,6 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startTournament() {
+        saveData = {
+            type: 'tournoi'
+        }
         tournamentContainer.style.display = 'flex';
         logo.style.display = 'none';
         pongElements.style.display = 'none';
@@ -440,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateGameState(newState) {
         gameState = newState;
         renderGame();
-        //checkForWinner();
+        checkForWinner();
     }
 
     function renderGame() {
@@ -500,12 +503,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkForWinner() {
         if (gameState.player1_score === 3 || gameState.player2_score === 3) {
-            gameControls.style.display = 'flex';
-            homeButton.style.display = 'block';
-            replayButton.style.display = 'none';
-            console.log(saveData.type);
-            if (saveData.type === 'local'){
-                replayButton.style.display = 'block';
+            if (saveData.type != "tournoi"){
+                gameControls.style.display = 'flex';
+                homeButton.style.display = 'block';
+                replayButton.style.display = 'none';
+                console.log(saveData.type);
+                if (saveData.type === 'local'){
+                    replayButton.style.display = 'block';
+                }
             }
         }
     }

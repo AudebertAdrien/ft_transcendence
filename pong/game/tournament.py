@@ -6,6 +6,16 @@ from django.template.loader import render_to_string
 import random
 from .matchmaking import match_maker
 from .game import Game
+from .models import Tournoi
+from .utils import create_tournament, update_tournament, getlen
+from asgiref.sync import sync_to_async
+
+
+TOURNAMENT_NAMES = [
+    "Champions Clash", "Ultimate Showdown", "Battle Royale", 
+    "Victory Cup", "Legends Tournament", "Elite Series", "Clash of 42",
+    "Shibuya incident", "Cunning Game", "Elite of the Stars"
+]
 
 TOURNAMENT_NAMES =  [
     "Champion's Clash", "Ultimate Showdown", "Battle Royale",
@@ -39,6 +49,8 @@ class TournamentMatchMaker:
         self.games = 0
         self.tournament_state = "waiting" #Can be "waiting", "in_progress", or "ended"
         self.name = random.choice(TOURNAMENT_NAMES)
+        self.final_name = ""
+        self.tournoi_reg = None
 
     async def add_player(self, player):
         if self.tournament_state == "waiting" and player not in self.waiting_players:
@@ -85,6 +97,9 @@ class TournamentMatchMaker:
         self.tournament_state = "in_progress"
         random.shuffle(self.waiting_players)
         self.current_round = 0
+        len_tournament = await sync_to_async(getlen)()
+        self.final_name = self.name + " #" + str(len_tournament + 1)
+        self.tournoi_reg = await sync_to_async(create_tournament)(self.final_name, len(self.waiting_players))
         await self.advance_tournament()
         return True
 
@@ -191,6 +206,8 @@ class TournamentMatchMaker:
                 'type': 'tournament_end',
                 'winner': winner_username
             })
+        
+        await sync_to_async(update_tournament)(self.final_name, winner_username)
         # Reset tournament state
         self.waiting_players = []
         self.matches = []
