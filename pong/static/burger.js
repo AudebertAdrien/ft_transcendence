@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
 
         if (matches.length != 0) {
-            const row = document.createElement('tr');
             matches.forEach(match => {
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${match.id}</td>
                     <td>${match.player1__name}</td>
@@ -140,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
 
         if (players.length != 0) {
-            const row = document.createElement('tr');
             players.forEach(player => {
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${player.id}</td>
                     <td>${player.name}</td>
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td colspan="12">No matches found.</td>
+                <td colspan="12">No player found.</td>
                 `
             playersListBody.appendChild(row);
         }
@@ -175,20 +175,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tournois.length != 0) {
             tournois.forEach(tournoi => {
+                console.log('Winner:', tournoi.winner); //debug !!!!!!!!!!!!!!!!!
+                console.log('Winner:', tournoi.winner__name); //debug !!!!!!!!!!!!!!!!!
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${tournoi.id}</td>
                     <td>${tournoi.name}</td>
                     <td>${tournoi.nbr_player}</td>
                     <td>${tournoi.date}</td>
-                    <td>${tournoi.winner ? tournoi.winner.name : 'None'}</td>
+                    <td>${tournoi.winner ? tournoi.winner__name : 'None'}</td>
                     `;
                 tournoisListBody.appendChild(row);
             });
         } else {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td colspan="12">No matches found.</td>
+                <td colspan="12">No tournoi found.</td>
                 `
             tournoisListBody.appendChild(row);
         }

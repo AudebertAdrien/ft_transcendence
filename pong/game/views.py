@@ -92,7 +92,7 @@ def player_list_json(request):
     return JsonResponse(data)
 
 def tournoi_list_json(request):
-    tournois = Tournoi.objects.all()
+    tournois = Tournoi.objects.select_related('winner').all()
     
     data = {
         'tournois': list(tournois.values(
