@@ -67,7 +67,8 @@ class Game:
                     steps = 60#random.randint(10, 60)
                     self.future_ball_position = await self.predict_ball_trajectory(steps)
                     x = 0
-            await self.update_bot_position()
+            if self.botgame:
+                await self.update_bot_position()
             await self.handle_pad_movement()
             await self.update_game_state()
             await self.send_game_state()
