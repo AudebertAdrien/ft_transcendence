@@ -73,7 +73,6 @@ class Game:
 
     async def update_bot_position(self):
         #future_ball_position = self.predict_ball_trajectory()
-
         target_y = self.future_ball_position['y']
         player2_position = self.game_state['player2_position']
         
@@ -101,9 +100,9 @@ class Game:
                 future_x = 790
             else:
                 future_y += velocity_y
-            # Dealing with bounces off walls
-            if future_y <= 10 or future_y >= 390:
-                velocity_y = -velocity_y  # Reverse the direction of vertical movement
+                # Dealing with bounces off walls
+                if future_y <= 10 or future_y >= 390:
+                    velocity_y = -velocity_y  # Reverse the direction of vertical movement
         return {'x': future_x, 'y': future_y}
 
     async def update_game_state(self):
