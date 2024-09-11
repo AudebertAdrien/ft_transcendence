@@ -4,7 +4,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 User.add_to_class('auth_token', models.CharField(max_length=100, null=True, blank=True, unique=True))
-# Create your models here.
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
@@ -26,7 +25,7 @@ class Player(models.Model):
 class Tournoi(models.Model):
     name = models.CharField(max_length=200)
     nbr_player = models.PositiveSmallIntegerField()
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
     winner = models.ForeignKey('Player', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -55,7 +54,7 @@ class Match(models.Model):
         super().clean()
 
     def save(self, *args, **kwargs):
-        self.clean()  # Appel de la méthode clean() avant d'enregistrer
+        self.clean()
         super().save(*args, **kwargs)
 
     def __str__(self):

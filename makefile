@@ -1,13 +1,12 @@
-COMPOSE_FILE=docker-compose.yaml
+COMPOSE_FILE=docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
 up: down
-	sudo mkdir -p data/db
 	$(COMPOSE) build 
-	$(COMPOSE) up $(CONTAINER)
+	$(COMPOSE) up -d $(CONTAINER) || true
 
-build: 
+build:
 	$(COMPOSE) build $(CONTAINER)
 
 start:
@@ -21,9 +20,13 @@ down:
 
 destroy:
 	$(COMPOSE) down -v --rmi all
-	sudo rm -rf data
-	#sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
-	#sudo lsof -i :80 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+
+kill-pid:
+	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :5601 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :9200 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :8080 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
+	sudo lsof -i :5044 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
 logs:
 	$(COMPOSE) logs -f $(CONTAINER)
@@ -34,6 +37,8 @@ ps:
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
 
+re: destroy up
+
 help:
 	@echo "Usage:"
 	@echo "  make build [c=service]        # Build images"
@@ -42,7 +47,9 @@ help:
 	@echo "  make down [c=service]         # Stop and remove containers"
 	@echo "  make destroy				   # Stop and remove containers and volumes"
 	@echo "  make stop [c=service]         # Stop containers"
-	@echo "  make restart [c=service]      # Restart containers"
 	@echo "  make logs [c=service]         # Tail logs of containers"
 	@echo "  make ps                       # List containers"
 	@echo "  make help                     # Show this help"
+
+.PHONY: up build start stop down destroy logs ps db-shell help
+
