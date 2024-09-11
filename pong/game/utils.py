@@ -172,3 +172,5 @@ def get_player_p_win(player_name):
     player = get_object_or_404(Player, name=player_name)
     return player.p_win
 
+def getlen():
+    return Tournoi.objects.count()

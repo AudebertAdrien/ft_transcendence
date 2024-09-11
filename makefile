@@ -4,7 +4,7 @@ CONTAINER=$(c)
 
 up: down
 	$(COMPOSE) build 
-	$(COMPOSE) up $(CONTAINER)
+	$(COMPOSE) up --remove-orphans $(CONTAINER)
 
 build:
 	$(COMPOSE) build $(CONTAINER)

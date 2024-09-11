@@ -64,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
     quickMatchButton.addEventListener('click', startQuickMatch);
     tournamentButton.addEventListener('click', startTournament);
 
-
     async function handleCheckNickname() {
         const nickname = nicknameInput.value.trim();
         if (nickname) {
@@ -184,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return data.authenticated;
     }
-
 
     async function handleCheckNickname2() {
         const nickname2 = nicknameInput2.value.trim();
@@ -388,32 +386,31 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (data.type === 'game_state_update') {
                 updateGameState(data.game_state);
             } else if (data.type === 'player_disconnected') {
-                console.log("Player disconnected:", data.player);
+                console.log('Player disconnected:', data.player);
             } else if (data.type === 'game_ended') {
-                console.log("Game ended:", data.game_id);
+                console.log('Game ended:', data.game_id);
             } else if (data.type === 'error') {
                 console.error(data.message);
-            // Assuming you're inside some WebSocket message handling function
             } else if (data.type === 'update_tournament_waiting_room') {
                 // Update the HTML content of the tournament bracket
                 document.getElementById('tournament-bracket').innerHTML = data.html;
-
                 // Reattach the event listener to the "Start Tournament" button
                 const startButton = document.getElementById('start-tournament-btn');
                 if (startButton) {
                     startButton.addEventListener('click', function() {
                         if (typeof socket !== 'undefined' && socket.readyState === WebSocket.OPEN) {
-                            console.log("Start TOURNAMENT sent..");
+                            console.log('Start TOURNAMENT sent..');
                             socket.send(JSON.stringify({type: 'start_tournament'}));
                         } else {
-                            console.error("WebSocket is not open or undefined");
+                            console.error('WebSocket is not open or undefined');
                         }
                     });
-                } else {
-                    console.error('Start button not found');
                 }
             } else if (data.type === 'update_brackets') {
+                // Update the HTML content of the tournament bracket
                 document.getElementById('tournament-bracket').innerHTML = data.html;
+            } else if (data.type === 'tournament_end') {
+                console.log('Tournament ended, the winner is:', data.winner);
             } else {
                 console.log('Message from server:', data.type, data.message);
             }
@@ -443,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateGameState(newState) {
         gameState = newState;
         renderGame();
-        checkForWinner();
+        //checkForWinner();
     }
 
     function renderGame() {
