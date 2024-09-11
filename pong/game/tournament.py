@@ -10,13 +10,6 @@ from .models import Tournoi
 from .utils import create_tournament, update_tournament, getlen
 from asgiref.sync import sync_to_async
 
-
-TOURNAMENT_NAMES = [
-    "Champions Clash", "Ultimate Showdown", "Battle Royale", 
-    "Victory Cup", "Legends Tournament", "Elite Series", "Clash of 42",
-    "Shibuya incident", "Cunning Game", "Elite of the Stars"
-]
-
 TOURNAMENT_NAMES =  [
     "Champion's Clash", "Ultimate Showdown", "Battle Royale",
     "Victory's Cup", "Legends Tournament", "Elite Series", "Clash of 42",
@@ -214,6 +207,7 @@ class TournamentMatchMaker:
         self.rounds = []
         self.current_round = 0
         self.games = 0
+        self.tournament_state = "waiting"
 
     async def handle_match_end(self, match):
         await self.update_brackets()
