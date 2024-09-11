@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startWebSocketConnection(token, players) {
-        socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
+        socket = new WebSocket(`wss://${window.location.host}/ws/game/`);
 
         socket.onopen = function (event) {
             console.log('WebSocket connection established');

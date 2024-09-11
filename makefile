@@ -28,9 +28,6 @@ kill-pid:
 	sudo lsof -i :8080 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	sudo lsof -i :5044 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
-logs:
-	$(COMPOSE) logs -f $(CONTAINER)
-
 ps:
 	$(COMPOSE) ps
 
