@@ -103,9 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying matches:');
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
-        const row = document.createElement('tr');
+        
 
         if (matches.length != 0) {
+            const row = document.createElement('tr');
             matches.forEach(match => {
                 row.innerHTML = `
                     <td>${match.id}</td>
@@ -124,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 matchListBody.appendChild(row);
             });
         } else {
+            const row = document.createElement('tr');
             row.innerHTML = `
                 <td colspan="12">No matches found.</td>
             `;
@@ -135,9 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying players:');
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
-        const row = document.createElement('tr');
+        
 
         if (players.length != 0) {
+            const row = document.createElement('tr');
             players.forEach(player => {
                 row.innerHTML = `
                     <td>${player.id}</td>
@@ -157,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 playersListBody.appendChild(row);
             });
         } else {
+            const row = document.createElement('tr');
             row.innerHTML = `
                 <td colspan="12">No matches found.</td>
                 `
@@ -168,10 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying tournois:');
         const tournoisListBody = document.querySelector('#tournoi-list tbody');
         tournoisListBody.innerHTML = '';
-        const row = document.createElement('tr');
 
         if (tournois.length != 0) {
             tournois.forEach(tournoi => {
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${tournoi.id}</td>
                     <td>${tournoi.name}</td>
@@ -182,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tournoisListBody.appendChild(row);
             });
         } else {
+            const row = document.createElement('tr');
             row.innerHTML = `
                 <td colspan="12">No matches found.</td>
                 `
