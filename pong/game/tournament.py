@@ -82,13 +82,13 @@ class TournamentMatchMaker:
 
     # Tournament start method
     async def start_tournament(self):
-
-        if len(self.waiting_players) < 2:
+        if len(self.waiting_players) < 3:
             return False
-        if len(self.waiting_players) % 2 == 0:
-            await self.add_player(None)
-        self.tournament_state = "in_progress"
         random.shuffle(self.waiting_players)
+        '''if (len(self.waiting_players) % 2) != 0:
+            print("Adding a BYE to the tournament..")
+            await self.add_player(None)'''
+        self.tournament_state = "in_progress"
         self.current_round = 0
         len_tournament = await sync_to_async(getlen)()
         self.final_name = self.name + " #" + str(len_tournament + 1)
@@ -97,7 +97,7 @@ class TournamentMatchMaker:
         return True
 
     async def advance_tournament(self):
-        players = self.waiting_players        
+        players = self.waiting_players
         while len(players) > 1:
             self.current_round += 1
             print(f"Starting round {self.current_round} with {len(players)} players")            
@@ -180,6 +180,14 @@ class TournamentMatchMaker:
                 match.game_state['player1_score'] = 3
                 match.game_state['player2_score'] = 0
                 await match.end_game()
+                await self.send_game_text(match.player1, "You lucky bastard! You got an auto-win!")
+
+    async def send_game_text(self, player, text):
+        message = json.dumps({
+            'type': 'game_text_update',
+            'game_text': text
+        })
+        await player.send(message)
 
     def get_round_winners(self):
         winners = []

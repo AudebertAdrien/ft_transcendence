@@ -9,6 +9,9 @@ from asgiref.sync import sync_to_async
 from .models import Tournoi
 
 class Game:
+    # Global variable to handle the using of the database
+    USING_DB = False
+
     def __init__(self, game_id, player1, player2, localgame):
         self.game_id = game_id
         self.player1 = player1
@@ -243,6 +246,9 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
+            while (Game.USING_DB):
+                await asyncio.sleep(1)
+            Game.USING_DB = True
             if hasattr(self, 'tournament'):
                print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} ENDED ***")
                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
@@ -253,3 +259,4 @@ class Game:
                 await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                            self.game_state['player1_score'], self.game_state['player2_score'],
                            self.bt1, self.bt2, duration, False, None)
+            Game.USING_DB = False
