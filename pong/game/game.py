@@ -63,7 +63,9 @@ class Game:
             if self.botgame:
                 x += 1
                 if x == 60:
-                    self.future_ball_position = await self.predict_ball_trajectory()
+                    # Random BOT difficulty..
+                    steps = random.randint(10, 60)
+                    self.future_ball_position = await self.predict_ball_trajectory(steps)
                     x = 0
             await self.update_bot_position()
             await self.handle_pad_movement()
