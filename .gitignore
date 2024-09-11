@@ -5,5 +5,4 @@ logs/
 makefile
 docker-compose.old.yml
 docker-compose.yml
-logs/django.log
 pong/settings.py
