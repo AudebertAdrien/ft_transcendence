@@ -173,9 +173,24 @@ def get_player_p_win(player_name):
     return player.p_win
 
 def create_tournament(name, nbr_player):
-    print("here !!!")
+    print("tournoi created!!!")
     tournoi=Tournoi(name=name, nbr_player=nbr_player, winner=None)
+    tournoi.save()
+    print(f"tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+    return tournoi
+
+def update_tournament(name_tournoi, winner_name):
+    tournoi = get_object_or_404(Tournoi, name=name_tournoi)
+    winner_p = get_object_or_404(Player, name=winner_name)
+    print(f"in update tourna - tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+    print(f"in update tourna - winner is : {winner_p.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+
+    tournoi.winner = winner_p
+    print(f"in update tourna - TOURNOI winner is : {tournoi.winner.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
     tournoi.save()
 
 
 
+
+def getlen():
+    return Tournoi.objects.count()

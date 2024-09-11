@@ -41,14 +41,20 @@
 </head>
 <body>
     <div class="tournament-bracket">
+        {% for round in tournament_rounds %}
         <div class="round">
+            {% for match in round %}
             <div class="match">
                 <div class="player {% if match.winner == match.player1 %}winner{% endif %}">
+                    {{ match.player1 }}
                 </div>
                 <div class="player {% if match.winner == match.player2 %}winner{% endif %}">
+                    {{ match.player2|default:"BYE" }}
                 </div>
             </div>
+            {% endfor %}
         </div>
+        {% endfor %}
     </div>
 </body>
 </html>
