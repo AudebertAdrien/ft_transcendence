@@ -219,10 +219,6 @@ volumes:
       o: bind
   pong_django_logs:
     driver: local
-    driver_opts:
-      type: none
-      device: ${DJANGO_LOGS}
-      o: bind
   pong_pg_data:
     driver: local
   pong_es_data_01:
