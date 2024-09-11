@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${tournoi.name}</td>
                     <td>${tournoi.nbr_player}</td>
                     <td>${tournoi.date}</td>
-                    <td>${tournoi.winner ? tournoi.winner__name : 'None'}</td>
+                    <td>${tournoi.winner ? tournoi.winner.name : 'No one yet ...'}</td>
                     `;
                 tournoisListBody.appendChild(row);
             });
