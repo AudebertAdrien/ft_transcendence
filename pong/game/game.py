@@ -243,13 +243,52 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
-            if hasattr(self, 'tournament'):
-               print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} ENDED ***")
-               await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
-                           self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg)
-               print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} is REGISTERED ***")
-            else:
-                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
-                           self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, duration, False, None)
+
+            
+            
+            attempt = 0
+            max_attempts = 10  # Limite le nombre de tentatives
+            success = False
+
+            print(f"Try to save game #{self.game_id}  ({self})")
+            while attempt < max_attempts and not success:
+                try:
+                    if hasattr(self, 'tournament'):
+                        print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} ENDED ***")
+                        
+                        # Essaye d'appeler handle_game_data
+                        result = await sync_to_async(handle_game_data)(
+                            self.game_state['player1_name'], self.game_state['player2_name'],
+                            self.game_state['player1_score'], self.game_state['player2_score'],
+                            self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg
+                        )
+                        
+                        # Vérification explicite de la réussite
+                        if result is not None:  # Si handle_game_data peut retourner un résultat indicatif
+                            success = True
+                            print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} is REGISTERED ***")
+                        else:
+                            raise ValueError("handle_game_data returned an unexpected result")
+
+                    else:
+                        print(f"*** Game #{self.game_id} simple game ENDED ***")
+                        result = await sync_to_async(handle_game_data)(
+                            self.game_state['player1_name'], self.game_state['player2_name'],
+                            self.game_state['player1_score'], self.game_state['player2_score'],
+                            self.bt1, self.bt2, duration, False, None
+                        )
+
+                        if result is not None:
+                            success = True
+                            print(f"Non-tournament game {self.game_id} data registered")
+                        else:
+                            raise ValueError("handle_game_data returned an unexpected result")
+
+                except Exception as e:
+                    attempt += 1
+                    print(f"Attempt {attempt}: Failed to register game data - {e}")
+                    await asyncio.sleep(1)  # Délai avant de réessayer
+
+                    if attempt >= max_attempts:
+                        print("Max attempts reached. Could not register game data.")
+                        break
