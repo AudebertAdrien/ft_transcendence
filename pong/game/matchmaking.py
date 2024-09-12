@@ -26,8 +26,7 @@ class MatchMaker:
         for game in self.active_games.values():
             if player in [game.player1, game.player2]:
                 await game.end_game(disconnected_player=player)
-                if game.game_id in self.active_games:
-                    del self.active_games[game.game_id]
+                del self.active_games[game.game_id]
                 break
 
     async def match_loop(self):
@@ -102,6 +101,12 @@ class MatchMaker:
                     'player1': player1.user.username,
                     'player2': 'BOT'
                 }))
+
+    async def handle_key_press(self, player, key):
+        for game in self.active_games.values():
+            if player in [game.player1, game.player2]:
+                await game.handle_key_press(player, key)
+                break
 
 # Instance of the class
 match_maker = MatchMaker()
