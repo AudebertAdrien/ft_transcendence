@@ -9,6 +9,7 @@ from .game import Game
 from .models import Tournoi
 from .utils import create_tournament, update_tournament, getlen
 from asgiref.sync import sync_to_async
+from .views import write_data
 
 
 TOURNAMENT_NAMES = [
@@ -208,6 +209,10 @@ class TournamentMatchMaker:
             })
         
         await sync_to_async(update_tournament)(self.final_name, winner_username)
+
+        player_list = [player.user.username for player in self.waiting_players]
+        write_data(player_list, winner_username)
+        
         # Reset tournament state
         self.waiting_players = []
         self.matches = []
