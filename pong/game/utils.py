@@ -12,8 +12,8 @@ def handle_game_data(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tour
 
         create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
 
-        update_player_statistics(p1)
-        update_player_statistics(p2)
+        #update_player_statistics(p1)
+        #update_player_statistics(p2)
   
     except Exception as e:
         print(f"Error in endfortheouche: {e}")
@@ -65,6 +65,7 @@ def create_player(
         m_duration=m_duration,
         num_participated_tournaments=num_participated_tournaments,
         num_won_tournaments=num_won_tournaments
+
     )
     player.save()
     return player
@@ -128,7 +129,7 @@ def update_player_statistics(player_name):
 
     total_score = matches_as_player1.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
     total_score += matches_as_player2.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
-    
+
     total_score_adv = matches_as_player1.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
     total_score_adv += matches_as_player2.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
 
