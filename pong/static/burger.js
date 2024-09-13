@@ -148,12 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${player.total_match}</td>
                     <td>${player.total_win}</td>
                     <td>${player.p_win}</td>
-                    <td>${player.m_score_match}</td>
-                    <td>${player.m_score_adv_match}</td>
-                    <td>${player.best_score}</td>
-                    <td>${player.m_nbr_ball_touch}</td>
-                    <td>${player.total_duration}</td>
-                    <td>${player.m_duration}</td>
                     <td>${player.num_participated_tournaments}</td>
                     <td>${player.num_won_tournaments}</td>
                     `;

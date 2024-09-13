@@ -3,7 +3,7 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Player, Tournoi, Match
-from .utils import create_player, create_tournoi, create_match
+from .utils import create_tournoi, create_match
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -84,8 +84,6 @@ def player_list_json(request):
     data = {
         'players': list(players.values(
             'id', 'name', 'total_match', 'total_win', 'p_win',
-            'm_score_match', 'm_score_adv_match', 'best_score',
-            'm_nbr_ball_touch', 'total_duration', 'm_duration',
             'num_participated_tournaments', 'num_won_tournaments'
         ))
     }

@@ -10,12 +10,6 @@ class Player(models.Model):
     total_match = models.PositiveSmallIntegerField(default=0)
     total_win = models.PositiveSmallIntegerField(default=0)
     p_win = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    m_score_match = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    m_score_adv_match = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    best_score = models.PositiveSmallIntegerField(default=0)
-    m_nbr_ball_touch = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    total_duration = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
-    m_duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     num_participated_tournaments = models.PositiveSmallIntegerField(default=0)
     num_won_tournaments = models.PositiveSmallIntegerField(default=0)
 

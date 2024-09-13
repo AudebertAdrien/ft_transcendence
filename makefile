@@ -2,7 +2,7 @@ COMPOSE_FILE=docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
-up: down
+up:
 	$(COMPOSE) build 
 	$(COMPOSE) up -d $(CONTAINER) || true
 

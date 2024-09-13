@@ -388,6 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener('keydown', handleKeyDown);
             } else if (data.type === 'game_state_update') {
                 updateGameState(data.game_state);
+            } else if (data.type === 'game_text_update') {
+                updateGameText(data.game_text);
             } else if (data.type === 'player_disconnected') {
                 console.log('Player disconnected:', data.player);
             } else if (data.type === 'game_ended') {
@@ -460,6 +462,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('player2-score').textContent = gameState.player2_score;
 
         document.getElementById('game-text').textContent = gameState.game_text;
+    }
+
+    function updateGameText(gameText) {
+        document.getElementById('game-text').textContent = gameText;
     }
 
     const starsContainer = document.getElementById('stars');
