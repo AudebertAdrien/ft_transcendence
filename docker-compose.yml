@@ -1,5 +1,4 @@
 services:
-  
   backend:
     build:
       context: .
@@ -11,7 +10,7 @@ services:
       venv/bin/python manage.py makemigrations --noinput &&
       venv/bin/python manage.py migrate --noinput && 
       venv/bin/python manage.py collectstatic --noinput &&
-      venv/bin/daphne -b 0.0.0.0 -p 8080 pong.asgi:application"
+      venv/bin/daphne -e ssl:8080:privateKey=./certs/ssl/backend-key.pem:certKey=./certs/ssl/backend-cert.pem pong.asgi:application"
     volumes:
       - pong:/transcendence/pong
       - pong_django_logs:/transcendence/logs
@@ -25,6 +24,10 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SECURE_SSL_REDIRECT: True
+      SECURE_HSTS_SECONDS: 31536000
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: True
+      SECURE_HSTS_PRELOAD: True
     depends_on:
       - db
     healthcheck:
@@ -53,9 +56,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  
-      
+   
 volumes:
   pong:
     driver: local

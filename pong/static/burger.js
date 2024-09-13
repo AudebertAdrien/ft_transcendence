@@ -103,11 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying matches:');
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
-        
 
         if (matches.length != 0) {
             matches.forEach(match => {
-                const row = document.createElement('tr');
+        		const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${match.id}</td>
                     <td>${match.player1__name}</td>
@@ -137,11 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying players:');
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
-        
 
         if (players.length != 0) {
             players.forEach(player => {
-                const row = document.createElement('tr');
+        		const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${player.id}</td>
                     <td>${player.name}</td>
@@ -169,9 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tournois.length != 0) {
             tournois.forEach(tournoi => {
-                console.log('Winner:', tournoi.winner); //debug !!!!!!!!!!!!!!!!!
-                console.log('Winner:', tournoi.winner__name); //debug !!!!!!!!!!!!!!!!!
-                const row = document.createElement('tr');
+        		const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${tournoi.id}</td>
                     <td>${tournoi.name}</td>

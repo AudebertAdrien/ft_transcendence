@@ -1,5 +1,12 @@
+MAIN_PROJECT_NAME=main_project
+ELK_PROJECT_NAME=elk_project
+
 COMPOSE_FILE=docker-compose.yml
-COMPOSE=docker compose -f $(COMPOSE_FILE)
+ELK_COMPOSE_FILE=docker-compose-elk.yml
+
+COMPOSE=docker compose -f $(COMPOSE_FILE) -p $(MAIN_PROJECT_NAME)
+ELK_COMPOSE=docker compose -f $(ELK_COMPOSE_FILE) -p $(ELK_PROJECT_NAME)
+
 CONTAINER=$(c)
 
 up:
@@ -9,17 +16,22 @@ up:
 build:
 	$(COMPOSE) build $(CONTAINER)
 
-start:
-	$(COMPOSE) start $(CONTAINER)
-
-stop:
-	$(COMPOSE) stop $(CONTAINER)
-
 down:
 	$(COMPOSE) down $(CONTAINER)
 
 destroy:
 	$(COMPOSE) down -v --rmi all
+
+# Manage ELK stack
+
+elk-up:
+	$(ELK_COMPOSE) up -d --remove-orphans || true
+
+elk-down:
+	$(ELK_COMPOSE) down --remove-orphans 
+
+elk-destroy:
+	$(ELK_COMPOSE) down --remove-orphans  -v --rmi all
 
 kill-pid:
 	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
@@ -28,16 +40,11 @@ kill-pid:
 	sudo lsof -i :8080 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	sudo lsof -i :5044 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
-logs:
-	$(COMPOSE) logs -f $(CONTAINER)
-
 ps:
 	$(COMPOSE) ps
 
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
-
-re: destroy up
 
 help:
 	@echo "Usage:"

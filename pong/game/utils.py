@@ -152,7 +152,5 @@ def update_tournament(name_tournoi, winner_name):
     tournoi.save()
 
 
-
-
 def getlen():
     return Tournoi.objects.count()
