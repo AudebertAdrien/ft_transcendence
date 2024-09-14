@@ -4,10 +4,13 @@ import json
 import asyncio
 import random
 from datetime import datetime
-from .utils import handle_game_data, getlen
+from .utils import handle_game_data, getlen, create_player, create_match
 from asgiref.sync import sync_to_async
 from .models import Tournoi
+from concurrent.futures import ThreadPoolExecutor
 
+executor = ThreadPoolExecutor(max_workers=5)
+lock = asyncio.Lock()
 class Game:
     # Global variable to handle the using of the database
     USING_DB = False
@@ -58,6 +61,7 @@ class Game:
         print(f"- Game #{self.game_id} STARTED ({self.game_state['player1_name']} vs {self.game_state['player2_name']}) --- ({self})")
         self.game_loop_task = asyncio.create_task(self.game_loop())
         print(f"  Begin MATCH at: {self.start_time}")
+        await sync_to_async(create_player)(self.game_state['player1_name'], self.game_state['player2_name'])
 
     async def game_loop(self):
         print("  In the game loop..")
@@ -250,52 +254,22 @@ class Game:
                 if not self.localgame:
                     await self.player2.send(end_message)
 
-            
-            
-            attempt = 0
-            max_attempts = 10  # Limite le nombre de tentatives
-            success = False
 
             print(f"Try to save game #{self.game_id}  ({self})")
-            #while attempt < max_attempts and not success:
-            try:
-                if hasattr(self, 'tournament'):
-                    print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} ENDED ***")
-                    
-                    # Essaye d'appeler handle_game_data
-                    result = await sync_to_async(handle_game_data)(
-                        self.game_state['player1_name'], self.game_state['player2_name'],
-                        self.game_state['player1_score'], self.game_state['player2_score'],
-                        self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg
-                    )
-                    
-                    # Vérification explicite de la réussite
-                    if result is not None:  # Si handle_game_data peut retourner un résultat indicatif
-                        success = True
-                        print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} is REGISTERED ***")
-                    else:
-                        raise ValueError("handle_game_data returned an unexpected result")
+           
 
-                else:
-                    print(f"*** Game #{self.game_id} simple game ENDED ***")
-                    result = await sync_to_async(handle_game_data)(
-                        self.game_state['player1_name'], self.game_state['player2_name'],
-                        self.game_state['player1_score'], self.game_state['player2_score'],
-                        self.bt1, self.bt2, duration, False, None
-                    )
-                    print("result done !!!")
+            avd, d = (True, self.tournament.tournoi_reg) if hasattr(self, 'tournament') else (False, None)
 
-                    if result is not None:
-                        success = True
-                        print(f"Non-tournament game {self.game_id} data registered")
-                    else:
-                        raise ValueError("handle_game_data returned an unexpected result")
+            
+            # Essaye d'appeler handle_game_data
+            print("TRY CREATE MATCH")
 
-            except Exception as e:
-                attempt += 1
-                print(f"Attempt {attempt}: Failed to register game data - {e}")
-                await asyncio.sleep(1)  # Délai avant de réessayer
+            await sync_to_async(create_match)(
+                self.game_state['player1_name'], self.game_state['player2_name'],
+                self.game_state['player1_score'], self.game_state['player2_score'],
+                self.bt1, self.bt2, duration, avd, d
+            )
 
-                if attempt >= max_attempts:
-                    print("Max attempts reached. Could not register game data.")
-                    #break
+            print("MATCH OK")
+
+             

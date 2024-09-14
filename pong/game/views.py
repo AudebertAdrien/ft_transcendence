@@ -71,8 +71,8 @@ def match_list_json(request):
     matches = Match.objects.all()
     data = {
         'matches': list(matches.values(
-            'id', 'player1__name', 'player2__name', 'score_player1', 'score_player2',
-            'winner__name', 'nbr_ball_touch_p1', 'nbr_ball_touch_p2', 'duration', 'date',
+            'id', 'player1', 'player2', 'score_player1', 'score_player2',
+            'winner', 'nbr_ball_touch_p1', 'nbr_ball_touch_p2', 'duration', 'date',
             'is_tournoi', 'tournoi__name'
         ))
     }

@@ -110,8 +110,7 @@ class TournamentMatchMaker:
                 await asyncio.sleep(1)  # Wait for 1 second before checking again            
             # Get winners for the next round
             players = self.get_round_winners()
-            print(f"Round {self.current_round} finished. {len(players)} players advancing.")
-            await asyncio.sleep(10)        
+            print(f"Round {self.current_round} finished. {len(players)} players advancing.")        
         # Tournament has ended
         await self.update_brackets()
         await self.end_tournament(players[0] if players else None)

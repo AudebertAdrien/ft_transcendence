@@ -109,11 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
         		const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${match.id}</td>
-                    <td>${match.player1__name}</td>
-                    <td>${match.player2__name}</td>
+                    <td>${match.player1}</td>
+                    <td>${match.player2}</td>
                     <td>${match.score_player1}</td>
                     <td>${match.score_player2}</td>
-                    <td>${match.winner__name}</td>
+                    <td>${match.winner}</td>
                     <td>${match.nbr_ball_touch_p1}</td>
                     <td>${match.nbr_ball_touch_p2}</td>
                     <td>${match.duration}</td>

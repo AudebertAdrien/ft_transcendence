@@ -9,7 +9,7 @@ ELK_COMPOSE=docker compose -f $(ELK_COMPOSE_FILE) -p $(ELK_PROJECT_NAME)
 
 CONTAINER=$(c)
 
-up:
+up: down
 	$(COMPOSE) build 
 	$(COMPOSE) up -d $(CONTAINER) || true
 
@@ -21,6 +21,8 @@ down:
 
 destroy:
 	$(COMPOSE) down -v --rmi all
+
+re : down destroy up
 
 # Manage ELK stack
 
