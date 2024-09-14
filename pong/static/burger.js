@@ -147,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${player.total_win}</td>
                     <td>${player.p_win}</td>
                     <td>${player.num_participated_tournaments}</td>
-                    <td>${player.num_won_tournaments}</td>
                     `;
                 playersListBody.appendChild(row);
             });
@@ -173,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${tournoi.name}</td>
                     <td>${tournoi.nbr_player}</td>
                     <td>${tournoi.date}</td>
-                    <td>${tournoi.winner ? tournoi.winner.name : 'No one yet ...'}</td>
+                    <td>${tournoi.winner}</td>
                     `;
                 tournoisListBody.appendChild(row);
             });

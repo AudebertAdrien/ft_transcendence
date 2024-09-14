@@ -3,7 +3,6 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Player, Tournoi, Match
-from .utils import create_tournoi, create_match
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -84,7 +83,7 @@ def player_list_json(request):
     data = {
         'players': list(players.values(
             'id', 'name', 'total_match', 'total_win', 'p_win',
-            'num_participated_tournaments', 'num_won_tournaments'
+            'num_participated_tournaments'
         ))
     }
     return JsonResponse(data)
@@ -95,14 +94,11 @@ def get_tournoi_data(tournoi):
         "name": tournoi.name,
         "nbr_player": tournoi.nbr_player,
         "date": tournoi.date,
-        "winner": {
-            "id": tournoi.winner.id,
-            "name": tournoi.winner.name
-        } if tournoi.winner else None
+        "winner": tournoi.winner
     }
 
 def tournoi_list_json(request):
-    tournois = Tournoi.objects.select_related('winner').all()  # Charge les données du gagnant
+    tournois = Tournoi.objects.all()  # Charge les données du gagnant
     tournois_data = [get_tournoi_data(tournoi) for tournoi in tournois]
     return JsonResponse({"tournois": tournois_data})
 

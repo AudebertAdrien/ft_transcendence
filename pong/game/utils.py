@@ -8,6 +8,7 @@ from django.db.models import Q
 import asyncio
 
 players_name_list = []
+tournament_participations = {}
 
 def handle_game_data(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
     try:
@@ -45,8 +46,7 @@ def create_player(name_p1, name_p2):
             total_match = 0, 
             total_win = 0, 
             p_win = 0,
-            num_participated_tournaments = 0,
-            num_won_tournaments = 0)
+            num_participated_tournaments = 0)
         player1.save()
         players_name_list.append(name_p1)
         print(f"Player {name_p1} creation done") 
@@ -60,20 +60,13 @@ def create_player(name_p1, name_p2):
             total_match = 0, 
             total_win = 0, 
             p_win = 0,
-            num_participated_tournaments = 0,
-            num_won_tournaments = 0)
+            num_participated_tournaments = 0)
         player2.save()
         players_name_list.append(name_p2)
         print(f"Player {name_p2} creation done") 
     
     #return player
 
-
-
-def create_tournoi(name, nbr_player, date, winner):
-    tournoi = Tournoi(name=name, nbr_player=nbr_player, date=date, winner=winner)
-    tournoi.save()
-    return tournoi
 
 def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_p1, nbr_ball_touch_p2, duration, is_tournoi, tournoi):
     print("MATCH BEING REGISTERD")
@@ -100,57 +93,35 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
     print("MATCH SAVE IN DB")
     match.save()
     print("MATCH DONE")
-    #update_player_statistics(player1)
-    #update_player_statistics(player2)
-    #print("STAT DONE") 
+    update_player_statistics(player1, match.winner, is_tournoi, tournoi)
+    print("STAT P1 DONE")
+    update_player_statistics(player2, match.winner, is_tournoi, tournoi)
+    print("STAT P2 DONE") 
 
-def update_player_statistics(player_name):
+def update_player_statistics(player_name, winner, is_tournoi, tournoi):
+
     print("UPDATED DATA")
+    global tournament_participations
+    print("GET PLAYER")
     player = get_object_or_404(Player, name=player_name)
-
-
-    matches = Match.objects.filter(Q(player1=player) | Q(player2=player))
-
-    total_match = matches.count()
-
-    
-    # avoid dividing by 0
-    if total_match == 0:
-        player.total_match = total_match
-        player.total_win = 0
-        player.p_win = 0
-        player.num_participated_tournaments = 0
-        player.num_won_tournaments = 0
-        player.save()
-        return
-
-    nb_win =0
-    
-    for match in matches :
-        if match.winner == player:
-            nb_win = nb_win + 1
-
-
-    #won_matches = Match.objects.filter(winner=player)
-    #part_tourn_as_p1 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player1=player)
-    #part_tourn_as_p2 = Tournoi.objects.filter(matches__is_tournoi=True, matches__matches_as_player2=player)
-    #won_tourn = Tournoi.objects.filter(winner=player) 
-
-
-    #total_win = won_matches.count()
-
-
-    p_win = (nb_win/ total_match) * 100
-    
-    #total_tourn_p = part_tourn_as_p1.count() + part_tourn_as_p2.count()
-    #total_win_tourn = won_tourn.count()
-    #p_win_tourn = (total_win_tourn / total_tourn_p) * 100 if total_tourn_p else 0
+    print("PLAYER FIND")
  
-    player.total_match = total_match
-    player.total_win = total_win
-    player.p_win = p_win
-    # player.num_participated_tournaments = total_tourn_p
-    #player.num_won_tournaments = total_win_tourn 
+    player.total_match += 1
+    if winner == player.name :
+        player.total_win += 1
+    
+    if player.total_match > 0:
+        player.p_win = player.total_win / player.total_match
+
+    if is_tournoi:
+        if tournoi.name not in tournament_participations:
+            tournament_participations[tournoi] = []
+        
+        if player_name not in tournament_participations[tournoi]:
+            tournament_participations[tournoi].append(player.name)
+            player.num_participated_tournaments += 1
+        
+    
 
     player.save()
 
@@ -160,19 +131,19 @@ def get_player_p_win(player_name):
 
 def create_tournament(name, nbr_player):
     print("tournoi created!!!")
-    tournoi=Tournoi(name=name, nbr_player=nbr_player, winner=None)
+    tournoi=Tournoi(name=name, nbr_player=nbr_player, winner="No one yet ...")
     tournoi.save()
     print(f"tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
     return tournoi
 
 def update_tournament(name_tournoi, winner_name):
     tournoi = get_object_or_404(Tournoi, name=name_tournoi)
-    winner_p = get_object_or_404(Player, name=winner_name)
+    
     print(f"in update tourna - tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
-    print(f"in update tourna - winner is : {winner_p.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+    
 
-    tournoi.winner = winner_p
-    print(f"in update tourna - TOURNOI winner is : {tournoi.winner.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
+    tournoi.winner = winner_name
+    print(f"in update tourna - TOURNOI winner is : {tournoi.winner}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
     tournoi.save()
 
 
