@@ -69,6 +69,7 @@ def create_player(
         m_duration=m_duration,
         num_participated_tournaments=num_participated_tournaments,
         num_won_tournaments=num_won_tournaments
+
     )
     player.save()
     return player
@@ -132,7 +133,7 @@ def update_player_statistics(player_name):
 
     total_score = matches_as_player1.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
     total_score += matches_as_player2.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
-    
+
     total_score_adv = matches_as_player1.aggregate(Sum('score_player2'))['score_player2__sum'] or 0
     total_score_adv += matches_as_player2.aggregate(Sum('score_player1'))['score_player1__sum'] or 0
 

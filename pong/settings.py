@@ -139,6 +139,32 @@ CHANNEL_LAYERS = {
 }
 
 LOGGING = {
+    'version': 1,  # Django requires this key
+    'disable_existing_loggers': False,  # Keep Django's default loggers
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',  # Allows to use Python's new style string formatting
+        },
+    },
+    'handlers': {
+        'console': {  # Log to the console
+            'level': 'DEBUG',  # Minimum level of messages that should be handled
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',  # Use the simple formatter defined above
+        },
+    },
+    'loggers': {
+        'django': {  # The main logger for Django itself
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Minimum log level to be logged
+            'propagate': False,  # Prevents log propagation to other loggers
+        },
+    },
+}
+
+"""
+LOGGING = {
     'version': 1,  # The version of the logging configuration schema
     'disable_existing_loggers': False,  # Allows existing loggers to keep logging
     'formatters': {  # Defines how log messages will be formatted
@@ -172,3 +198,4 @@ LOGGING = {
         },
     },
 }
+"""
