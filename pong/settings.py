@@ -29,14 +29,15 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    #'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
+    #'django.contrib.sessions',
+    #'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels', 
     'pong.game',
+    #'django_db_conn_pool',
     'rest_framework'
 ]
 
@@ -46,7 +47,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    #'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -81,6 +82,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': '5432',
+        'CONN_MAX_AGE': None,
     }
 }
 
@@ -136,7 +138,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-'''LOGGING = {
+LOGGING = {
     'version': 1,  # The version of the logging configuration schema
     'disable_existing_loggers': False,  # Allows existing loggers to keep logging
     'formatters': {  # Defines how log messages will be formatted
@@ -169,4 +171,4 @@ CHANNEL_LAYERS = {
             'propagate': True,  # If True, messages will be passed to the parent loggers as well
         },
     },
-}'''
+}

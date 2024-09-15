@@ -1,3 +1,5 @@
+# /pong/game/utils.py
+
 from .models import Player, Tournoi, Match
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404

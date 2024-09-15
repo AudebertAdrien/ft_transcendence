@@ -13,6 +13,6 @@ COPY certs/ certs/
 
 RUN python3 -m venv venv
 RUN venv/bin/pip3 install --upgrade pip
-RUN venv/bin/pip3 install --no-cache-dir -r requirements.txt
+RUN venv/bin/pip3 install --no-cache-dir -r requirements.txt -v
 
 EXPOSE 8080

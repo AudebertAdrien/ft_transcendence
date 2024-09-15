@@ -3,7 +3,7 @@ COMPOSE=docker compose -f $(COMPOSE_FILE)
 CONTAINER=$(c)
 
 up: down
-	$(COMPOSE) build 
+	$(COMPOSE) build
 	$(COMPOSE) up -d $(CONTAINER) || true
 
 build:

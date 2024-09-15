@@ -10,7 +10,7 @@ from .models import Tournoi
 
 class Game:
     # Global variable to handle the using of the database
-    USING_DB = False
+    #USING_DB = False
 
     def __init__(self, game_id, player1, player2, localgame):
         self.game_id = game_id
@@ -46,6 +46,7 @@ class Game:
             }
         self.speed = 1
         self.game_loop_task = None
+        self.database = None
         self.ended = False
         self.p1_mov = 0
         self.p2_mov = 0
@@ -236,7 +237,8 @@ class Game:
                 })
                 if not self.botgame:
                     if not self.localgame:
-                        await remaining_player.send(message)            
+                        await remaining_player.send(message)
+
             # Notify both players that the game has ended
             end_message = json.dumps({
                 'type': 'game_ended',
@@ -246,17 +248,37 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
-            while (Game.USING_DB):
-                await asyncio.sleep(1)
-            Game.USING_DB = True
+
+            #while (Game.USING_DB):
+            #    await asyncio.sleep(1)
+            #Game.USING_DB = True
             if hasattr(self, 'tournament'):
-               print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} ENDED ***")
-               await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
-                           self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg)
-               print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} is REGISTERED ***")
+                print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} ENDED ***")
+                
+                # Create the async task
+                self.database_task = asyncio.create_task(
+                    sync_to_async(handle_game_data)(
+                        self.game_state['player1_name'], self.game_state['player2_name'],
+                        self.game_state['player1_score'], self.game_state['player2_score'],
+                        self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg
+                    )
+                )
+                # Optionally wait for the task to complete if necessary
+                #await self.database
+
+                '''await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+                    self.game_state['player1_score'], self.game_state['player2_score'],
+                    self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg)'''
+                print(f"*** Game #{self.game_id} from tournament: {self.tournament.tournoi_reg.name} is REGISTERED ***")
             else:
-                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
-                           self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, duration, False, None)
-            Game.USING_DB = False
+                self.database_task = asyncio.create_task(
+                    sync_to_async(handle_game_data)(
+                        self.game_state['player1_name'], self.game_state['player2_name'],
+                        self.game_state['player1_score'], self.game_state['player2_score'],
+                        self.bt1, self.bt2, duration, False, None
+                    )
+                )
+                '''await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+                    self.game_state['player1_score'], self.game_state['player2_score'],
+                    self.bt1, self.bt2, duration, False, None)'''
+            #Game.USING_DB = False
