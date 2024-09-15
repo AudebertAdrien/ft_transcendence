@@ -145,235 +145,321 @@ class GameConsumer(AsyncWebsocketConsumer):
 	async def set_game(self, game):
 		logger.info(f"Setting game: {game}")
 		self.game = game
-###############################CHAT############################################
-class ChatConsumer(AsyncWebsocketConsumer):
-	groups = {}
 
+###################################################################CHAT###################################################################
+class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
+		
 		try:
-			# Récupérer le nom de la room
+			# Récupérer le nom de la room à partir de l'URL
 			self.room_group_name = self.scope['url_route']['kwargs']['room_name']
 		
 			# Accepter la connexion WebSocket
 			await self.accept()
+			# Ajouter l'utilisateur au groupe (room)
+			await self.channel_layer.group_add(
+				self.room_group_name,
+				self.channel_name
+			)
 
-			logger.info(f"Connexion au WebSocket de chat dans la room {self.room_group_name}")
-
-			# Ajouter l'utilisateur au groupe en mémoire
-			if self.room_group_name not in self.groups:
-				self.groups[self.room_group_name] = []
-			self.groups[self.room_group_name].append(self.channel_name)
-
-			logger.info(f"User {self.channel_name} added to group {self.room_group_name}")
-
+			self.username = self.scope['user'].username  # Assurez-vous d'avoir un utilisateur lié à la connexion
+			logger.info(f"Connexion de l'utilisateur {self.username} à la room {self.room_group_name}")
+			# Ajouter l'utilisateur à son propre groupe personnel (pour messages directs)
+					
+			
 		except Exception as e:
 			logger.error(f"Erreur lors de la connexion WebSocket: {str(e)}")
 
-
 	async def disconnect(self, close_code):
 		try:
-			# Retirer l'utilisateur du groupe en mémoire
-			if self.room_group_name in self.groups:
-				self.groups[self.room_group_name].remove(self.channel_name)
-				if not self.groups[self.room_group_name]:
-					del self.groups[self.room_group_name]
-
-			await self.send_group_message(
+			# Retirer l'utilisateur du groupe (room)
+			await self.channel_layer.group_discard(
 				self.room_group_name,
-				{
-					'type': 'chat_message',
-					'message': f'{self.user.username if hasattr(self, "user") else "Unknown"} a quitté le chat',
-					'username': self.user.username if hasattr(self, "user") else "Unknown",
-					'room': self.room_group_name
-				}
+				self.channel_name
 			)
-			logger.info(f"{self.user.username if hasattr(self, 'user') else 'Unknown'} déconnecté du WebSocket de chat dans la room {self.room_group_name}")
+
+			# Retirer l'utilisateur de son groupe personnel
+			await self.channel_layer.group_discard(
+				f"user_{self.username}",
+				self.channel_name
+			)
+
+			# Envoyer un message indiquant que l'utilisateur a quitté la room
+			await self.chat_message(
+				'chat_message',
+				self.user.username if hasattr(self, "user") else "Unknown",
+				f'{self.user.username if hasattr(self, "user") else "Unknown"} a quitté le chat',
+				self.room_group_name
+			)
+			logger.info(f"{self.user.username if hasattr(self, 'user') else 'Unknown'} déconnecté de la room {self.room_group_name}")
+
 		except Exception as e:
-			logger.error(f"Erreur lors de la déconnexion WebSocket du chat: {str(e)}")
+			logger.error(f"Erreur lors de la déconnexion WebSocket: {str(e)}")
 
 	async def receive(self, text_data):
 		try:
+			# Convertir les données JSON reçues en dictionnaire Python
 			data = json.loads(text_data)
 			message_type = data.get('type')
-			username = data.get('username').strip().lower()  # Normalisation du nom d'utilisateur
+			username = data.get('username')
+			message = data.get('message', None)
+			target_user = data.get('target_user', None)
 
-			# Log pour vérifier que le username est bien reçu
-			logger.info(f"Message reçu avec username: {username}")
+			logger.info(f"Message reçu: {data}")
+
 			if not username:
-				logger.error(f"Username missing in message: {data}")
-				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Username is missing'}))
+				logger.error(f"Username manquant dans le message: {data}")
+				await self.chat_message('error', 'server', 'Username is missing', self.room_group_name)
 				return
 
-			# Gestion des types de messages
+			# Gestion des différents types de messages
 			if message_type == 'authenticate':
+				logger.info(f"Authentification demandée pour {username}")
 				await self.authenticate(data.get('token'), username)
+				return
 
 			elif message_type == 'chat_message':
-				if 'message' not in data:
-					logger.error(f"Format de message incorrect : {data}")
-					await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format de message incorrect'}))
-					return
+				logger.info(f"Message de chat envoyé par {username}: {message}")
+				await self.chat_message('chat_message', username, message, self.room_group_name)
 
-				message = data['message']
-
-				# Envoyer le message à tous les autres utilisateurs de la room
-				await self.send_group_message(
-					self.room_group_name,
-					{
-						'type': 'chat_message',
-						'message': message,
-						'username': username,
-						'room': self.room_group_name
-					}
-				)
-
-			# Gestion de la commande /b pour bloquer un utilisateur
 			elif message_type == 'block_user':
-				target_user = data.get('target_user').strip().lower()
-				if target_user == username:
-					await self.send(text_data=json.dumps({'type': 'error', 'message': 'You cannot block yourself'}))
-				else:
-					await self.handle_block_user(data)
+				logger.info(f"{username} tente de bloquer {target_user}")
+				await self.handle_block_user(data)
 
-			# Gestion de la commande /i pour inviter un utilisateur
-			elif message_type == 'invite_user':
-				target_user = data.get('target_user').strip().lower()
-				if target_user == username:
-					await self.send(text_data=json.dumps({'type': 'error', 'message': 'You cannot invite yourself'}))
-				else:
-					await self.handle_invite_user(data)
+			elif message_type == 'invite':
+				await self.handle_invite_user(data)
+
+			elif message_type == 'invite_response':
+				await self.handle_invite_response(data)
 
 			else:
-				logger.warning(f"Unhandled message type: {message_type}")
-				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Unhandled message type'}))
+				logger.warning(f"Type de message non géré: {message_type}")
+				await self.chat_message('error', 'server', f"Unhandled message type: {message_type}", self.room_group_name)
 
 		except json.JSONDecodeError as e:
 			logger.error(f"Erreur de décodage JSON : {str(e)} - Données reçues : {text_data}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Format JSON invalide'}))
+			await self.chat_message('error', 'server', 'Invalid JSON format', self.room_group_name)
+
 		except Exception as e:
-			logger.error(f"Erreur lors de la réception du message du chat: {str(e)}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Erreur interne du serveur'}))
+			logger.error(f"Erreur lors de la réception du message: {str(e)}")
+			await self.chat_message('error', 'server', 'Internal server error', self.room_group_name)
+
+	async def chat_message(self, message_type, username, message, room):
+		"""
+		Fonction générale pour envoyer tout type de message via WebSocket à tous les utilisateurs dans la room.
+		"""
+		logger.info(f"Envoi d'un message de type {message_type} de {username} dans la room {room}")
+		
+		# Utilisation de channel_layer pour envoyer le message à tout le groupe (room)
+		await self.channel_layer.group_send(
+			room,
+			{
+				'type': 'send_group_message',  # Nom de la méthode qui va gérer ce message
+				'username': username,
+				'message': message,
+				'room': room
+			}
+		)
+
+	async def send_group_message(self, event):
+		"""
+		Cette fonction est appelée par channel_layer pour envoyer des messages à tous les utilisateurs dans une room.
+		"""
+		message = event['message']
+		username = event.get('username', 'Anonyme')
+		room = event.get('room', 'unknown')
+
+		logger.info(f"Diffusion d'un message de {username} à la room {room}: {message}")
+
+		# Envoi du message à chaque utilisateur dans la room via WebSocket
+		await self.send(text_data=json.dumps({
+			'type': 'chat_message',  # Le type de message qui sera renvoyé au client
+			'username': username,
+			'message': message,
+			'room': room
+		}))
 
 	async def handle_block_user(self, data):
-		username = data['username'].strip().lower()  # Normalisation du nom d'utilisateur
-		target_user = data['target_user'].strip().lower()
+		username = data['username']
+		target_user = data['target_user']
 
-		# Utiliser self.room_group_name pour vérifier que l'utilisateur ciblé est bien dans la bonne room
-		if target_user not in self.groups.get(self.room_group_name, []):
-			logger.error(f"Target user {target_user} does not exist in room {self.room_group_name}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': f'Target user {target_user} not found in room {self.room_group_name}'}))
-			return
-
-		logger.info(f"Block request: {username} wants to block {target_user} in room {self.room_group_name}")
+		logger.info(f"handle_block_user appelé avec : {data}")
 
 		if target_user == username:
-			logger.warning(f"Block attempt failed: {username} tried to block themselves")
+			logger.warning(f"{username} a tenté de se bloquer lui-même.")
 			await self.send(text_data=json.dumps({'type': 'error', 'message': 'You cannot block yourself'}))
-		else:
-			logger.info(f"{username} successfully blocked {target_user}")
-			await self.send(text_data=json.dumps({'type': 'success', 'message': f'You have blocked {target_user} in room {self.room_group_name}'}))
+			return
+
+		logger.info(f"{username} a bloqué {target_user}")
+	
+		# Utilisation correcte de l' f-string pour inclure la valeur de target_user
+		await self.send(text_data=json.dumps({
+			'type': 'block_user',
+			'message': f'Vous avez bloqué les messages de {target_user}'
+		}))
 
 	async def handle_invite_user(self, data):
-		username = data['username'].strip().lower() 
-		target_user = data['target_user'].strip().lower()
+		# Récupération des informations de l'invitation
+		inviter = data.get('username')
+		target_user = data.get('target_user')
+		room = data.get('room')
 
-		# Utiliser self.room_group_name pour inviter l'utilisateur dans la room active
-		room = self.room_group_name
-
-		# Vérification que le joueur à inviter est dans la room
-		if target_user not in self.groups.get(room, []):
-			logger.error(f"Target user {target_user} does not exist in room {room}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': f'Target user {target_user} not found in room {room}'}))
+		# Validation des paramètres
+		if not inviter:
+			logger.error("Invitant manquant dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Invitant manquant', self.room_group_name)
 			return
 
-		logger.info(f"Invitation request: {username} wants to invite {target_user} to a quick match in room {room}")
+		if not target_user:
+			logger.error("Utilisateur cible manquant dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Utilisateur cible manquant', self.room_group_name)
+			return
 
-		if target_user == username:
-			logger.warning(f"Invite attempt failed: {username} tried to invite themselves")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'You cannot invite yourself'}))
-		else:
-			logger.info(f"{username} successfully sent an invitation to {target_user} in room {room}")
-			await self.send_group_message(room, {
+		if not room:
+			logger.error("Room manquante dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Room manquante', self.room_group_name)
+			return
+
+		logger.info(f"Invitation envoyée de {inviter} à {target_user} dans la room {room}")
+		await self.chat_message('chat_message', 'server', f'{inviter} a invité {target_user} à rejoindre une partie {room}', room)
+
+		# Envoi de l'invitation
+		await self.channel_layer.group_send(
+			room,
+			{
 				'type': 'invite',
-				'message': f'{username} invited {target_user} to a quick match',
-				'username': username,
-				'target_user': target_user
-			})
-			await self.send(text_data=json.dumps({'type': 'success', 'message': f'Invitation sent to {target_user} in room {room}'}))
+				'inviter': inviter,
+				'target_user': target_user,
+				'room': room,
+				'message': f'{inviter} vous a invité à rejoindre la room {room}.'
+			}
+		)
 
+	async def handle_invite_response(self, data):
+		inviter = data.get('inviter')
+		username = data.get('username')  # L'utilisateur invité qui répond
+		response = data.get('response')
+		room = data.get('room')
+
+		logger.info(f"{username} a répondu '{response}' à l'invitation de {inviter}")
+		await self.chat_message('chat_message', 'server', f'{username} a répondu {response} à l\'invitation.', room)
+
+		 # Si la réponse est 'yes', informer l'invitant que l'invité a accepté
+		if response.lower() == 'yes':
+			try:
+				# Informer l'invitant que l'invitation a été acceptée
+				await self.channel_layer.group_send(
+					room,
+					{
+						'type': 'invite_response',
+						'inviter': inviter,
+						'username': username,
+						'response': response,
+						'room': room,
+						'message': f'{username} a accepté l\'invitation.'
+					}
+				)
+				 # Informer à la fois l'invité et l'invitant que le jeu va commencer
+				await self.channel_layer.group_send(
+					room,
+					{
+						'type': 'start_quick_match',
+						'inviter': inviter,
+						'username': username,
+						'message': 'La partie va démarrer pour vous deux.',
+					}
+				)
+			except Exception as e:
+				logger.error(f"Error while sending invite response: {str(e)}")
+				await self.chat_message('error', 'server', f'Internal server error: {str(e)}', room)
+			
+	# Méthode appelée pour envoyer l'invitation à l'utilisateur invité (target_user)
+	async def invite(self, event):
+		inviter = event['inviter']
+		message = event['message']
+		room = event['room']
+		target_user = event['target_user']
+		logger.info(f"invite: Envoi de l'invitation à l'utilisateur via WebSocket. Inviter={inviter}, Room={room}, Message={message}")
+
+		# Envoyer le message d'invitation via WebSocket
+		await self.send(text_data=json.dumps({
+			'type': 'invite',
+			'inviter': inviter,
+			'target_user': target_user,
+			'message': message,
+			'room': room
+		}))
+
+	async def handle_invite_response(self, data):
+		inviter = data.get('inviter')
+		username = data.get('username')  # L'utilisateur invité qui répond
+		response = data.get('response')
+		room = data.get('room')
+
+		logger.info(f"{username} a répondu '{response}' à l'invitation de {inviter}")
+		await self.chat_message('chat_message', 'server', f'{username} a répondu {response} à l\'invitation.', room)
+
+		# Envoi de la réponse directement à l'invitant dans la room
+		await self.channel_layer.group_send(
+			room,
+			{
+				'type': 'invite_response',  # Type de message 'invite_response'
+				'inviter': inviter,
+				'username': username,
+				'room': room,
+				'message': f'{username} a répondu {response} à l\'invitation.',
+				'response': response  # Ajout de la réponse 'yes' ou 'no'
+			}
+		)
+
+	async def invite_response(self, event):
+		message = event['message']
+		response = event.get('response')
+		inviter = event.get('inviter')  # Récupérer l'inviteur		
+
+		logger.info(f"invite_response: Envoi de la réponse à l'invitation via WebSocket. Message={message}, Response={response}, Inviter={inviter}")
+
+		# Envoyer la réponse à l'invitation via WebSocket à l'invitant
+		await self.send(text_data=json.dumps({
+			'type': 'invite_response',
+			'message': message,
+			'response': response,
+			'inviter': inviter
+		}))
 
 	async def authenticate(self, token, username):
 		if not token:
-			logger.error("Token is None, authentication cannot proceed")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Token is missing'}))
+			logger.error("Token est manquant, l'authentification ne peut pas se poursuivre.")
+			await self.chat_message('error', 'server', 'Token is missing', self.room_group_name)
 			return
+
+		logger.info(f"Tentative d'authentification avec le token: {token} pour l'utilisateur: {username}")
+
 		try:
 			user = await self.get_user_from_token(token)
 			if user:
 				self.user = user
-				logger.info(f"User {username} authenticated successfully with token: {token}")
-			
-				# Envoyer un message d'authentification réussie au client
-				await self.send(text_data=json.dumps({'type': 'authenticated', 'username': username}))
-
-				# Envoyer le message de bienvenue après l'authentification réussie
-				await self.send_group_message(
-					self.room_group_name,
-					{
-						'username': username,
-						'room': self.room_group_name,
-						'type': 'chat_message',
-						'message': f' a rejoint le chat {self.room_group_name}',
-					}
+				logger.info(f"Utilisateur {username} authentifié avec succès")
+				await self.chat_message('authenticated', username, 'Authentication successful', self.room_group_name)
+				
+				await self.channel_layer.group_add(
+				f"user_{self.username}",  # Group name unique pour cet utilisateur
+				self.channel_name
 				)
+				logger.info(f"Connexion de l'utilisateur {self.username} à son groupe personnel")
 			else:
-				logger.warning(f"Authentication failed for token: {token}")
-				await self.send(text_data=json.dumps({'type': 'error', 'message': 'Authentication failed'}))
+				logger.warning(f"Échec de l'authentification pour le token: {token}")
+				await self.chat_message('error', username, 'Authentication failed', self.room_group_name)
 		except Exception as e:
-			logger.error(f"Error during authentication: {str(e)}")
-			await self.send(text_data=json.dumps({'type': 'error', 'message': 'Internal server error'}))
+			logger.error(f"Erreur lors de l'authentification : {str(e)}")
+			await self.chat_message('error', 'server', 'Internal server error', self.room_group_name)
 
 	@sync_to_async
 	def get_user_from_token(self, token):
 		try:
 			user = User.objects.filter(auth_token=token).first()
-			logger.debug(f"User found: {user} for token: {token}")
+			logger.debug(f"Utilisateur trouvé : {user} pour le token : {token}")
 			return user
 		except User.DoesNotExist:
-			logger.warning(f"User not found for token: {token}")
-			return None
-
-	async def send_group_message(self, group_name, message):
-		# Utilisation de self.room_group_name pour s'assurer que la bonne room est utilisée
-		group_name = self.room_group_name  # Utilisation explicite de self.room_group_name
-
-		if group_name in self.groups:
-			logger.debug(f"Sending message to group {group_name}: {message}")
-			for channel_name in self.groups[group_name]:
-				try:
-					await self.channel_layer.send(channel_name, {
-						'type': 'chat_message',
-						'message': message['message'],
-						'username': message['username'],
-						'room': message['room']
-					})
-					logger.debug(f"Message sent to {channel_name} in room {message['room']}: {message}")
-				except Exception as e:
-					logger.error(f"Failed to send message to {channel_name} in room {group_name}: {str(e)}")
-		else:
-			logger.error(f"Group {group_name} does not exist, unable to send message")
-
-	async def chat_message(self, event):
-		message = event['message']
-		username = event.get('username', 'Anonyme')
-		room = event.get('room', 'unknown')
-
-		# Log pour vérifier le username avant envoi
-		logger.info(f"Sending chat message from username: {username} in room: {room}")
-
-		# Envoyer le message au WebSocket
-		await self.send(text_data=json.dumps({
-			'type': 'chat_message',
-			'message': f'{username}: {message}',
-			'room': room
-		}))
+			logger.warning(f"Utilisateur non trouvé pour le token : {token}")
+			return None 
