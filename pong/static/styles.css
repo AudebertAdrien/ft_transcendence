@@ -539,7 +539,6 @@ canvas {
     border-radius: 5px;
     box-sizing: border-box;
     height: 28px;
-    width: 250px; /* Réduire la largeur */
     align-items: center;
     justify-content: center;
 }
