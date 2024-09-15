@@ -103,17 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying matches:');
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
+        
 
         if (matches.length != 0) {
             matches.forEach(match => {
-        		const row = document.createElement('tr');
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${match.id}</td>
-                    <td>${match.player1}</td>
-                    <td>${match.player2}</td>
+                    <td>${match.player1__name}</td>
+                    <td>${match.player2__name}</td>
                     <td>${match.score_player1}</td>
                     <td>${match.score_player2}</td>
-                    <td>${match.winner}</td>
+                    <td>${match.winner__name}</td>
                     <td>${match.nbr_ball_touch_p1}</td>
                     <td>${match.nbr_ball_touch_p2}</td>
                     <td>${match.duration}</td>
@@ -136,17 +137,25 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying players:');
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
+        
 
         if (players.length != 0) {
             players.forEach(player => {
-        		const row = document.createElement('tr');
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${player.id}</td>
                     <td>${player.name}</td>
                     <td>${player.total_match}</td>
                     <td>${player.total_win}</td>
                     <td>${player.p_win}</td>
+                    <td>${player.m_score_match}</td>
+                    <td>${player.m_score_adv_match}</td>
+                    <td>${player.best_score}</td>
+                    <td>${player.m_nbr_ball_touch}</td>
+                    <td>${player.total_duration}</td>
+                    <td>${player.m_duration}</td>
                     <td>${player.num_participated_tournaments}</td>
+                    <td>${player.num_won_tournaments}</td>
                     `;
                 playersListBody.appendChild(row);
             });
@@ -166,13 +175,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tournois.length != 0) {
             tournois.forEach(tournoi => {
-        		const row = document.createElement('tr');
+                console.log('Winner:', tournoi.winner); //debug !!!!!!!!!!!!!!!!!
+                console.log('Winner:', tournoi.winner__name); //debug !!!!!!!!!!!!!!!!!
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${tournoi.id}</td>
                     <td>${tournoi.name}</td>
                     <td>${tournoi.nbr_player}</td>
                     <td>${tournoi.date}</td>
-                    <td>${tournoi.winner}</td>
+                    <td>${tournoi.winner ? tournoi.winner.name : 'No one yet ...'}</td>
                     `;
                 tournoisListBody.appendChild(row);
             });

@@ -4,14 +4,11 @@ import json
 import asyncio
 import random
 from datetime import datetime
-from .utils import handle_game_data, getlen, create_player, create_match
+from .utils import handle_game_data, getlen
 from asgiref.sync import sync_to_async
 from .models import Tournoi
-from concurrent.futures import ThreadPoolExecutor
 
 class Game:
-    # Global variable to handle the using of the database
-    USING_DB = False
 
     def __init__(self, game_id, player1, player2, localgame):
         self.game_id = game_id
@@ -47,6 +44,7 @@ class Game:
             }
         self.speed = 1
         self.game_loop_task = None
+        self.database = None
         self.ended = False
         self.p1_mov = 0
         self.p2_mov = 0
@@ -57,18 +55,13 @@ class Game:
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED ({self.game_state['player1_name']} vs {self.game_state['player2_name']}) --- ({self})")
-        
-        await sync_to_async(create_player)(self.game_state['player1_name'], self.game_state['player2_name'])
-        
         self.game_loop_task = asyncio.create_task(self.game_loop())
         print(f"  Begin MATCH at: {self.start_time}")
-
 
     async def game_loop(self):
         print("  In the game loop..")
         x = 59
         while not self.ended:
-            print(f" ended  : {self.ended}")
             if self.botgame:
                 x += 1
                 if x == 60:
@@ -82,33 +75,6 @@ class Game:
             await self.update_game_state()
             await self.send_game_state()
             await asyncio.sleep(1/60)  # Around 60 FPS
-            if self.ended:
-                print(f" IN WHILE EXIT ???????? ended  : {self.ended}")
-                print("IN WHILE here !!!!!")
-                try:
-                    await self.save_match()
-                    print("IN WHILE end here !!!!")
-                except Exception as e:
-                    print(f"Erreur lors de l'appel de save_match: {e}")
-        print(f" OUT WHILE EXIT ???????? ended  : {self.ended}")
-        if self.ended :
-            print(" OUT WHILE here !!!!!")
-            try:
-                #await self.save_match()
-                print("OUT WHILE end here !!!!")
-            except Exception as e:
-                print(f"Erreur lors de l'appel de save_match: {e}")
-
-    async def save_match(self) :
-        avd, d = (True, self.tournament.tournoi_reg) if hasattr(self, 'tournament') else (False, None)
-        end_time = datetime.now()
-        duration = (end_time - self.start_time).total_seconds() / 60
-        print("CALL IN SYNC")
-        await sync_to_async(create_match, thread_sensitive=True)(self.game_state['player1_name'], self.game_state['player2_name'],
-                                self.game_state['player1_score'], self.game_state['player2_score'],
-                                self.bt1, self.bt2, duration, avd, d
-                                )
-    
 
     async def update_bot_position(self):
         #future_ball_position = self.predict_ball_trajectory()
@@ -172,16 +138,14 @@ class Game:
             if self.game_state['player2_score'] > 2:
                 self.game_state['game_text'] = f"{self.game_state['player2_name']} WINS!"
                 await self.send_game_state()
-                await self.end_game(self)
-                #printf("player2 wins")
+                await self.end_game()
             self.reset_ball()
         elif self.game_state['ball_position']['x'] >= 790:
             self.game_state['player1_score'] += 1
             if self.game_state['player1_score'] > 2:
                 self.game_state['game_text'] = f"{self.game_state['player1_name']} WINS!"
                 await self.send_game_state()
-                await self.end_game(self)
-                #printf("player1 wins")
+                await self.end_game()
             self.reset_ball()
 
     def reset_ball(self):
@@ -251,17 +215,18 @@ class Game:
         elif self.p2_mov == 1:
             self.game_state['player2_position'] = min(self.game_state['player2_position'] + (5 * self.speed), 300)
 
-
     async def end_game(self, disconnected_player=None):
         if not self.ended:
-            self.ended = True           
+            self.ended = True
+            #if self.game_loop_task:
+            #    self.game_loop_task.cancel()            
             print(f"- Game #{self.game_id} ENDED --- ({self})")
 
-            #await sync_to_async(save_match)()
+            end_time = datetime.now()
+            duration = (end_time - self.start_time).total_seconds() / 60
 
             # Notify that one player left the game      
-            """ if disconnected_player:
-                printf("Disconnected player")
+            if disconnected_player:
                 remaining_player = self.player2 if disconnected_player == self.player1 else self.player1
                 disconnected_name = disconnected_player.user.username
                 message = json.dumps({
@@ -270,36 +235,26 @@ class Game:
                 })
                 if not self.botgame:
                     if not self.localgame:
-                        await remaining_player.send(message)            
+                        await remaining_player.send(message)
+
             # Notify both players that the game has ended
             end_message = json.dumps({
                 'type': 'game_ended',
                 'game_id': self.game_id
             })
-
             await self.player1.send(end_message)
             if not self.botgame:
                 if not self.localgame:
-                    await self.player2.send(end_message) """
+                    await self.player2.send(end_message)
+            
+            avd, d = (True, self.tournament.tournoi_reg) if hasattr(self, 'tournament') else (False, None)
 
-
-            print(f"Try to save game #{self.game_id}  ({self})")
-           
-
-            #avd, d = (True, self.tournament.tournoi_reg) if hasattr(self, 'tournament') else (False, None)
+            await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+                self.game_state['player1_score'], self.game_state['player2_score'],
+                self.bt1, self.bt2, duration, avd, d)
 
             
-            # Essaye d'appeler handle_game_data
-            print("TRY CREATE MATCH")
-            #await sync_to_async(create_match)(
-            #   self.game_state['player1_name'], self.game_state['player2_name'],
-            #   self.game_state['player1_score'], self.game_state['player2_score'],
-            #   self.bt1, self.bt2, duration, avd, d
-            #)
 
-            print("MATCH OK")
 
-            #if self.game_loop_task:
-            #    self.game_loop_task.cancel() 
 
-             
+

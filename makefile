@@ -10,7 +10,7 @@ ELK_COMPOSE=docker compose -f $(ELK_COMPOSE_FILE) -p $(ELK_PROJECT_NAME)
 CONTAINER=$(c)
 
 up: down
-	$(COMPOSE) build 
+	$(COMPOSE) build
 	$(COMPOSE) up -d $(CONTAINER) || true
 
 build:
