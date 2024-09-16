@@ -22,7 +22,10 @@ down:
 destroy:
 	$(COMPOSE) down -v --rmi all
 
-re : down destroy up
+ssl-certs:
+	openssl req -x509 -nodes -days 365 -newkey rsa:4096 \
+    -keyout certs/ssl/private.key -out certs/ssl/certificate.crt \
+    -config config/ssl.conf
 
 # Manage ELK stack
 
@@ -42,9 +45,6 @@ kill-pid:
 	sudo lsof -i :8080 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 	sudo lsof -i :5044 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
 
-ps:
-	$(COMPOSE) ps
-
 db-shell:
 	$(COMPOSE) exec db psql -U 42student players_db 
 
@@ -57,7 +57,7 @@ help:
 	@echo "  make destroy				   # Stop and remove containers and volumes"
 	@echo "  make stop [c=service]         # Stop containers"
 	@echo "  make logs [c=service]         # Tail logs of containers"
-	@echo "  make ps                       # List containers"
+	@echo "  make ssl-certs                # create ssl certificate"
 	@echo "  make help                     # Show this help"
 
 .PHONY: up build start stop down destroy logs ps db-shell help

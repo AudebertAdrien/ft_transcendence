@@ -13,18 +13,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Force HTTPS by redirecting HTTP traffic to HTTPS
-#SECURE_SSL_REDIRECT = True
-
-# Set secure cookie flags to ensure they are only sent over HTTPS
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
-# Enforce HTTP Strict Transport Security (HSTS)
-SECURE_HSTS_SECONDS = 31536000  # One year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
