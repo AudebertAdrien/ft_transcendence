@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameContainer = document.getElementById('game1');
     const tournamentContainer = document.getElementById('tournament-bracket');
 
+    const burgerMenu = document.querySelector('.navbar');
+
     const pongElements = document.getElementById('pong-elements');
     const logo = document.querySelector('.logo');
 
@@ -161,6 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result) {
                 loginForm.style.display = 'none';
                 document.getElementById("post-form-buttons").style.display = 'block';
+                burgerMenu.style.display = 'block';
+                logo.style.display = 'none';
+                pongElements.style.display = 'none';        
             } else {
                 alert('Authentication failed. Please try again.');
             }
@@ -325,8 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
             player2_name: nickname2
         };
         gameContainer.style.display = 'flex';
-        logo.style.display = 'none';
-        pongElements.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 2);
     }
@@ -336,8 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'quick'
         }
         gameContainer.style.display = 'flex';
-        logo.style.display = 'none';
-        pongElements.style.display = 'none';
         formBlock.style.display = 'none';
         document.getElementById('player1-name').textContent = "player 1";
         document.getElementById('player2-name').textContent = "player 2";
@@ -353,8 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'tournoi'
         }
         tournamentContainer.style.display = 'flex';
-        logo.style.display = 'none';
-        pongElements.style.display = 'none';
         formBlock.style.display = 'none';
         startWebSocketConnection(token, 42);
     }
@@ -398,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(data.message);
             } else if (data.type === 'update_tournament_waiting_room') {
                 // Update the HTML content of the tournament bracket
-                document.getElementById('tournament-bracket').innerHTML = data.html;
+                tournamentContainer.innerHTML = data.html;
                 // Reattach the event listener to the "Start Tournament" button
                 const startButton = document.getElementById('start-tournament-btn');
                 if (startButton) {
@@ -413,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else if (data.type === 'update_brackets') {
                 // Update the HTML content of the tournament bracket
-                document.getElementById('tournament-bracket').innerHTML = data.html;
+                tournamentContainer.innerHTML = data.html;
             } else if (data.type === 'tournament_end') {
                 console.log('Tournament ended, the winner is:', data.winner);
             } else {
@@ -487,12 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
     homeButton.addEventListener('click', () => {
         gameContainer.style.display = 'none';
         gameControls.style.display = 'none';
-
-        logo.style.display = 'block'
-
         formBlock.style.display = 'block';
-        postFormButtons.style.display = 'flex';
-    
+        postFormButtons.style.display = 'block';    
         setupFirstPlayer();
     });
 

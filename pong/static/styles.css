@@ -258,7 +258,6 @@ button:hover {
     overflow: auto;
 }
 
-
 .navbar {
     position: absolute;
     top: 30px;
@@ -401,7 +400,7 @@ pre {
     white-space: pre-wrap;
     word-wrap: break-word;
 }
-/*
+
 .tournament-waiting-room {
     background-color: rgba(0, 0, 0, 0.6);
     padding: 20px;
@@ -432,7 +431,7 @@ pre {
     list-style-type: none;
     padding: 0;
 }
-*/
+
 body {
     color: rgb(0, 255, 255); /* Valeur par défaut */
     font-family: Arial, sans-serif;

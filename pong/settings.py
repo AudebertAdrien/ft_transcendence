@@ -138,7 +138,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-LOGGING = {
+'''LOGGING = {
     'version': 1,  # Django requires this key
     'disable_existing_loggers': False,  # Keep Django's default loggers
     'formatters': {
@@ -161,7 +161,7 @@ LOGGING = {
             'propagate': False,  # Prevents log propagation to other loggers
         },
     },
-}
+}'''
 
 """
 LOGGING = {

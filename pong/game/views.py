@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
-
 import json
 import uuid
 

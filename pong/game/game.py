@@ -65,8 +65,8 @@ class Game:
             if self.botgame:
                 x += 1
                 if x == 60:
-                    # Random BOT difficulty..
-                    steps = 60#random.randint(10, 60)
+                    # Random BOT difficulty.. or not
+                    steps = 60 # random.randint(10, 60)
                     self.future_ball_position = await self.predict_ball_trajectory(steps)
                     x = 0
             if self.botgame:
@@ -77,19 +77,16 @@ class Game:
             await asyncio.sleep(1/60)  # Around 60 FPS
 
     async def update_bot_position(self):
-        #future_ball_position = self.predict_ball_trajectory()
         target_y = self.future_ball_position['y']
         player2_position = self.game_state['player2_position']
         
-        # Adjusts bot position based on expected ball position
+        # Adjusts BOT position based on expected ball position
         if player2_position < target_y < player2_position + 80:
-            pass  #bot already placed
+            pass  # BOT already placed
         elif player2_position < target_y:
             self.p2_mov = 1
-            #self.game_state['player2_position'] = min(player2_position + (50 * self.speed), 300)
         elif player2_position + 80 > target_y:
             self.p2_mov = -1
-            #self.game_state['player2_position'] = max(player2_position - (50 * self.speed), 0)
 
     async def predict_ball_trajectory(self, steps=60):    
         future_x = self.game_state['ball_position']['x']
@@ -132,7 +129,7 @@ class Game:
                 self.game_state['ball_velocity']['x'] *= -1
                 self.bt2 += 1
             self.update_ball_velocity()
-        # Check if some player won the game
+        # Check if someone won the game (score: 3)
         if self.game_state['ball_position']['x'] <= 10:
             self.game_state['player2_score'] += 1
             if self.game_state['player2_score'] > 2:
@@ -218,8 +215,6 @@ class Game:
     async def end_game(self, disconnected_player=None):
         if not self.ended:
             self.ended = True
-            #if self.game_loop_task:
-            #    self.game_loop_task.cancel()            
             print(f"- Game #{self.game_id} ENDED --- ({self})")
 
             end_time = datetime.now()
@@ -252,9 +247,3 @@ class Game:
             await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
                 self.game_state['player1_score'], self.game_state['player2_score'],
                 self.bt1, self.bt2, duration, avd, d)
-
-            
-
-
-
-

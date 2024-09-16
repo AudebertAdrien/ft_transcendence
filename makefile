@@ -11,7 +11,7 @@ CONTAINER=$(c)
 
 up: down
 	$(COMPOSE) build
-	$(COMPOSE) up -d $(CONTAINER) || true
+	$(COMPOSE) up $(CONTAINER) || true
 
 build:
 	$(COMPOSE) build $(CONTAINER)
