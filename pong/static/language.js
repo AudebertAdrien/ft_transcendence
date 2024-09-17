@@ -146,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lang-it').addEventListener('click', () => changeLanguage('it'));
     document.getElementById('lang-es').addEventListener('click', () => changeLanguage('es'));
     document.getElementById('lang-de').addEventListener('click', () => changeLanguage('de'));
-    document.getElementById('lang-test').addEventListener('click', () => changeLanguage('test'));
 
     window.onload = setLanguageFromCookie;
 
