@@ -9,6 +9,7 @@ from asgiref.sync import sync_to_async
 from .models import Tournoi
 
 class Game:
+
     def __init__(self, game_id, player1, player2, localgame):
         self.game_id = game_id
         self.player1 = player1
@@ -43,12 +44,14 @@ class Game:
             }
         self.speed = 1
         self.game_loop_task = None
+        self.database = None
         self.ended = False
         self.p1_mov = 0
         self.p2_mov = 0
         self.bt1 = 0
         self.bt2 = 0
         self.start_time = datetime.now()
+        self.future_ball_position = {'x': 390, 'y': 190}
 
     async def start_game(self):
         print(f"- Game #{self.game_id} STARTED ({self.game_state['player1_name']} vs {self.game_state['player2_name']}) --- ({self})")
@@ -57,41 +60,42 @@ class Game:
 
     async def game_loop(self):
         print("  In the game loop..")
-        x = 0
+        x = 59
         while not self.ended:
             if self.botgame:
                 x += 1
                 if x == 60:
-                    await self.update_bot_position()
+                    # Random BOT difficulty..
+                    steps = 60#random.randint(10, 60)
+                    self.future_ball_position = await self.predict_ball_trajectory(steps)
                     x = 0
+            if self.botgame:
+                await self.update_bot_position()
             await self.handle_pad_movement()
             await self.update_game_state()
             await self.send_game_state()
             await asyncio.sleep(1/60)  # Around 60 FPS
 
     async def update_bot_position(self):
-        future_ball_position = self.predict_ball_trajectory()
-
-        target_y = future_ball_position['y']
+        #future_ball_position = self.predict_ball_trajectory()
+        target_y = self.future_ball_position['y']
         player2_position = self.game_state['player2_position']
         
         # Adjusts bot position based on expected ball position
         if player2_position < target_y < player2_position + 80:
             pass  #bot already placed
         elif player2_position < target_y:
-            #self.p2_mov = 1
-            self.game_state['player2_position'] = min(player2_position + (50 * self.speed), 300)
+            self.p2_mov = 1
+            #self.game_state['player2_position'] = min(player2_position + (50 * self.speed), 300)
         elif player2_position + 80 > target_y:
-            #self.p2_mov = -1
-            self.game_state['player2_position'] = max(player2_position - (50 * self.speed), 0)
+            self.p2_mov = -1
+            #self.game_state['player2_position'] = max(player2_position - (50 * self.speed), 0)
 
-    def predict_ball_trajectory(self, steps=60):
-    
+    async def predict_ball_trajectory(self, steps=60):    
         future_x = self.game_state['ball_position']['x']
         future_y = self.game_state['ball_position']['y']
         velocity_x = self.game_state['ball_velocity']['x']
         velocity_y = self.game_state['ball_velocity']['y']
-
         for _ in range(steps):
             future_x += velocity_x
             if future_x <= 10:
@@ -101,11 +105,9 @@ class Game:
                 future_x = 790
             else:
                 future_y += velocity_y
-
-            # Dealing with bounces off walls
-            if future_y <= 10 or future_y >= 390:
-                velocity_y = -velocity_y  # Reverse the direction of vertical movement
-
+                # Dealing with bounces off walls
+                if future_y <= 10 or future_y >= 390:
+                    velocity_y = -velocity_y  # Reverse the direction of vertical movement
         return {'x': future_x, 'y': future_y}
 
     async def update_game_state(self):
@@ -216,8 +218,8 @@ class Game:
     async def end_game(self, disconnected_player=None):
         if not self.ended:
             self.ended = True
-            if self.game_loop_task:
-                self.game_loop_task.cancel()            
+            #if self.game_loop_task:
+            #    self.game_loop_task.cancel()            
             print(f"- Game #{self.game_id} ENDED --- ({self})")
 
             end_time = datetime.now()
@@ -233,7 +235,8 @@ class Game:
                 })
                 if not self.botgame:
                     if not self.localgame:
-                        await remaining_player.send(message)            
+                        await remaining_player.send(message)
+
             # Notify both players that the game has ended
             end_message = json.dumps({
                 'type': 'game_ended',
@@ -243,11 +246,15 @@ class Game:
             if not self.botgame:
                 if not self.localgame:
                     await self.player2.send(end_message)
-            if hasattr(self, 'tournament'):
-               await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
-                           self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, duration, True, self.tournament.tournoi_reg)
-            else:
-                await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
-                           self.game_state['player1_score'], self.game_state['player2_score'],
-                           self.bt1, self.bt2, duration, False, None)
+            
+            avd, d = (True, self.tournament.tournoi_reg) if hasattr(self, 'tournament') else (False, None)
+
+            await sync_to_async(handle_game_data)(self.game_state['player1_name'], self.game_state['player2_name'],
+                self.game_state['player1_score'], self.game_state['player2_score'],
+                self.bt1, self.bt2, duration, avd, d)
+
+            
+
+
+
+

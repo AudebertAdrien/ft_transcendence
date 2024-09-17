@@ -13,7 +13,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -29,14 +28,15 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    #'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
+    #'django.contrib.sessions',
+    #'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels', 
     'pong.game',
+    #'django_db_conn_pool',
     'rest_framework'
 ]
 
@@ -46,7 +46,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    #'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -81,6 +81,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': '5432',
+        'CONN_MAX_AGE': None,
     }
 }
 
@@ -137,6 +138,32 @@ CHANNEL_LAYERS = {
 }
 
 LOGGING = {
+    'version': 1,  # Django requires this key
+    'disable_existing_loggers': False,  # Keep Django's default loggers
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',  # Allows to use Python's new style string formatting
+        },
+    },
+    'handlers': {
+        'console': {  # Log to the console
+            'level': 'DEBUG',  # Minimum level of messages that should be handled
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',  # Use the simple formatter defined above
+        },
+    },
+    'loggers': {
+        'django': {  # The main logger for Django itself
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Minimum log level to be logged
+            'propagate': False,  # Prevents log propagation to other loggers
+        },
+    },
+}
+
+"""
+LOGGING = {
     'version': 1,  # The version of the logging configuration schema
     'disable_existing_loggers': False,  # Allows existing loggers to keep logging
     'formatters': {  # Defines how log messages will be formatted
@@ -170,3 +197,4 @@ LOGGING = {
         },
     },
 }
+"""
