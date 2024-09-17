@@ -98,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return null; // En cas d'erreur, retourne null
             });
     }
-    
+    // Expose fetchPlayers globalement
+    window.fetchPlayers = fetchPlayers;
     function fetchTournois(){
         console.log('Fetching tournois...');
         fetch('/api/tournoi_list/')

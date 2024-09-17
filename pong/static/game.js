@@ -423,18 +423,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		logo.style.display = 'none';
 		pongElements.style.display = 'none';
 		formBlock.style.display = 'none';
-
-		// Log pour vérifier le token avant l'authentification WebSocket
-		console.log("Token before WebSocket authentication:", token);
-
-		if (!token) {
-			console.error("Token is not defined or is null. WebSocket connection aborted.");
-			return;
-		}
-
 		// Vérification si une connexion WebSocket est déjà active avant d'initialiser
-		if (roomSockets["quick_match"] && roomSockets["quick_match"].readyState === WebSocket.OPEN) {
+		if (roomSockets["quick_match"] && roomSockets["quick_match"].readyState === WebSocket.OPEN) 
+		{
 			console.warn("WebSocket for quick_match already open.");
+			// On laisse startWebSocketConnection se lancer malgré la WebSocket ouverte
+			startWebSocketConnection(token, 1); 
 			return;
 		}
 		roomName = "quick_match"; // Nom de la room principale
@@ -444,44 +438,41 @@ document.addEventListener('DOMContentLoaded', () => {
 		startWebSocketConnection(token, 1); // Le "1" pourrait être un identifiant pour le mode Quick Match
 	}
 
-
-	function startTournament() {
+	// Fonction pour démarrer un tournoi
+	function startTournament() 
+	{
 		saveData = {
-            type: 'tournoi'
-        }
-		// Masquer les éléments inutiles et afficher le conteneur du tournoi
-		tournamentContainer.style.display = 'flex';
-		logo.style.display = 'none';
-		pongElements.style.display = 'none';
-		formBlock.style.display = 'none';
-
-		// Log pour vérifier le token avant l'authentification WebSocket
-		console.log("Token before WebSocket authentication:", token);
-
-		if (!token) {
-			console.error("Token is not defined or is null. WebSocket connection aborted.");
-			return;
-		}
-
-		// Vérification si une connexion WebSocket est déjà active avant d'initialiser
-		if (roomSockets["tournament"] && roomSockets["tournament"].readyState === WebSocket.OPEN) {
-			console.warn("WebSocket for tournament already open.");
-			return;
-		}
-		chatManager = new ChatManager(username, token);	// Initialiser ChatManager
-		chatManager.joinRoom('tournament'); // Utilisez ChatManager pour rejoindre la room
-		console.log("Starting WebSocket connection for tournament...");
-		startWebSocketConnection(token, 42); // Le "42" pourrait être un identifiant pour le mode tournoi
+			type: 'tournoi'
+		};
+	// Masquer les éléments inutiles et afficher le conteneur du tournoi
+	tournamentContainer.style.display = 'flex';
+	logo.style.display = 'none';
+	pongElements.style.display = 'none';
+	formBlock.style.display = 'none';
+	// Log pour vérifier le token avant l'authentification WebSocket
+	// Vérification si une connexion WebSocket est déjà active avant d'initialiser
+	if (roomSockets["tournament"] && roomSockets["tournament"].readyState === WebSocket.OPEN) 
+	{
+		console.warn("WebSocket for tournament already open.");
+		// On laisse startWebSocketConnection se lancer malgré la WebSocket ouverte
+		startWebSocketConnection(token, 42); 
+		return;
 	}
-
+	chatManager = new ChatManager(username, token);	// Initialiser ChatManager
+	chatManager.joinRoom('tournament'); // Utilisez ChatManager pour rejoindre la room
+	console.log("Starting WebSocket connection for tournament...");
+	startWebSocketConnection(token, 42); // Le "42" pourrait être un identifiant pour le mode tournoi
+}
 
 	function startWebSocketConnection(token, players) {
-		if (socket && socket.readyState === WebSocket.OPEN) {
-			console.warn('WebSocket connection already open.');
-			return;
-		}
+		// Si le socket existe déjà et est ouvert, le fermer
+	/*if (socket && socket.readyState === WebSocket.OPEN) 
+		{
+			console.warn('WebSocket connection already open. Closing and recreating a new one.');
+			socket.close();  // Fermer le socket ouvert
+		}*/
 		socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
-
+		
 		socket.onopen = function (event) {
 			console.log('WebSocket connection established');
 			if (players === 1) {
@@ -655,60 +646,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-	// Détection de la commande /s username
 	function sendStatsCommand(targetUser) {
-    	console.log(`Detected stats command for user: ${targetUser}`);
-
-    	// Appelle fetchPlayers et utilise .then() pour traiter les résultats
-    	fetchPlayers().then((players) => {
-        	if (!players) {
-            	console.log('No players found.');
-            	return;
-        	}
-
-        	console.log('Players received in sendStatsCommand:', players); // Affiche les joueurs récupérés
-
-        	// Filtrer et récupérer les informations du joueur spécifique
-        	const playerStats = filterPlayers(targetUser);
-        	if (playerStats) {
-            	// Si les stats sont trouvées, afficher la popup avec les données
-            	displayPlayerStats(playerStats);
-        	} else {
-            	console.log(`Player with username ${targetUser} not found.`);
-        	}
-    	}).catch(error => {
-        	console.error('Error fetching players:', error);
-    	});
+		console.log(`Detected stats command for user: ${targetUser}`);
+	
+		// Appelle fetchPlayers et utilise .then() pour traiter les résultats
+		fetchPlayers().then((players) => {
+			if (!players) {
+				console.log('No players found.');
+				return;
+			}
+	
+			console.log('Players received in sendStatsCommand:', players); // Affiche les joueurs récupérés
+	
+			// Filtrer et récupérer les informations du joueur spécifique
+			const playerStats = filterPlayers(targetUser, players); // Passer le tableau players en paramètre
+			if (playerStats) {
+				// Si les stats sont trouvées, afficher la popup avec les données
+				displayPlayerStats(playerStats);
+			} else {
+				console.log(`Player with username ${targetUser} not found.`);
+			}
+		}).catch(error => {
+			console.error('Error fetching players:', error);
+		});
 	}
 
-	// Modification de filterPlayers pour renvoyer les données du joueur trouvé
-	function filterPlayers(targetUser) {
-    	const searchValue = targetUser.toLowerCase(); // Utiliser le nom d'utilisateur comme valeur de recherche
-    	const playersListBody = document.querySelector('#player-list tbody');
-    	const rows = playersListBody.getElementsByTagName('tr');
+	// Modification de filterPlayers pour chercher dans les données reçues (JSON)
+function filterPlayers(targetUser, players) {
+	const searchValue = targetUser.toLowerCase(); // Utiliser le nom d'utilisateur comme valeur de recherche
 
-    	for (let i = 0; i < rows.length; i++) {
-        	const nameCell = rows[i].getElementsByTagName('td')[1]; // Colonne du nom de l'utilisateur
-        	if (nameCell) {
-            	const nameValue = nameCell.textContent || nameCell.innerText;
-            	if (nameValue.toLowerCase().indexOf(searchValue) > -1) {
-            	    rows[i].style.display = ''; // Affiche uniquement la ligne correspondant au joueur
-
-                	// Récupérer les statistiques du joueur à partir des cellules de la ligne
-                	const playerStats = {
-                    	username: nameValue,
-                    	total_matches: rows[i].getElementsByTagName('td')[2].textContent,
-                    	total_wins: rows[i].getElementsByTagName('td')[3].textContent,
-                    	win_percentage: rows[i].getElementsByTagName('td')[4].textContent,
-                    	best_score: rows[i].getElementsByTagName('td')[5].textContent
-                	};
-                	return playerStats; // Retourne les stats du joueur
-            	}
-        	}
-    	}
-
-    	return null; // Retourne null si le joueur n'est pas trouvé
+	for (let i = 0; i < players.length; i++) {
+		const player = players[i];
+		if (player.name && player.name.toLowerCase() === searchValue) {
+			// Récupérer les statistiques du joueur à partir des données reçues
+			const playerStats = {
+				username: player.name,
+				total_matches: player.total_match,
+				total_wins: player.total_win,
+				win_percentage: player.p_win,
+				best_score: player.best_score || 'N/A' // Ajoute une gestion de cas si best_score n'existe pas
+			};
+			return playerStats; // Retourne les stats du joueur
+		}
 	}
+
+	return null; // Retourne null si le joueur n'est pas trouvé
+}
+
 
 	function displayPlayerStats(stats) {
 		console.log('Displaying player stats:', stats);  // Vérifie que la fonction est bien appelée
