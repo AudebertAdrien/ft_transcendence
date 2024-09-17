@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto-focus and key handling for AUTH-FORM
     nicknameInput.focus();
     nicknameInput.addEventListener('keypress', function (event) {
+        history.pushState({ view: 'auth-form' }, '', `#${'auth-form'}`);
         if (event.key === 'Enter') {
             event.preventDefault();
             checkNicknameButton.click();
@@ -127,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (result) {
                     registerForm.style.display = 'none';
                     document.getElementById("post-form-buttons").style.display = 'block';
+                    history.pushState({ view: 'post-form-buttons' }, '', `#${'post-form-buttons'}`);
                 } else {
                     alert('Registration failed. Please try again.');
                 }
@@ -161,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result) {
                 loginForm.style.display = 'none';
                 document.getElementById("post-form-buttons").style.display = 'block';
+                history.pushState({ view: 'post-form-buttons' }, '', `#${'post-form-buttons'}`);
             } else {
                 alert('Authentication failed. Please try again.');
             }
@@ -367,12 +370,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (players === 1) {
                 console.log("Sending token for a quick match game");
                 socket.send(JSON.stringify({ type: 'authenticate', token: token }));
+               /*  history.pushState({ view: 'game1' }, '', `#${'game1'}`);
+                console.log("view quick"); */
             } else if (players === 2) {
                 console.log("Sending tokens for a local game");
                 socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
+                /* history.pushState({ view: 'game1' }, '', `#${'game1'}`);
+                console.log("view local"); */
             } else {
                 console.log("Sending token for a tournament game")
                 socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
+                /* history.pushState({ view: 'game1' }, '', `#${'game1'}`);
+                console.log("view tournament"); */
             }
         };
 
@@ -510,14 +519,52 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkForWinner() {
         if (gameState.player1_score === 3 || gameState.player2_score === 3) {
             if (saveData.type != "tournoi"){
-                gameControls.style.display = 'flex';
-                homeButton.style.display = 'block';
-                replayButton.style.display = 'none';
-                console.log(saveData.type);
-                if (saveData.type === 'local'){
-                    replayButton.style.display = 'block';
+                if (gameContainer.style.display != 'none'){
+                    gameControls.style.display = 'flex';
+                    homeButton.style.display = 'block';
+                    replayButton.style.display = 'none';
+                    console.log(saveData.type);
+                    if (saveData.type === 'local'){
+                        replayButton.style.display = 'block';
+                    }
                 }
             }
+        }
+    }
+
+    const initialView = window.location.hash ? window.location.hash.substring(1) : 'auth-form';
+
+    // Écouteur pour les boutons de retour et d'avance du navigateur
+    window.addEventListener('popstate', (event) => {
+        const view = event.state ? event.state.view : 'auth-form'; // Utilise l'état sauvegardé
+        showSection(view);
+    });
+
+    const sections = {
+        'auth-form': authForm,
+        'register-form': registerForm,
+        'login-form': loginForm,
+        'post-form-buttons': postFormButtons,
+        'game1': gameContainer,
+        'auth-form2': authForm2,
+        'register-form2': registerForm2,
+        'login-form2': loginForm2
+    };
+
+    function showSection(viewId) {
+        Object.values(sections).forEach(section => {
+            section.style.display = 'none';
+        });
+        console.log(viewId);
+        const sectionToShow = sections[viewId];
+        console.log(sectionToShow);
+        if (sectionToShow) {
+            if (viewId == 'auth-form' || viewId == 'post-form-buttons')
+                console.log("here");
+                formBlock.style.display = 'block';
+            sectionToShow.style.display = 'block';
+        } else {
+            console.error(`La section avec l'ID "${viewId}" n'a pas été trouvée.`);
         }
     }
 
