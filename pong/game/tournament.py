@@ -185,7 +185,7 @@ class TournamentMatchMaker:
                 asyncio.create_task(match.start_game())
             elif match.player1:
                 # Gestion du BYE
-                match_message = f"Prochain match: {match.player1.user.username} contre Bot"
+                message = f"Prochain match: {match.player1.user.username} contre Bot"
                 await self.send_to_player(match.player1, {'type': 'tournament_match', 'message': message})
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
                 match.game_state['player1_score'] = 3

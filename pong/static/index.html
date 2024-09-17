@@ -216,8 +216,6 @@
     </div>
 
 	    <div id="chat-controls">
-             <!-- Autres éléments du chat -->
-            <button id="quit-room-btn">Quitter la room</button>
             <button id="show-chat">Afficher le Chat</button>
             <button id="hide-chat">Masquer le Chat</button>
         </div>
@@ -320,20 +318,6 @@
             });
         });
     </script>
-
-	<script>
-		const starsContainer = document.getElementById('stars');
-		for (let i = 0; i < 500; i++) {
-			const star = document.createElement('div');
-			star.className = 'star';
-			star.style.width = `${Math.random() * 3}px`;
-			star.style.height = star.style.width;
-			star.style.left = `${Math.random() * 100}%`;
-			star.style.top = `${Math.random() * 100}%`;
-			star.style.animationDuration = `${Math.random() * 2 + 1}s`;
-			starsContainer.appendChild(star);
-		}
-	</script>
 </body>
 
 </html>

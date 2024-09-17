@@ -614,6 +614,47 @@ document.addEventListener('DOMContentLoaded', () => {
         starsContainer.appendChild(star);
     }
 
+    const homeButton = document.getElementById('home');
+    const replayButton = document.getElementById('retry');
+    const gameControls = document.getElementById('game-controls');
+
+    homeButton.addEventListener('click', () => {
+        gameContainer.style.display = 'none';
+        gameControls.style.display = 'none';
+
+        logo.style.display = 'block'
+
+        formBlock.style.display = 'block';
+        postFormButtons.style.display = 'flex';
+    
+        setupFirstPlayer();
+    });
+
+    function setupFirstPlayer() {
+        const firstPlayerName = window.firstPlayerName; 
+        document.getElementById('player1-name').textContent = firstPlayerName;
+    }
+
+    replayButton.addEventListener('click', () => {
+        document.getElementById('player1-name').textContent = saveData.player1_name;
+        document.getElementById('player2-name').textContent = saveData.player2_name;
+        startLocalGame2();
+    });
+
+    function checkForWinner() {
+        if (gameState.player1_score === 3 || gameState.player2_score === 3) {
+            if (saveData.type != "tournoi"){
+                gameControls.style.display = 'flex';
+                homeButton.style.display = 'block';
+                replayButton.style.display = 'none';
+                console.log(saveData.type);
+                if (saveData.type === 'local'){
+                    replayButton.style.display = 'block';
+                }
+            }
+        }
+    }
+
 	// Détection de la commande /s username
 	function sendStatsCommand(targetUser) {
     	console.log(`Detected stats command for user: ${targetUser}`);

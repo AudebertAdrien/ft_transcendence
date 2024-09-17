@@ -169,11 +169,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 			logger.info(f"Message reçu: {data}")
 
-			if not username:
-				logger.error(f"Username manquant dans le message: {data}")
-				await self.chat_message('error', 'server', 'Username is missing', self.room_group_name)
-				return
-
 			# Gestion des différents types de messages
 			if message_type == 'authenticate':
 				logger.info(f"Authentification demandée pour {username}")
@@ -259,6 +254,43 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'type': 'block_user',
 			'message': f'Vous avez bloqué les messages de {target_user}'
 		}))
+
+	async def handle_invite_user(self, data):
+		# Récupération des informations de l'invitation
+		inviter = data.get('username')
+		target_user = data.get('target_user')
+		room = data.get('room')
+
+		# Validation des paramètres
+		if not inviter:
+			logger.error("Invitant manquant dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Invitant manquant', self.room_group_name)
+			return
+
+		if not target_user:
+			logger.error("Utilisateur cible manquant dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Utilisateur cible manquant', self.room_group_name)
+			return
+
+		if not room:
+			logger.error("Room manquante dans le message d'invitation")
+			await self.chat_message('error', 'server', 'Room manquante', self.room_group_name)
+			return
+
+		logger.info(f"Invitation envoyée de {inviter} à {target_user} dans la room {room}")
+		await self.chat_message('chat_message', 'server', f'{inviter} a invité {target_user} à rejoindre une partie {room}', room)
+
+		# Envoi de l'invitation
+		await self.channel_layer.group_send(
+			room,
+			{
+				'type': 'invite',
+				'inviter': inviter,
+				'target_user': target_user,
+				'room': room,
+				'message': f'{inviter} vous a invité à rejoindre la room {room}.'
+			}
+		)
 		
 	# Méthode appelée pour envoyer l'invitation à l'utilisateur invité (target_user)
 	async def invite(self, event):
