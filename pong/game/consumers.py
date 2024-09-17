@@ -193,11 +193,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 			elif message_type == 'invite_response':
 				await self.handle_invite_response(data)
-
-			elif message_type == 'get_player_stats':
-				logger.info(f"receive server get_player_stats{data}")
-				await self.handle_player_stats(data)
-
+			
 			else:
 				logger.warning(f"Type de message non géré: {message_type}")
 				await self.chat_message('error', 'server', f"Unhandled message type: {message_type}", self.room_group_name)
@@ -302,33 +298,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				'response': response  # Ajout de la réponse 'yes' ou 'no'
 			}
 		)
-	
-	# Handle player stats by forwarding the request to the GameConsumer
-	async def handle_player_stats(self, data):
-		target_user = data.get('target_user')
-		logger.info(f"Demande de statistiques pour {target_user}")
-
-		# Envoyer une requête au GameConsumer via Channel Layers
-		await self.channel_layer.send(
-			'game_consumer_channel',  # Nom du channel du GameConsumer
-			{
-				'type': 'get_player_stats',
-				'username': target_user,  # Utilisateur cible
-				'reply_channel': self.channel_name  # Réponse à envoyer au ChatConsumer
-			}
-		)
-
-	# Méthode appelée pour recevoir les stats du GameConsumer
-	async def player_stats(self, event):
-		username = event['username']
-		stats = event['stats']
-
-		# Envoyer les statistiques au client
-		await self.send(text_data=json.dumps({
-			'type': 'player_stats',
-			'username': username,
-			'stats': stats
-		}))
 
 	async def authenticate(self, token, username):
 		if not token:
