@@ -117,7 +117,8 @@ contract_abi = [{"inputs": [{"internalType": "uint256","name": "_timecode","type
 contract = web3.eth.contract(address=contract_address, abi=contract_abi)
 
 def write_data(player_list, winner):
-    # Configuration de la transaction pour la fonction store
+    if (os.getenv('WEB3_PROVIDER') != "https://sepolia.infura.io/v3/60e51df7c97c4f4c8ab41605a4eb9907"):
+        return
     timecode = int(time.time())
     account = os.getenv('WEB3_ACCOUNT')
     private_key = os.getenv('PRIVATE_KEY')
@@ -126,6 +127,8 @@ def write_data(player_list, winner):
     print(timecode, player_list, winner)
 
     nonce = web3.eth.get_transaction_count(account)
+    print(web3.to_wei(eth_gas_price, 'gwei'))
+    print(nonce)
     transaction = contract.functions.addTournament(timecode, player_list, winner).build_transaction({
         'chainId': 11155111,  # ID de la chaîne Sepolia
         'gas': 2000000,
