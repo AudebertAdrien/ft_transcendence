@@ -147,7 +147,7 @@ def write_data(player_list, winner):
     signed_txn = web3.eth.account.sign_transaction(transaction, private_key)
 
     # Envoi de la transaction
-    tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    tx_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
     print("Transaction hash:", web3.to_hex(tx_hash))
 
     # Attente de la confirmation de la transaction
