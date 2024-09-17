@@ -1,8 +1,0 @@
-django
-psycopg2
-python-dotenv
-channels
-daphne
-djangorestframework
-web3
-python-json-logger==2.0.7
