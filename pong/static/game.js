@@ -363,6 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startWebSocketConnection(token, players) {
+        history.pushState({ view: 'game1' }, '', `#${'game1'}`);
+        console.log("view local");
         socket = new WebSocket(`wss://${window.location.host}/ws/game/`);
 
         socket.onopen = function (event) {
@@ -501,6 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         formBlock.style.display = 'block';
         postFormButtons.style.display = 'flex';
+        history.pushState({ view: 'post-form-buttons' }, '', `#${'post-form-buttons'}`);
     
         setupFirstPlayer();
     });
@@ -559,9 +562,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const sectionToShow = sections[viewId];
         console.log(sectionToShow);
         if (sectionToShow) {
-            if (viewId == 'auth-form' || viewId == 'post-form-buttons')
+            if (viewId == 'auth-form' || viewId == 'post-form-buttons'){
                 console.log("here");
                 formBlock.style.display = 'block';
+            } else {
+                formBlock.style.display = 'none'
+            }
             sectionToShow.style.display = 'block';
         } else {
             console.error(`La section avec l'ID "${viewId}" n'a pas été trouvée.`);
