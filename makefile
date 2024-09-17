@@ -9,7 +9,13 @@ ELK_COMPOSE=docker compose -f $(ELK_COMPOSE_FILE) -p $(ELK_PROJECT_NAME)
 
 CONTAINER=$(c)
 
-up: down
+
+# Define a red color variable using ANSI escape code
+RED=\033[31m
+GREEN=\033[32m
+NC=\033[0m # No Color (reset)
+
+up: down ssl-certs
 	$(COMPOSE) build
 	$(COMPOSE) up -d $(CONTAINER) || true
 
@@ -23,9 +29,15 @@ destroy:
 	$(COMPOSE) down -v --rmi all
 
 ssl-certs:
-	openssl req -x509 -nodes -days 365 -newkey rsa:4096 \
-    -keyout certs/ssl/private.key -out certs/ssl/certificate.crt \
-    -config config/ssl.conf
+	@if [ ! -f certs/ssl/private.key ] && [ ! -f certs/ssl/certificate.crt ]; then \
+		echo "$(GREEN)SSL certificates not found, generating...$(NC)"; \
+		mkdir -p certs/ssl; \
+		openssl req -x509 -nodes -days 365 -newkey rsa:4096 \
+		-keyout certs/ssl/private.key -out certs/ssl/certificate.crt \
+		-config config/ssl.conf; \
+	else \
+		echo "$(GREEN)SSL certificates already exist.$(NC)"; \
+	fi
 
 # Manage ELK stack
 
