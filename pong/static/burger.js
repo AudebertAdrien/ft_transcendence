@@ -75,18 +75,31 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching match data:', error));
     }
 
-    function fetchPlayers(){
+    function fetchPlayers() {
         console.log('Fetching players...');
-        fetch('/api/player_list/')
-            .then(response => response.json())
+        // Retourner la promesse pour permettre l'utilisation de .then() plus tard
+        return fetch('/api/player_list/') 
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.players) {
-                    displayPlayers(data.players);
+                    displayPlayers(data.players); // Affiche les joueurs récupérés
+                    return data.players; // Retourne les joueurs pour permettre de les traiter dans un .then
+                } else {
+                    throw new Error('No players found.');
                 }
             })
-            .catch(error => console.error('Error fetching match data:', error));
+            .catch(error => {
+                console.error('Error fetching match data:', error);
+                return null; // En cas d'erreur, retourne null
+            });
     }
-
+    // Expose fetchPlayers globalement
+    window.fetchPlayers = fetchPlayers;
     function fetchTournois(){
         console.log('Fetching tournois...');
         fetch('/api/tournoi_list/')
@@ -103,11 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying matches:');
         const matchListBody = document.querySelector('#match-list tbody');
         matchListBody.innerHTML = '';
-        
+        const row = document.createElement('tr');
 
         if (matches.length != 0) {
             matches.forEach(match => {
-                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${match.id}</td>
                     <td>${match.player1__name}</td>
@@ -125,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 matchListBody.appendChild(row);
             });
         } else {
-            const row = document.createElement('tr');
             row.innerHTML = `
                 <td colspan="12">No matches found.</td>
             `;
@@ -137,11 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying players:');
         const playersListBody = document.querySelector('#player-list tbody');
         playersListBody.innerHTML = '';
-        
+        const row = document.createElement('tr');
 
         if (players.length != 0) {
             players.forEach(player => {
-                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${player.id}</td>
                     <td>${player.name}</td>
@@ -160,9 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 playersListBody.appendChild(row);
             });
         } else {
-            const row = document.createElement('tr');
             row.innerHTML = `
-                <td colspan="12">No player found.</td>
+                <td colspan="12">No matches found.</td>
                 `
             playersListBody.appendChild(row);
         }
@@ -172,25 +181,22 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Displaying tournois:');
         const tournoisListBody = document.querySelector('#tournoi-list tbody');
         tournoisListBody.innerHTML = '';
+        const row = document.createElement('tr');
 
         if (tournois.length != 0) {
             tournois.forEach(tournoi => {
-                console.log('Winner:', tournoi.winner); //debug !!!!!!!!!!!!!!!!!
-                console.log('Winner:', tournoi.winner__name); //debug !!!!!!!!!!!!!!!!!
-                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${tournoi.id}</td>
                     <td>${tournoi.name}</td>
                     <td>${tournoi.nbr_player}</td>
                     <td>${tournoi.date}</td>
-                    <td>${tournoi.winner ? tournoi.winner.name : 'No one yet ...'}</td>
+                    <td>${tournoi.winner ? tournoi.winner.name : 'None'}</td>
                     `;
                 tournoisListBody.appendChild(row);
             });
         } else {
-            const row = document.createElement('tr');
             row.innerHTML = `
-                <td colspan="12">No tournoi found.</td>
+                <td colspan="12">No matches found.</td>
                 `
             tournoisListBody.appendChild(row);
         }

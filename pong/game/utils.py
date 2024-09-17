@@ -12,9 +12,7 @@ def handle_game_data(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tour
         player_1 = get_or_create_player(p1)
         player_2 = get_or_create_player(p2)
 
-        print("CHAKU & THEOUCHE are the BEST")
         create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
-        print("and ADRIANO is the PEST")
 
         update_player_statistics(p1)
         print("UPDATE PLAYER 1")

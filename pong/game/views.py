@@ -95,22 +95,15 @@ def player_list_json(request):
     }
     return JsonResponse(data)
 
-def get_tournoi_data(tournoi):
-    return {
-        "id": tournoi.id,
-        "name": tournoi.name,
-        "nbr_player": tournoi.nbr_player,
-        "date": tournoi.date,
-        "winner": {
-            "id": tournoi.winner.id,
-            "name": tournoi.winner.name
-        } if tournoi.winner else None
-    }
-
 def tournoi_list_json(request):
-    tournois = Tournoi.objects.select_related('winner').all()  # Charge les données du gagnant
-    tournois_data = [get_tournoi_data(tournoi) for tournoi in tournois]
-    return JsonResponse({"tournois": tournois_data})
+    tournois = Tournoi.objects.all()
+    
+    data = {
+        'tournois': list(tournois.values(
+            'id', 'name', 'nbr_player', 'date', 'winner'
+        ))
+    }
+    return JsonResponse(data)
 
 
 from web3 import Web3

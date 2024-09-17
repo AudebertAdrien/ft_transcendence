@@ -10,6 +10,13 @@ from .models import Tournoi
 from .utils import create_tournament, update_tournament, getlen
 from asgiref.sync import sync_to_async
 
+
+TOURNAMENT_NAMES = [
+    "Champions Clash", "Ultimate Showdown", "Battle Royale", 
+    "Victory Cup", "Legends Tournament", "Elite Series", "Clash of 42",
+    "Shibuya incident", "Cunning Game", "Elite of the Stars"
+]
+
 TOURNAMENT_NAMES =  [
     "Champion's Clash", "Ultimate Showdown", "Battle Royale",
     "Victory's Cup", "Legends Tournament", "Elite Series", "Clash of 42",
@@ -82,13 +89,13 @@ class TournamentMatchMaker:
 
     # Tournament start method
     async def start_tournament(self):
-        if len(self.waiting_players) < 3:
+
+        if len(self.waiting_players) < 2:
             return False
-        random.shuffle(self.waiting_players)
-        '''if (len(self.waiting_players) % 2) != 0:
-            print("Adding a BYE to the tournament..")
-            await self.add_player(None)'''
+        if len(self.waiting_players) % 2 == 0:
+            await self.add_player(None)
         self.tournament_state = "in_progress"
+        random.shuffle(self.waiting_players)
         self.current_round = 0
         len_tournament = await sync_to_async(getlen)()
         self.final_name = self.name + " #" + str(len_tournament + 1)
@@ -97,7 +104,7 @@ class TournamentMatchMaker:
         return True
 
     async def advance_tournament(self):
-        players = self.waiting_players
+        players = self.waiting_players        
         while len(players) > 1:
             self.current_round += 1
             print(f"Starting round {self.current_round} with {len(players)} players")            
@@ -171,12 +178,16 @@ class TournamentMatchMaker:
         print(f"Starting TOURNAMENT round #{self.current_round}")
         for match in self.rounds[-1]:
             if match.player1 and match.player2:
+                # Envoyer un message pour indiquer les prochains joueurs du tournoi
+                message = f"Prochain match: {match.player1.user.username} contre {match.player2.user.username}"
+                await self.send_to_player(match.player2, {'type': 'tournament_match', 'message': message})
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
                 asyncio.create_task(match.start_game())
             elif match.player1:
-                # Handle BYE match
+                # Gestion du BYE
+                message = f"Prochain match: {match.player1.user.username} contre Bot"
+                await self.send_to_player(match.player1, {'type': 'tournament_match', 'message': message})
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
-                #asyncio.create_task(match.start_game())
                 match.game_state['player1_score'] = 3
                 match.game_state['player2_score'] = 0
                 await match.end_game()
@@ -215,7 +226,6 @@ class TournamentMatchMaker:
         self.rounds = []
         self.current_round = 0
         self.games = 0
-        self.tournament_state = "waiting"
 
     async def handle_match_end(self, match):
         await self.update_brackets()
