@@ -14,5 +14,6 @@ urlpatterns = [
     path('web3/', views.read_data, name='read_data'),
     path('api/match_list/', match_list_json, name='match_list_json'),
     path('api/player_list/', player_list_json, name='player_list_json'),
-    path('api/tournoi_list/', tournoi_list_json, name='tournoi_list_json')
+    path('api/tournoi_list/', tournoi_list_json, name='tournoi_list_json'),
+    path('trigger-error/', views.trigger_error)
 ]

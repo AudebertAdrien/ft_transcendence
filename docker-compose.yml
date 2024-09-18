@@ -79,9 +79,8 @@ volumes:
       device: ${PROJECT_PATH}
       o: bind
   pong_django_logs:
-    driver: local
+     name: shared_pong_django_logs
   pong_pg_data:
-    driver: local
   
 
 networks:

@@ -9,9 +9,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
+from django.http import HttpResponse
 
 import json
 import uuid
+
+def trigger_error(request):
+    raise ValueError("This is a test error to generate a 500 response.")
 
 def index(request):
     return render(request, 'index.html')

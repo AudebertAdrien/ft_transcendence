@@ -9,9 +9,7 @@ ELK_COMPOSE=docker compose -f $(ELK_COMPOSE_FILE) -p $(ELK_PROJECT_NAME)
 
 CONTAINER=$(c)
 
-
 # Define a red color variable using ANSI escape code
-RED=\033[31m
 GREEN=\033[32m
 NC=\033[0m # No Color (reset)
 
@@ -27,6 +25,7 @@ down:
 
 destroy:
 	$(COMPOSE) down -v --rmi all
+	docker image prune -f
 
 ssl-certs:
 	@if [ ! -f certs/ssl/private.key ] && [ ! -f certs/ssl/certificate.crt ]; then \
@@ -39,16 +38,22 @@ ssl-certs:
 		echo "$(GREEN)SSL certificates already exist.$(NC)"; \
 	fi
 
-# Manage ELK stack
+edit-hosts:    
+	@echo "Checking and adding domains to /etc/hosts if they don't exist..."    
+	@sudo sh -c 'echo "" >> /etc/hosts'
+	@sudo sh -c 'grep -q "127.0.0.1 www.ft-transcendence.com" /etc/hosts || echo "127.0.0.1 www.ft-transcendence.com" >> /etc/hosts'
+	@sudo sh -c 'grep -q "127.0.0.1 ft-transcendence.com" /etc/hosts || echo "127.0.0.1 ft-transcendence.com" >> /etc/hosts'
 
+# Manage ELK stack
 elk-up:
-	$(ELK_COMPOSE) up -d --remove-orphans || true
+	$(ELK_COMPOSE) up -d || true
 
 elk-down:
-	$(ELK_COMPOSE) down --remove-orphans 
+	$(ELK_COMPOSE) down 
 
 elk-destroy:
-	$(ELK_COMPOSE) down --remove-orphans  -v --rmi all
+	$(ELK_COMPOSE) down -v --rmi all
+	docker image prune -f
 
 kill-pid:
 	sudo lsof -i :5432 | awk 'NR>1 {print $$2}' | xargs sudo kill -9 || true
@@ -70,6 +75,8 @@ help:
 	@echo "  make stop [c=service]         # Stop containers"
 	@echo "  make logs [c=service]         # Tail logs of containers"
 	@echo "  make ssl-certs                # create ssl certificate"
+	@echo "  make edit-hosts			   # add host to /etc/hosts"
+
 	@echo "  make help                     # Show this help"
 
 .PHONY: up build start stop down destroy logs ps db-shell help

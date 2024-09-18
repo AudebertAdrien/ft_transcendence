@@ -22,8 +22,13 @@ SECRET_KEY = '12345678'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+        'www.ft-transcendence.com', 
+        'ft-transcendence.com', 
+        'localhost', 
+        '127.0.0.1']
 
+USE_X_FORWARDED_HOST = True
 
 # Application definition
 
@@ -138,32 +143,6 @@ CHANNEL_LAYERS = {
 }
 
 LOGGING = {
-    'version': 1,  # Django requires this key
-    'disable_existing_loggers': False,  # Keep Django's default loggers
-    'formatters': {
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',  # Allows to use Python's new style string formatting
-        },
-    },
-    'handlers': {
-        'console': {  # Log to the console
-            'level': 'DEBUG',  # Minimum level of messages that should be handled
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',  # Use the simple formatter defined above
-        },
-    },
-    'loggers': {
-        'django': {  # The main logger for Django itself
-            'handlers': ['console'],
-            'level': 'DEBUG',  # Minimum log level to be logged
-            'propagate': False,  # Prevents log propagation to other loggers
-        },
-    },
-}
-
-"""
-LOGGING = {
     'version': 1,  # The version of the logging configuration schema
     'disable_existing_loggers': False,  # Allows existing loggers to keep logging
     'formatters': {  # Defines how log messages will be formatted
@@ -193,8 +172,7 @@ LOGGING = {
         'django': {  # The Django logger catches all messages sent by the Django framework
             'handlers': ['file', 'console'],  # Sends logs to both the file and the console
             'level': 'DEBUG',  # Minimum log level to be logged
-            'propagate': True,  # If True, messages will be passed to the parent loggers as well
+            'propagate': False,  # If True, messages will be passed to the parent loggers as well
         },
     },
 }
-"""
