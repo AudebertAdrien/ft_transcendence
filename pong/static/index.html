@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pong Game</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}?v=3">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}?v=4">
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}?v=2" >
 	<div class="logo">
 		<img src="{% static 'logo-42-perpignan.png' %}" alt="Logo">
@@ -208,6 +208,120 @@
     <script src="{% static 'game.js' %}"></script>
     <script src="{% static 'burger.js' %}"></script>
     <script src="{% static 'language.js' %}"></script>
+</body>
+
+<div id="player-stats" class="player-stats-popup" style="display: none;">
+    <h3>Player Statistics</h3>
+    <p id="stats-username"></p>
+    <p id="stats-total-matches"></p>
+    <p id="stats-total-wins"></p>
+    <p id="stats-win-percentage"></p>
+    <p id="stats-best-score"></p>
+</div>
+
+    <div id="chat-controls">
+        <button id="show-chat">Afficher le Chat</button>
+        <button id="hide-chat">Masquer le Chat</button>
+    </div>
+
+<div id="chat-container">
+            <!-- Conteneur des journaux de chat -->
+    <div id="chat-log-container">
+        <div id="chat-log-main_room" class="chat-log" style="display:block;"></div>
+        <div id="chat-log-tournament" class="chat-log" style="display:none;"></div>
+        <div id="chat-log-quick_match" class="chat-log" style="display:none;"></div>
+    </div>
+
+    <!-- Entrées de texte et boutons d'envoi pour chaque room -->
+    <div id="chat-input-container">
+        <div id="chat-input-main_room" class="chat-input active">
+            <input type="text" placeholder="Tapez votre message...">
+            <button id="chat-button-main_room" class="chat-button">➤</button>
+        </div>
+        <div id="chat-input-tournament" class="chat-input">
+            <input type="text" placeholder="Tapez votre message...">
+            <button id="chat-button-tournament" class="chat-button">➤</button>
+        </div>
+        <div id="chat-input-quick_match" class="chat-input">
+            <input type="text" placeholder="Tapez votre message...">
+            <button id="chat-button-quick_match" class="chat-button">➤</button>
+        </div>
+    </div>
+
+    <!-- Conteneur des onglets de room -->
+    <div id="room-tabs-container">
+        <div class="room-tab active" data-room="main_room">Main Room</div>
+        <div class="room-tab" data-room="tournament">Tournament</div>
+        <div class="room-tab" data-room="quick_match">Quick Match</div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.getElementById('chat-container');
+        const showChatButton = document.getElementById('show-chat');
+        const hideChatButton = document.getElementById('hide-chat');
+
+        showChatButton.addEventListener('click', function() {
+            chatContainer.style.display = 'flex'; // Afficher le conteneur de chat
+        });
+
+        hideChatButton.addEventListener('click', function() {
+            chatContainer.style.display = 'none'; // Masquer le conteneur de chat
+        });
+
+        const tabs = document.querySelectorAll('.room-tab');
+        const chatLogs = document.querySelectorAll('.chat-log');
+        const chatInputs = document.querySelectorAll('.chat-input');
+        const chatButtons = document.querySelectorAll('.chat-button');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const roomId = this.dataset.room;
+
+                console.log(`Switching to room: ${roomId}`);
+
+                // Afficher le journal de chat correspondant
+                chatLogs.forEach(log => {
+                    if (log.id === `chat-log-${roomId}`) {
+                        log.style.display = 'block';
+                        console.log(`Displaying chat log for: ${roomId}`);
+                    } else {
+                        log.style.display = 'none';
+                    }
+                });
+
+                // Afficher l'entrée de texte correspondante
+                chatInputs.forEach(input => {
+                    if (input.id === `chat-input-${roomId}`) {
+                        input.classList.add('active');
+                        input.style.display = 'flex';
+                        console.log(`Displaying chat input for: ${roomId}`);
+                    } else {
+                        input.classList.remove('active');
+                        input.style.display = 'none';
+                    }
+                });
+
+                // Afficher le bouton correspondant
+                chatButtons.forEach(button => {
+                    if (button.id === `chat-button-${roomId}`) {
+                        button.style.display = 'flex';
+                        console.log(`Displaying chat button for: ${roomId}`);
+                    } else {
+                        button.style.display = 'none';
+                    }
+                });
+
+                // Mettre à jour l'onglet actif
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                console.log(`Tab for ${roomId} is now active`);
+            });
+        });
+    });
+</script>
 </body>
 
 </html>

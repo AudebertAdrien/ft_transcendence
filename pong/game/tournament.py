@@ -168,10 +168,16 @@ class TournamentMatchMaker:
         print(f"Starting TOURNAMENT round #{self.current_round}")
         for match in self.rounds[-1]:
             if match.player1 and match.player2:
+
+                message = f"Prochain match: {match.player1.user.username} contre {match.player2.user.username}"
+                await self.send_to_player(match.player2, {'type': 'tournament_match', 'message': message})
+
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
                 asyncio.create_task(match.start_game())
             elif match.player1:
                 # Handle BYE match
+                message = f"Prochain match: {match.player1.user.username} contre Bot"
+                await self.send_to_player(match.player1, {'type': 'tournament_match', 'message': message})
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
                 match.game_state['player1_score'] = 3
                 match.game_state['player2_score'] = 0
