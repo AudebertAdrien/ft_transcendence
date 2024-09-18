@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tournoiList = document.getElementById('tournoi-list');
     const blockchainList = document.getElementById('blockchain-list');
 
-    const logo = document.querySelector('.logo');
-
     menuButton.addEventListener('click', toggleMenu);
 
     function toggleMenu() {
@@ -27,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (matchList) matchList.style.display = 'none';
         if (tournoiList) tournoiList.style.display = 'none';
         if (blockchainList) blockchainList.style.display = 'none';
-        logo.style.display = 'block';
     }
 
     const links = document.querySelectorAll('#dropdown-menu a');
@@ -42,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function showTable(tableId) {
         hideAllTables();
-        logo.style.display = 'none';
         
         if (tableId === 'player-list') {
             playerList.style.display = 'block';
@@ -262,9 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return ;
         }
 
-        if (logo.style.display === 'block'){
-            logo.style.display = 'none';
-        }
         const rows = document.querySelectorAll('#player-list tbody tr');
         const playerNames = [];
         const totalMatches = [];

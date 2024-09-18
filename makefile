@@ -15,7 +15,7 @@ NC=\033[0m # No Color (reset)
 
 up: down ssl-certs
 	$(COMPOSE) build
-	$(COMPOSE) up -d $(CONTAINER) || true
+	$(COMPOSE) up $(CONTAINER) -d || true
 
 build:
 	$(COMPOSE) build $(CONTAINER)

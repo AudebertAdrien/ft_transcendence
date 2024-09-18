@@ -41,7 +41,7 @@ class TournamentMatchMaker:
         self.rounds = []
         self.current_round = 0
         self.games = 0
-        self.tournament_state = "waiting" #Can be "waiting", "in_progress", or "ended"
+        self.tournament_state = "waiting" # Can be "waiting", "in_progress", or "ended"
         self.name = random.choice(TOURNAMENT_NAMES)
         self.final_name = ""
         self.tournoi_reg = None
@@ -81,14 +81,11 @@ class TournamentMatchMaker:
             self.waiting_players.remove(player)
             await self.update_waiting_room()
 
-    # Tournament start method
+    # Tournament START method
     async def start_tournament(self):
         if len(self.waiting_players) < 3:
             return False
         random.shuffle(self.waiting_players)
-        '''if (len(self.waiting_players) % 2) != 0:
-            print("Adding a BYE to the tournament..")
-            await self.add_player(None)'''
         self.tournament_state = "in_progress"
         self.current_round = 0
         len_tournament = await sync_to_async(getlen)()
@@ -121,7 +118,6 @@ class TournamentMatchMaker:
         for i in range(0, len(players), 2):
             self.games += 1
             if i + 1 < len(players):
-                # Create a new instance of TournamentMatch for this round
                 match = TournamentMatch(self.games, players[i], players[i + 1], self)
                 matches.append(match)
             else:
@@ -177,11 +173,10 @@ class TournamentMatchMaker:
             elif match.player1:
                 # Handle BYE match
                 await match_maker.notify_players(match.player1, match.player2, match.game_id, False)
-                #asyncio.create_task(match.start_game())
                 match.game_state['player1_score'] = 3
                 match.game_state['player2_score'] = 0
                 await match.end_game()
-                await self.send_game_text(match.player1, "You lucky bastard!\n You got an auto-win!")
+                await self.send_game_text(match.player1, "You lucky bastard!\nYou got an auto-win!")
 
     async def send_game_text(self, player, text):
         message = json.dumps({
@@ -195,7 +190,6 @@ class TournamentMatchMaker:
         for match in self.rounds[-1]:
             if match.ended:
                 winner = match.player1 if match.game_state['player1_score'] > match.game_state['player2_score'] else match.player2
-                #if winner:
                 winners.append(winner)
         return winners
 

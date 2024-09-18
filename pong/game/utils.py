@@ -8,30 +8,20 @@ from datetime import timedelta
 from channels.db import database_sync_to_async
 
 def handle_game_data(p1, p2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament):
-    try:
-        player_1 = get_or_create_player(p1)
-        player_2 = get_or_create_player(p2)
+    player_1 = get_or_create_player(p1)
+    player_2 = get_or_create_player(p2)
 
-        print("CHAKU & THEOUCHE are the BEST")
-        create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
-        print("and ADRIANO is the PEST")
+    create_match(player_1, player_2, s_p1, s_p2, bt_p1, bt_2, dur, is_tournoi, name_tournament)
 
-        update_player_statistics(p1)
-        print("UPDATE PLAYER 1")
-        update_player_statistics(p2)
-        print("UPDATE PLAYER 2")
-  
-    except Exception as e:
-        print(f"Error in endfortheouche: {e}")
+    update_player_statistics(p1)
+    update_player_statistics(p2)
 
 def get_player_by_name(name):
     exists = Player.objects.filter(name=name).exists()
     return exists
 
-
 def get_player(name):
     return Player.objects.get(name=name)
-
 
 def get_or_create_player(name):
     player_exists = get_player_by_name(name)
@@ -41,7 +31,6 @@ def get_or_create_player(name):
     else:
         player = get_player(name)
         return player 
-
 
 def create_player(
     name, 
@@ -105,18 +94,14 @@ def create_match(player1, player2, score_player1, score_player2, nbr_ball_touch_
     return match
 
 def update_player_statistics(player_name):
-    print(f"HERE for {player_name} §§§§§§§§§§§§")
     player = get_object_or_404(Player, name=player_name)
-    print(f"GET PLAYER {player.name} !!!!!!")
 
     matches_as_player1 = Match.objects.filter(player1=player)
-    #print(f"GET MATCH AS PLAYER 1 {matches_as_player1.player1.name} !!!!!!")
     matches_as_player2 = Match.objects.filter(player2=player)
-    #print(f"GET MATCH AS PLAYER 2 {matches_as_player2.player2.name} !!!!!!")
 
     total_match = matches_as_player1.count() + matches_as_player2.count()
     
-    # avoid dividing by 0
+    # Avoid dividing by 0
     if total_match == 0:
         player.total_match = total_match
         player.total_win = 0
@@ -184,24 +169,16 @@ def get_player_p_win(player_name):
     return player.p_win
 
 def create_tournament(name, nbr_player):
-    print("tournoi created!!!")
     tournoi=Tournoi(name=name, nbr_player=nbr_player, winner=None)
     tournoi.save()
-    print(f"tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
     return tournoi
 
 def update_tournament(name_tournoi, winner_name):
     tournoi = get_object_or_404(Tournoi, name=name_tournoi)
     winner_p = get_object_or_404(Player, name=winner_name)
-    print(f"in update tourna - tournoi name : {tournoi.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
-    print(f"in update tourna - winner is : {winner_p.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
 
     tournoi.winner = winner_p
-    print(f"in update tourna - TOURNOI winner is : {tournoi.winner.name}  *******!*!*!*!**!*!**!*!*!*!*!*!*!*!*!*")
     tournoi.save()
-
-
-
 
 def getlen():
     return Tournoi.objects.count()
