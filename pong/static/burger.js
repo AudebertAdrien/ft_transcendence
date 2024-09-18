@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchTournois();
         } else if (tableId === 'blockchain-list') {
             console.log('Opening external page in a new tab');
-            window.open('https://sepolia.etherscan.io/address/0x078d04eb6fb97cd863361fc86000647dc876441b', '_blank');
+            window.open('https://sepolia.etherscan.io/address/0x32a4bf81628fdd65d7b00ac676b80772c920e0c4', '_blank');
         }
 
         if (dropdownMenu) {
