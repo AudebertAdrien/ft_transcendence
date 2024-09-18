@@ -206,7 +206,7 @@ class TournamentMatchMaker:
         await sync_to_async(update_tournament)(self.final_name, winner_username)
 
         player_list = [player.user.username for player in self.waiting_players]
-        write_data(player_list, winner_username)
+        await sync_to_async(write_data)(player_list, winner_username)
         
         # Reset tournament state
         self.waiting_players = []

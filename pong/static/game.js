@@ -131,6 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     registerForm.style.display = 'none';
                     document.getElementById("post-form-buttons").style.display = 'block';
                     history.pushState({ view: 'post-form-buttons' }, '', `#${'post-form-buttons'}`);
+                    burgerMenu.style.display = 'block';
+                    logo.style.display = 'none';
                 } else {
                     alert('Registration failed. Please try again.');
                 }
