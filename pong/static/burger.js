@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Expose fetchPlayers globalement
     window.fetchPlayers = fetchPlayers;
+    
     function fetchTournois(){
         console.log('Fetching tournois...');
         fetch('/api/tournoi_list/')

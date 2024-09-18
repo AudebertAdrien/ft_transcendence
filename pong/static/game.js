@@ -124,12 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				},
 				body: JSON.stringify({ username })
 			});
-
 			if (!response.ok) {
 				console.error(`HTTP error! Status: ${response.status}`);
 				return false;
 			}
-
 			const data = await response.json();
 			console.log("User existence check response:", data);
 			return data.exists;
@@ -144,38 +142,19 @@ document.addEventListener('DOMContentLoaded', () => {
 		const nickname = nicknameInput.value.trim();
 		const password = passwordInput.value.trim();
 		const confirmPassword = confirmPasswordInput.value.trim();
-	
-		console.log("Nickname:", nickname);
-		console.log("Password:", password);
-		console.log("Confirm Password:", confirmPassword);
-	
+		
 		if (password === confirmPassword) {
 			try {
-				console.log("Attempting to register user:", nickname);
 				const result = await registerUser(nickname, password);
-				console.log("Register result:", result);
-	
-				if (result.registered) { // Vérifiez que result contient bien un champ registered
-					token = result.token; // Assurez-vous que le token est bien stocké ici
+				if (result.registered) {
+					token = result.token;
 					console.log("Token stored:", token);
 					console.log("User registered successfully");
 					registerForm.style.display = 'none';
 					document.getElementById("post-form-buttons").style.display = 'block';
 					username = nickname;
-					roomName = 'main_room'; // Nom de la room principale
-					console.log("ChatManager initialized:", chatManager);
-                	
-					console.log("Initializing ChatManager with username:", username, "and token:", token);
-					chatManager = new ChatManager(username, token); // Initialiser ChatManager
-					console.log("ChatManager initialized:", chatManager);
-					// Ajoutez un log pour vérifier si chatManager est défini
-                	if (chatManager) {
-                    	console.log("chatManager is defined:", chatManager);
-                	} else {
-                    	console.error("chatManager is not defined");
-                	}
-						
-					console.log("Joining room:", roomName);
+					roomName = 'main_room';
+					chatManager = new ChatManager(username, token);
 					chatManager.joinRoom(roomName); // Utilisez ChatManager pour rejoindre la room
 				} else {
 					console.error('Registration failed. No token received.');
@@ -302,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error(`HTTP error! Status: ${response.status}`);
 				return false;
 			}
-
 			const data = await response.json();
 			console.log("User existence check response (checkUserExists2):", data);
 			return data.exists;
@@ -418,24 +396,19 @@ document.addEventListener('DOMContentLoaded', () => {
             type: 'quick'
         }
 		console.log("Starting quick match...(fonction startquickmatch)");
-		// Masquer les éléments inutiles et afficher le conteneur de jeu
 		gameContainer.style.display = 'flex';
 		logo.style.display = 'none';
 		pongElements.style.display = 'none';
 		formBlock.style.display = 'none';
-		// Vérification si une connexion WebSocket est déjà active avant d'initialiser
-		if (roomSockets["quick_match"] && roomSockets["quick_match"].readyState === WebSocket.OPEN) 
-		{
-			console.warn("WebSocket for quick_match already open.");
-			// On laisse startWebSocketConnection se lancer malgré la WebSocket ouverte
-			startWebSocketConnection(token, 1); 
-			return;
-		}
-		roomName = "quick_match"; // Nom de la room principale
+		document.getElementById('player1-name').textContent = "player 1";
+        document.getElementById('player2-name').textContent = "player 2";
+        document.getElementById('game-text').textContent = "";
+        document.getElementById('player1-score').textContent = 0;
+        document.getElementById('player2-score').textContent = 0;
 		chatManager = new ChatManager(username, token);	// Initialiser ChatManager
-		chatManager.joinRoom(roomName); // Utilisez ChatManager pour rejoindre la room
+		chatManager.joinRoom('quick_match'); // ChatManager pour rejoindre la quick_match
 		console.log("Starting WebSocket connection for quick match...");
-		startWebSocketConnection(token, 1); // Le "1" pourrait être un identifiant pour le mode Quick Match
+		startWebSocketConnection(token, 1);
 	}
 
 	// Fonction pour démarrer un tournoi
@@ -444,105 +417,94 @@ document.addEventListener('DOMContentLoaded', () => {
 		saveData = {
 			type: 'tournoi'
 		};
-	// Masquer les éléments inutiles et afficher le conteneur du tournoi
 	tournamentContainer.style.display = 'flex';
 	logo.style.display = 'none';
 	pongElements.style.display = 'none';
 	formBlock.style.display = 'none';
-	// Log pour vérifier le token avant l'authentification WebSocket
-	// Vérification si une connexion WebSocket est déjà active avant d'initialiser
-	if (roomSockets["tournament"] && roomSockets["tournament"].readyState === WebSocket.OPEN) 
-	{
-		console.warn("WebSocket for tournament already open.");
-		// On laisse startWebSocketConnection se lancer malgré la WebSocket ouverte
-		startWebSocketConnection(token, 42); 
-		return;
-	}
-	chatManager = new ChatManager(username, token);	// Initialiser ChatManager
-	chatManager.joinRoom('tournament'); // Utilisez ChatManager pour rejoindre la room
+	chatManager = new ChatManager(username, token);
+	chatManager.joinRoom('tournament'); // ChatManager pour rejoindre la tournament
 	console.log("Starting WebSocket connection for tournament...");
-	startWebSocketConnection(token, 42); // Le "42" pourrait être un identifiant pour le mode tournoi
+	startWebSocketConnection(token, 42);
 }
 
 	function startWebSocketConnection(token, players) {
-		// Si le socket existe déjà et est ouvert, le fermer
-	/*if (socket && socket.readyState === WebSocket.OPEN) 
-		{
-			console.warn('WebSocket connection already open. Closing and recreating a new one.');
-			socket.close();  // Fermer le socket ouvert
-		}*/
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			socket.close();
+		}
 		socket = new WebSocket(`wss://${window.location.host}/ws/game/`);
-		
 		socket.onopen = function (event) {
 			console.log('WebSocket connection established');
 			if (players === 1) {
-				console.log("Sending token for a quick match game");
 				socket.send(JSON.stringify({ type: 'authenticate', token: token }));
 			} else if (players === 2) {
-				console.log("Sending tokens for a local game");
 				socket.send(JSON.stringify({ type: 'authenticate2', token_1: token, token_2: token2 }));
 			} else {
-				console.log("Sending token for a tournament game");
 				socket.send(JSON.stringify({ type: 'authenticate3', token: token }));
 			}
 		};
 
 		socket.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (data.type === 'authenticated') {
-                console.log('Authentication successful');
-            } else if (data.type === 'waiting_room') {
-                console.log('Entered the WAITING ROOM');
-            } else if (data.type === 'game_start') {
-                console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
-                gameContainer.style.display = 'flex';
-                document.addEventListener('keydown', handleKeyDown);
-            } else if (data.type === 'game_state_update') {
-                updateGameState(data.game_state);
-            } else if (data.type === 'player_disconnected') {
-                console.log('Player disconnected:', data.player);
-            } else if (data.type === 'game_ended') {
-                console.log('Game ended:', data.game_id);
-            } else if (data.type === 'error') {
-                console.error(data.message);
-            } else if (data.type === 'update_tournament_waiting_room') {
-                // Update the HTML content of the tournament bracket
-                document.getElementById('tournament-bracket').innerHTML = data.html;
-                // Reattach the event listener to the "Start Tournament" button
-                const startButton = document.getElementById('start-tournament-btn');
-                if (startButton) {
-                    startButton.addEventListener('click', function() {
-                        if (typeof socket !== 'undefined' && socket.readyState === WebSocket.OPEN) {
-                            console.log('Start TOURNAMENT sent..');
-                            socket.send(JSON.stringify({type: 'start_tournament'}));
-                        } else {
-                            console.error('WebSocket is not open or undefined');
-                        }
-                    });
-                }
-            } else if (data.type === 'update_brackets') {
-                // Update the HTML content of the tournament bracket
-                document.getElementById('tournament-bracket').innerHTML = data.html;
-            } else if (data.type === 'tournament_end') {
-                console.log('Tournament ended, the winner is:', data.winner);
-             // Nouveau cas pour gérer les prochains matchs du tournoi
-			} else if (data.type === 'tournament_match') {
-        		console.log('Prochain match du tournoi:', data.message);
-        		// Transmettre le message au chat via WebSocket du chat
-        		if (chatManager.chatSocket && chatManager.chatSocket.readyState === WebSocket.OPEN) {
-            		chatManager.chatSocket.send(JSON.stringify({
-                		type: 'chat_message',
-                		message: data.message,
-                		username: 'Server',  // Ou le nom d'utilisateur si pertinent
-                		room: 'tournament'  // Ou la room appropriée
-            	}));
-        	}
-    	} else {
-        	console.log('Message from server:', data.type, data.message);
-    	}
-    };
+			const data = JSON.parse(event.data);
+			switch (data.type) {
+				case 'authenticated':
+					console.log('Authentication successful');
+					break;
+				case 'waiting_room':
+					console.log('Entered the WAITING ROOM');
+					break;
+				case 'game_start':
+					console.log('Game started:', data.game_id, '(', data.player1, 'vs', data.player2, ')');
+					gameContainer.style.display = 'flex';
+					document.addEventListener('keydown', handleKeyDown);
+					break;
+				case 'game_state_update':
+					updateGameState(data.game_state);
+					break;
+				case 'player_disconnected':
+					console.log('Player disconnected:', data.player);
+					break;
+				case 'game_ended':
+					console.log('Game ended:', data.game_id);
+					break;
+				case 'error':
+					console.error(data.message);
+					break;
+				case 'update_tournament_waiting_room':
+					document.getElementById('tournament-bracket').innerHTML = data.html;
+					const startButton = document.getElementById('start-tournament-btn');
+					if (startButton) {
+						startButton.addEventListener('click', function() {
+							if (typeof socket !== 'undefined' && socket.readyState === WebSocket.OPEN) {
+								console.log('Start TOURNAMENT sent..');
+								socket.send(JSON.stringify({ type: 'start_tournament' }));
+							} else {
+								console.error('WebSocket is not open or undefined');
+							}
+						});
+					}
+					break;
+				case 'update_brackets':
+					document.getElementById('tournament-bracket').innerHTML = data.html;
+					break;
+				case 'tournament_end':
+					console.log('Tournament ended, the winner is:', data.winner);
+					break;
+				case 'tournament_match':
+					console.log('Prochain match du tournoi:', data.message);
+					if (chatManager.chatSocket && chatManager.chatSocket.readyState === WebSocket.OPEN) {
+						chatManager.chatSocket.send(JSON.stringify({
+							type: 'chat_message',
+							message: data.message,
+							username: 'Server',
+							room: 'tournament'
+						}));
+					}
+					break;
+				default:
+					console.log('Message from server:', data.type, data.message);
+			}
+		};
 
-		// Gestion des fermetures de connexion
 		socket.onclose = function (event) {
 			console.log('WebSocket connection closed');
 		};
@@ -552,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 	}
 
-	// Gestion des événements de touche
 	function handleKeyDown(event) {
 		console.log("Key pressed:", event.key);
 		if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
@@ -575,7 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
         checkForWinner();
     }
 
-	// Fonction pour rendre l'état du jeu à l'écran
 	function renderGame() {
 		console.log("Rendering game state...");
 		document.getElementById('player1-name').textContent = `${gameState.player1_name}`;
@@ -645,23 +605,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
+///////////////////////CHECK STATS//////////////////////////////////////
 	function sendStatsCommand(targetUser) {
 		console.log(`Detected stats command for user: ${targetUser}`);
-	
-		// Appelle fetchPlayers et utilise .then() pour traiter les résultats
-		fetchPlayers().then((players) => {
+			fetchPlayers().then((players) => {
 			if (!players) {
 				console.log('No players found.');
 				return;
 			}
-	
-			console.log('Players received in sendStatsCommand:', players); // Affiche les joueurs récupérés
-	
-			// Filtrer et récupérer les informations du joueur spécifique
 			const playerStats = filterPlayers(targetUser, players); // Passer le tableau players en paramètre
 			if (playerStats) {
-				// Si les stats sont trouvées, afficher la popup avec les données
 				displayPlayerStats(playerStats);
 			} else {
 				console.log(`Player with username ${targetUser} not found.`);
@@ -671,44 +624,34 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	// Modification de filterPlayers pour chercher dans les données reçues (JSON)
-function filterPlayers(targetUser, players) {
-	const searchValue = targetUser.toLowerCase(); // Utiliser le nom d'utilisateur comme valeur de recherche
+	function filterPlayers(targetUser, players) {
+		const searchValue = targetUser.toLowerCase();
 
-	for (let i = 0; i < players.length; i++) {
-		const player = players[i];
-		if (player.name && player.name.toLowerCase() === searchValue) {
-			// Récupérer les statistiques du joueur à partir des données reçues
-			const playerStats = {
-				username: player.name,
-				total_matches: player.total_match,
-				total_wins: player.total_win,
-				win_percentage: player.p_win,
-				best_score: player.best_score || 'N/A' // Ajoute une gestion de cas si best_score n'existe pas
-			};
-			return playerStats; // Retourne les stats du joueur
+		for (let i = 0; i < players.length; i++) {
+			const player = players[i];
+			if (player.name && player.name.toLowerCase() === searchValue) {
+				const playerStats = {
+					username: player.name,
+					total_matches: player.total_match,
+					total_wins: player.total_win,
+					win_percentage: player.p_win,
+					best_score: player.best_score || 'N/A'
+				};
+				return playerStats;
+			}
 		}
+		return null;
 	}
 
-	return null; // Retourne null si le joueur n'est pas trouvé
-}
-
-
 	function displayPlayerStats(stats) {
-		console.log('Displaying player stats:', stats);  // Vérifie que la fonction est bien appelée
-	
-		// Créer ou récupérer l'élément popup
 		let statsPopup = document.getElementById('player-stats-popup');
 		
 		if (!statsPopup) {
-			console.log('Creating stats popup element');  // Vérifie si l'élément est bien créé
 			statsPopup = document.createElement('div');
 			statsPopup.id = 'player-stats-popup';
 			statsPopup.classList.add('player-stats-popup');
 			document.body.appendChild(statsPopup);
 		}
-	
-		// Mettre à jour le contenu de la popup avec les statistiques
 		statsPopup.innerHTML = `
 			<h3>Player Stats</h3>
 			<p><strong>Username:</strong> ${stats.username}</p>
@@ -717,95 +660,56 @@ function filterPlayers(targetUser, players) {
 			<p><strong>Win Percentage:</strong> ${stats.win_percentage}%</p>
 			<p><strong>Best Score:</strong> ${stats.best_score}</p>
 		`;
-	
-		// Afficher la popup avec une animation
 		statsPopup.classList.add('show');
 		statsPopup.classList.remove('hide');
-	
-		// Masquer la popup après 5 secondes
 		setTimeout(() => {
 			statsPopup.classList.remove('show');
 			statsPopup.classList.add('hide');
-		}, 3000);
+		}, 5000);
 	}
-
-	
 
 ////////////////////////////CHAT////////////////////////////////////
 	class ChatManager {
 		constructor(username, token) {
 			this.username = username;
 			this.token = token;
-			this.roomSockets = {}; // Stockage des WebSockets par room
-			this.blockedUsers = []; // Liste des utilisateurs bloqués
-			this.activeRoom = null; // La room actuellement active
-			this.chatSocket = null; // Le WebSocket de chat actif
-	
-			console.log(`ChatManager initialized for user: ${username}`);
-			this.initializeEventListeners(); // Initialiser les gestionnaires d'événements
+			this.roomSockets = {};
+			this.blockedUsers = [];
+			this.activeRoom = null;
+			this.chatSocket = null;
 		}
-		initializeEventListeners() {
-			const quitButton = document.getElementById('quit-room-btn');
-			if (quitButton) {
-				quitButton.addEventListener('click', () => {
-					if (this.activeRoom) {
-						this.leaveRoom(this.activeRoom);
-						console.log(`User ${this.username} has left the room ${this.activeRoom}`);
-					} else {
-						console.warn('No active room to leave.');
-					}
-				});
-			}
-		}
-	
 		startChatWebSocket(roomName) {
 			if (!this.username || this.username.trim() === '') {
-				console.error("Username is not defined or empty. WebSocket connection aborted.");
 				alert("Username is required to join the chat. Please log in.");
 				return;
 			}
-	
 			if (this.roomSockets[roomName] && this.roomSockets[roomName].readyState === WebSocket.OPEN) {
 				console.warn(`WebSocket for room ${roomName} already open.`);
 				return;
 			}
-	
-			console.log("Initializing chat WebSocket...");
-			console.log(`Initializing chat WebSocket for room: ${roomName} with username: ${this.username}`);
-	
 			try {
 				this.chatSocket = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/`);
-				this.roomSockets[roomName] = this.chatSocket; // Stockage du WebSocket
-				console.log(`startChatWebSocket: ${roomName} with username: ${this.username} and token: ${this.token}`);
+				this.roomSockets[roomName] = this.chatSocket;
+				const chatInputInstance = new ChatInput(roomName, this.username, this.chatSocket, this);
 	
-				const chatInputInstance = new ChatInput(roomName, this.username, this.chatSocket, this); // On passe l'instance du manager
-	
-				// Gestion de l'ouverture du WebSocket
 				this.chatSocket.onopen = () => {
-					console.log(`WebSocket ouvert pour l'utilisateur ${this.username} dans la room ${roomName}`);
-	
 					this.chatSocket.send(JSON.stringify({
 						'type': 'authenticate',
 						'username': this.username,
 						'token': this.token,
 						'room': roomName,
 					}));
-					console.log(`Authentication message sent for room: ${roomName} with username: ${this.username}`);
 				};
-	
-				// Gestion des messages WebSocket
+					
 				this.chatSocket.onmessage = (event) => {
 					const data = JSON.parse(event.data);
 					console.log(`Message received from server in room ${roomName}:`, data);
 					const receivedUsername = data.username || this.username;
-
-					// Assurez-vous que le chat log est bien trouvé pour la room active
 					let chatLog = document.getElementById(`chat-log-${roomName}`);
 					if (!chatLog) {
 						console.error(`Chat log element for room ${roomName} not found.`);
 						return;
 					}
-	
 					switch (data.type) {
 						case 'authenticated':
 							console.log(`User authenticated successfully in room: ${roomName}`);
@@ -815,8 +719,6 @@ function filterPlayers(targetUser, players) {
 								const message = data.message;
 								const receivedUsername = data.username;
 								const roomName = data.room;
-																		
-								// Si l'utilisateur n'est pas bloqué, afficher le message
 								if (!this.blockedUsers.includes(receivedUsername)) {
 									const messageElement = document.createElement('div');
 									messageElement.textContent = `${receivedUsername}: ${message}`;
@@ -1017,7 +919,7 @@ function filterPlayers(targetUser, players) {
 				console.log(`Joining new room: ${roomName}`);
 				this.createRoomTab(roomName);
 				this.showRoomTab(roomName);
-				this.startChatWebSocket(roomName); // Utilisation du ChatManager pour démarrer le WebSocket
+				this.startChatWebSocket(roomName); //ChatManager pour démarrer le WebSocket
 			}
 		
 			this.switchRoom(roomName);
