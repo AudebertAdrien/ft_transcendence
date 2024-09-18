@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.warn('WebSocket connection already open. Closing and recreating a new one.');
 			socket.close();  // Fermer le socket ouvert
 		}*/
-		socket = new WebSocket(`ws://${window.location.host}/ws/game/`);
+		socket = new WebSocket(`wss://${window.location.host}/ws/game/`);
 		
 		socket.onopen = function (event) {
 			console.log('WebSocket connection established');
@@ -774,7 +774,7 @@ function filterPlayers(targetUser, players) {
 			console.log(`Initializing chat WebSocket for room: ${roomName} with username: ${this.username}`);
 	
 			try {
-				this.chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+				this.chatSocket = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/`);
 				this.roomSockets[roomName] = this.chatSocket; // Stockage du WebSocket
 				console.log(`startChatWebSocket: ${roomName} with username: ${this.username} and token: ${this.token}`);
 	
