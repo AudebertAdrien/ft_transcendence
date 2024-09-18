@@ -28,8 +28,6 @@ services:
     volumes:
       - pong:/transcendence/pong
       - pong_django_logs:/transcendence/logs
-    ports:
-      - 8080:8080
     networks:
       - app-network
     environment:
